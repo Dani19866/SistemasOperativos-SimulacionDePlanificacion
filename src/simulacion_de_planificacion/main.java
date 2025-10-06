@@ -4,7 +4,7 @@
  */
 package simulacion_de_planificacion;
 
-import structures.ArrayList;
+import javax.swing.UnsupportedLookAndFeelException;
 
 /**
  *
@@ -16,6 +16,15 @@ public class main {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        
+        newAppareance();
     }
+
+    public static void newAppareance() {
+        try {
+            javax.swing.UIManager.setLookAndFeel(javax.swing.UIManager.getSystemLookAndFeelClassName());
+        } catch (ClassNotFoundException | IllegalAccessException | InstantiationException | UnsupportedLookAndFeelException e) {
+            System.err.println("No se pudo establecer la apariencia nativa de Windows.");
+        }
+    }
+    
 }
