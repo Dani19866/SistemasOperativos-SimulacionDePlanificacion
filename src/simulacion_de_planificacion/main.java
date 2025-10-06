@@ -4,6 +4,8 @@
  */
 package simulacion_de_planificacion;
 
+import structures.ArrayList;
+
 /**
  *
  * @author Daniel
@@ -14,6 +16,6 @@ public class main {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        System.out.println("hello");
+        
     }
 }
