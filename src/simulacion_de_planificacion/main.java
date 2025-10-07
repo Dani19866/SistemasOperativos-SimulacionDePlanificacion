@@ -5,6 +5,7 @@
 package simulacion_de_planificacion;
 
 import javax.swing.UnsupportedLookAndFeelException;
+import requirements.PCB;
 
 /**
  *
@@ -17,6 +18,7 @@ public class main {
      */
     public static void main(String[] args) {
         newAppareance();
+        
     }
 
     public static void newAppareance() {
