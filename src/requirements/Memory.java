@@ -4,10 +4,16 @@
  */
 package requirements;
 
+import structures.MemorySizeKb;
+
 /**
  *
  * @author Daniel
  */
 public class Memory {
-    
+    public MemorySizeKb memorySize;
+
+    public Memory(MemorySizeKb memory) {
+        this.memorySize = memory;
+    }
 }

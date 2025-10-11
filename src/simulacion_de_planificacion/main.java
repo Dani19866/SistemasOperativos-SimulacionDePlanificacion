@@ -5,8 +5,10 @@
 package simulacion_de_planificacion;
 
 import javax.swing.UnsupportedLookAndFeelException;
+import requirements.Disk;
+import requirements.Memory;
 import requirements.OS;
-import requirements.PCB;
+import structures.MemorySizeKb;
 
 /**
  *
@@ -19,8 +21,12 @@ public class main {
      */
     public static void main(String[] args) {
         newAppareance();
-        OS pc = new OS();
-        
+
+        Memory memory = new Memory(MemorySizeKb.KB_8);
+        Disk disk = new Disk(MemorySizeKb.KB_32);
+        OS pc = new OS(memory, disk);
+
+        pc.getSpecifications();
     }
 
     public static void newAppareance() {
@@ -30,5 +36,4 @@ public class main {
             System.err.println("No se pudo establecer la apariencia nativa de Windows.");
         }
     }
-    
 }
