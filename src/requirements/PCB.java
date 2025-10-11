@@ -5,80 +5,45 @@
 package requirements;
 
 import java.util.UUID;
+import structures.ProcessType;
+import structures.StateProcess;
 
 /**
  *
  * @author Daniel
  */
 public class PCB {
+
     private String id;
-    private String status;
     private final String name;
-    private int statusProgramCounter;
-    private String statusMAR;
-    
-    public PCB(String name, int statusProgramCounter){
+    private final StateProcess stateProcess;
+    private final ProcessType processType;
+    private int PC;
+    private int MAR;
+
+    public PCB(String name, int statusProgramCounter, ProcessType processType) {
         setId();
         this.name = name;
-        this.statusProgramCounter = statusProgramCounter;
+        this.processType = processType;
+        this.stateProcess = StateProcess.NEW;
     }
 
     /**
      * Se obtiene el ID del PCB
-     * 
+     *
      * @return ID
      */
     public String getId() {
         return id;
     }
-    
+
     /**
      * Generación de ID mediante UUID
      * Se ejecuta desde el constructor
-     * 
+     *
      */
     private void setId() {
         this.id = UUID.randomUUID().toString();
     }
 
-    /**
-     * Devolver el status del proceso
-     * 
-     * @return status
-     */
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    /**
-     * Devolver el nombre del proceso 
-     * 
-     * @return Nombre del proceso
-     */
-    public String getName() {
-        return name;
-    }
-
-    public int getStatusProgramCounter() {
-        return statusProgramCounter;
-    }
-
-    public void setStatusProgramCounter(int statusProgramCounter) {
-        this.statusProgramCounter = statusProgramCounter;
-    }
-
-    public String getStatusMAR() {
-        return statusMAR;
-    }
-
-    public void setStatusMAR(String statusMAR) {
-        this.statusMAR = statusMAR;
-    }
-    
-    
-    
 }
