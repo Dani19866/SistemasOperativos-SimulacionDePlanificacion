@@ -4,6 +4,12 @@
  */
 package simulacion_de_planificacion;
 
+import javax.swing.UnsupportedLookAndFeelException;
+import requirements.Disk;
+import requirements.Memory;
+import requirements.OS;
+import structures.MemorySizeKb;
+
 /**
  *
  * @author Daniel
@@ -14,6 +20,20 @@ public class main {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        System.out.println("hello");
+        newAppareance();
+
+        Memory memory = new Memory(MemorySizeKb.KB_EQUALS_TO_8_GB);
+        Disk disk = new Disk(MemorySizeKb.KB_EQUALS_TO_32_GB);
+        OS pc = new OS(memory, disk);
+
+        pc.getSpecifications();
+    }
+
+    public static void newAppareance() {
+        try {
+            javax.swing.UIManager.setLookAndFeel(javax.swing.UIManager.getSystemLookAndFeelClassName());
+        } catch (ClassNotFoundException | IllegalAccessException | InstantiationException | UnsupportedLookAndFeelException e) {
+            System.err.println("No se pudo establecer la apariencia nativa de Windows.");
+        }
     }
 }
