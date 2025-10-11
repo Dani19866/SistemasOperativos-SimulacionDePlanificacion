@@ -32,22 +32,6 @@ public class Process {
      * 5) terminado y 6) suspendido
      */
     public void changeStatus(String value) {
-        switch (value) {
-            case "nuevo" -> {
-            }
-            case "listo" -> {
-            }
-            case "ejecucion" -> {
-            }
-            case "bloqueado" -> {
-            }
-            case "terminado" -> {
-            }
-            case "suspendido" -> {
-            }
-            default -> {
-            }
-        }
     }
 ;
 }
