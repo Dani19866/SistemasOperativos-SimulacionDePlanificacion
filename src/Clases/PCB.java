@@ -16,8 +16,8 @@ public class PCB {
     private final String name;
     private ProcessType processType;
     private State state;
-    private int pc; /* PROGRAM COUNTER*/
-    private int MAR;/* MEMORY ADRESS REGISTER*/
+    private int PC;                                 /* PROGRAM COUNTER*/
+    private int MAR;                               /* MEMORY ADRESS REGISTER*/
     private int ioReadCounter;
     private int ioWriteCounter;
     
@@ -49,11 +49,11 @@ public class PCB {
         return state;
     }
 
-    public int getpc() {
-        return pc;
+    public int getPC() {
+        return PC;
     }
 
-    public int getmar() {
+    public int getMAR() {
         return MAR;
     }
 
@@ -66,12 +66,12 @@ public class PCB {
     }
 
  
-    public void setpc(int pc) {
-        this.pc = pc;
+    public void setPC(int PC) {
+        this.PC = PC;
     }
 
-    public void setmar(int mar) {
-        this.MAR = mar;
+    public void setMAR(int MAR) {
+        this.MAR = MAR;
     }
 
     public void incrementIoReads() {

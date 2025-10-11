@@ -12,11 +12,11 @@ import java.util.Objects;
  */
 public class Process {
 
-    private final PCB pcb;
-    private long cpuCycleCounter;
-    private int cpuBurstCounter;
-    private long ioCycleCounter;
-    private int ioBurstCounter;
+    private final PCB pcb;         /*Informacion estructural del proceso*/
+    private long cpuCycleCounter;  /* Contador de cilos de CPU totales*/
+    private int cpuBurstCounter;   /* Contador de rafagas de CPU -- RUNNING*/
+    private long ioCycleCounter;   /* Contador de ciclos de E/S totales*/
+    private int ioBurstCounter;    /* Contador de rafagas de E/S -- WAITING */
 
     public Process(PCB pcb) {
         this.pcb = Objects.requireNonNull(pcb, "pcb");
