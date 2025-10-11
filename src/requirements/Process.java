@@ -4,17 +4,20 @@
  */
 package requirements;
 
+import structures.ProcessType;
+import structures.StateProcess;
+
 /**
  *
  * @author Daniel
  */
 public class Process {
 
-    // Características de un proceso
+    private PCB pcb;
     private String name;
     private int quantityInstruction;
-    private boolean BoundCPU;
-    private boolean BoundIO;
+    private ProcessType processType;
+    private StateProcess stateProcess;
 
     // Si el proceso es I/O, debe especificarse cuantos ciclos se necesitan
     // para generar una excepción y cuantos para satisfacerla. También se debe
@@ -22,16 +25,8 @@ public class Process {
     private int cycles;
     private int cycleDurantion;
 
-    // Estado del proceso
-    private String status;
-
-    /**
-     * Cambia el estado de un proceso
-     *
-     * @param value 1) Nuevo, 2) Listo, 3) Ejecución, 4) bloqueado,
-     * 5) terminado y 6) suspendido
-     */
-    public void changeStatus(String value) {
+    public Process(PCB pcb) {
+        this.pcb = pcb;
     }
-;
+
 }
