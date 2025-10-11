@@ -9,11 +9,11 @@ package structures;
  * @author Daniel
  */
 public enum MemorySizeKb {
-    KB_2(2097152),
-    KB_4(4194304),
-    KB_8(8388608),
-    KB_16(16777216),
-    KB_32(33554432);
+    KB_EQUALS_TO_2_GB(2097152),
+    KB_EQUALS_TO_4_GB(4194304),
+    KB_EQUALS_TO_8_GB(8388608),
+    KB_EQUALS_TO_16_GB(16777216),
+    KB_EQUALS_TO_32_GB(33554432);
 
     private final int size;
     private MemorySizeKb(int size) {

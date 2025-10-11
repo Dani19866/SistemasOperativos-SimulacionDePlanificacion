@@ -22,8 +22,8 @@ public class main {
     public static void main(String[] args) {
         newAppareance();
 
-        Memory memory = new Memory(MemorySizeKb.KB_8);
-        Disk disk = new Disk(MemorySizeKb.KB_32);
+        Memory memory = new Memory(MemorySizeKb.KB_EQUALS_TO_8_GB);
+        Disk disk = new Disk(MemorySizeKb.KB_EQUALS_TO_32_GB);
         OS pc = new OS(memory, disk);
 
         pc.getSpecifications();
