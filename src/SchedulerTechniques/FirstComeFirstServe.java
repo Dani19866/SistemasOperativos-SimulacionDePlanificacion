@@ -12,7 +12,7 @@ import requirements.Process;
  *
  * @author Daniel
  */
-public class FirstComeFirstServe {
+public class FirstComeFirstServe extends SchedulerStrategy {
 
     // Procesos en ejecución
     Process runningProcess;

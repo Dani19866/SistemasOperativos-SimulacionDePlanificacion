@@ -16,12 +16,14 @@ public class OS {
     public Memory memory;
     private final Disk disk;
     private final Scheduler scheduler;
+    private final boolean runningOS;
 
     public OS(Memory memory, Disk disk) {
         this.cpu = new CPU();
         this.memory = memory;
         this.disk = disk;
-        this.scheduler = new Scheduler();
+        this.scheduler = new Scheduler(this.cpu.getRunningProcess());
+        this.runningOS = true;
     }
     
     // El OS llama al planificador para que agregue el proceso

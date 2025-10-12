@@ -10,7 +10,9 @@ import SchedulerTechniques.Hibrid;
 import SchedulerTechniques.RoundRobin;
 import SchedulerTechniques.SPN;
 import SchedulerTechniques.SRR;
+import SchedulerTechniques.SchedulerStrategy;
 import SchedulerTechniques.StrategyScheduler;
+import java.util.concurrent.Semaphore;
 import structures.ArrayList;
 import structures.Queue;
 
@@ -30,25 +32,27 @@ public class Scheduler {
     Queue<Process> blockedSuspendedProcess; // Cola a mediano plazo
     Queue<Process> newProcess;              // Cola a largo plazo
     ArrayList<Process> outProcess;
-    
-    // Estrategias de planificacion
-    FB retroalimentacionMultiNivel;
-    FirstComeFirstServe primeroLlegadoPrimeroServido;
-    Hibrid hibrido;
-    RoundRobin ronda;
-    SPN procesoMasCorto;
-    SRR rondaEgoista;
 
     // Estrategia actual
-    StrategyScheduler strategy;
-    
-    // Relog global
-    long counter;
-    
-    // Quantum (Tiempo max por proceso)
-    long quantum;
+    SchedulerStrategy currentStrategy;
 
-    public Scheduler() {
+    // Relog global
+    int counter;
+
+    // Quantum (Tiempo max por proceso)
+    int quantum;
+
+    // Semáforo para proteger la cola de listos
+    Semaphore mutex;
+
+    /**
+     * Constructor de la planificación
+     * 
+     * @param runningProcess Process of CPU
+     */
+    public Scheduler(Process runningProcess) {
+        this.runningProcess = runningProcess;
+        
         // Inicializar cola de procesos
         this.readyProcess = new Queue<>();
         this.readySuspendedProcess = new Queue<>();
@@ -58,90 +62,68 @@ public class Scheduler {
         this.outProcess = new ArrayList<>();
 
         // Inicializar planificador por defecto: RoundRobin
-        this.retroalimentacionMultiNivel = new FB(
-                this.readyProcess,
-                this.readySuspendedProcess,
-                this.blockedProcess,
-                this.blockedSuspendedProcess,
-                this.newProcess,
-                this.outProcess,
-                this.runningProcess
+        this.currentStrategy = new RoundRobin(
+                this.readyProcess, this.readySuspendedProcess, this.blockedProcess,
+                this.blockedSuspendedProcess, this.newProcess, this.outProcess, this.runningProcess
         );
-        this.primeroLlegadoPrimeroServido = new FirstComeFirstServe(
-                this.readyProcess,
-                this.readySuspendedProcess,
-                this.blockedProcess,
-                this.blockedSuspendedProcess,
-                this.newProcess,
-                this.outProcess,
-                this.runningProcess
-        );
-        this.hibrido = new Hibrid(
-                this.readyProcess,
-                this.readySuspendedProcess,
-                this.blockedProcess,
-                this.blockedSuspendedProcess,
-                this.newProcess,
-                this.outProcess,
-                this.runningProcess
-        );
-        this.ronda = new RoundRobin(
-                this.readyProcess,
-                this.readySuspendedProcess,
-                this.blockedProcess,
-                this.blockedSuspendedProcess,
-                this.newProcess,
-                this.outProcess,
-                this.runningProcess
-        );
-        this.procesoMasCorto = new SPN(
-                this.readyProcess,
-                this.readySuspendedProcess,
-                this.blockedProcess,
-                this.blockedSuspendedProcess,
-                this.newProcess,
-                this.outProcess,
-                this.runningProcess
-        );
-        this.rondaEgoista = new SRR(
-                this.readyProcess,
-                this.readySuspendedProcess,
-                this.blockedProcess,
-                this.blockedSuspendedProcess,
-                this.newProcess,
-                this.outProcess,
-                this.runningProcess
-        );
+        
+        // Relog y Quantum
+        this.counter = 0;
+        this.quantum = 0;
 
-        // Inicializar estrategia por defecto
-        this.strategy = StrategyScheduler.RoundRobin;
-    }
-    
-    public void nextProcess() {
-        switch (strategy) {
-            case FB ->retroalimentacionMultiNivel.nextProcess();
-            case FirstComeFirstServe -> primeroLlegadoPrimeroServido.nextProcess();
-            case Hibrid -> hibrido.nextProcess();
-            case RoundRobin -> ronda.nextProcess();
-            case SPN -> procesoMasCorto.nextProcess();
-            case SRR ->  rondaEgoista.nextProcess();
-        }
+        // Inicializar semáforo
+        this.mutex = new Semaphore(1);
+        this.runningProcess = runningProcess;
     }
 
     /**
-     * Modifica la técnica del planificador
-     *
-     * @param strategy
+     * Cambia el proceso actual por otro
+     * 
      */
-    public void changeStrategy(StrategyScheduler strategy) {
-        this.strategy = strategy;
+    public void nextProcess() {
+        currentStrategy.nextProcess();
     }
-    
-    public void addProcessScheduler(Process p){
-        
+
+    /**
+     * Modifica la técnica del planificador.
+     * Aquí es donde creamos el nuevo objeto de estrategia, "bajo demanda".
+     *
+     * @param strategyEnum
+     */
+    public void changeStrategy(StrategyScheduler strategyEnum) {
+        // El switch se mueve aquí, que es su lugar lógico.
+        // Crea el objeto SOLO cuando el usuario pide cambiar de estrategia.
+        switch (strategyEnum) {
+            case FB -> currentStrategy = new FB(
+                this.readyProcess, this.readySuspendedProcess, this.blockedProcess,
+                this.blockedSuspendedProcess, this.newProcess, this.outProcess, this.runningProcess
+        );
+            case FirstComeFirstServe -> currentStrategy = new FirstComeFirstServe(
+                this.readyProcess, this.readySuspendedProcess, this.blockedProcess,
+                this.blockedSuspendedProcess, this.newProcess, this.outProcess, this.runningProcess
+        );
+            case Hibrid -> currentStrategy = new Hibrid(
+                this.readyProcess, this.readySuspendedProcess, this.blockedProcess,
+                this.blockedSuspendedProcess, this.newProcess, this.outProcess, this.runningProcess
+        );
+            case RoundRobin -> currentStrategy = new RoundRobin(
+                this.readyProcess, this.readySuspendedProcess, this.blockedProcess,
+                this.blockedSuspendedProcess, this.newProcess, this.outProcess, this.runningProcess
+        );
+            case SPN -> currentStrategy = new SPN(
+                this.readyProcess, this.readySuspendedProcess, this.blockedProcess,
+                this.blockedSuspendedProcess, this.newProcess, this.outProcess, this.runningProcess
+        );
+            case SRR -> currentStrategy = new SRR(
+                this.readyProcess, this.readySuspendedProcess, this.blockedProcess,
+                this.blockedSuspendedProcess, this.newProcess, this.outProcess, this.runningProcess
+        );
+        }
     }
-    
-    public void changeQuantum(){
-        
+
+    public void addProcessScheduler(Process p) {
+    }
+
+    public void changeQuantum() {
     }
 }

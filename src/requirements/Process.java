@@ -13,7 +13,9 @@ import structures.StateProcess;
  */
 public class Process {
 
-    private final PCB pcb;
+    PCB pcb;
+    int instructions;
+    int remainingInstructions;
 
     // Si el proceso es I/O, debe especificarse cuantos ciclos se necesitan
     // para generar una excepción y cuantos para satisfacerla. También se debe

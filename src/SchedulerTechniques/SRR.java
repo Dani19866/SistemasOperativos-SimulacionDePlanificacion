@@ -12,7 +12,7 @@ import requirements.Process;
  *
  * @author Daniel
  */
-public class SRR {
+public class SRR extends SchedulerStrategy{
 
     // Procesos en ejecución
     Process runningProcess;
