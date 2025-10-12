@@ -88,6 +88,26 @@ public class PCB {
         this.cyclesExecute = 0;
     }
 
+    /**
+     * Incrementar program counter
+     * 
+     * Si el procesos está RUNNING, se incrementa
+     * 
+     */
+    public void increasePc(){
+        this.pc++;
+    }
+    
+    /**
+     * Incrementar Memory Address Register
+     * 
+     * Si el procesos está RUNNING, se incrementa
+     * 
+     */
+    public void increaseMar(){
+        this.mar++;
+    }
+    
     // <editor-fold defaultstate="collapsed" desc="Getters">
     public String getId() {
         return id;
@@ -133,14 +153,6 @@ public class PCB {
 
     public void setProcessType(ProcessType processType) {
         this.processType = processType;
-    }
-
-    public void setPc(int pc) {
-        this.pc = pc;
-    }
-
-    public void setMar(int mar) {
-        this.mar = mar;
     }
     // </editor-fold> 
 }
