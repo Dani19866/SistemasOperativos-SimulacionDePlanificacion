@@ -12,7 +12,7 @@ import requirements.Process;
  *
  * @author Daniel
  */
-public class FB {
+public class FB extends SchedulerStrategy{
 
     // Procesos en ejecución
     Process runningProcess;

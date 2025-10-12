@@ -12,7 +12,7 @@ import requirements.Process;
  *
  * @author Daniel
  */
-public class SPN {
+public class SPN extends SchedulerStrategy{
 
     // Procesos en ejecución
     Process runningProcess;

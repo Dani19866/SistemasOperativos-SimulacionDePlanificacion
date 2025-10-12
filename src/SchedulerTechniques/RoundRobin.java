@@ -12,7 +12,7 @@ import requirements.Process;
  *
  * @author Daniel
  */
-public class RoundRobin {
+public class RoundRobin extends SchedulerStrategy{
 
     // Procesos en ejecución
     Process runningProcess;
