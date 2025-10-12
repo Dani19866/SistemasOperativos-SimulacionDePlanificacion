@@ -12,6 +12,8 @@ public enum StateProcess {
     NEW, 
     READY,
     RUNNING,
-    WAITING,
-    TERMINATED
+    BLOCKED,
+    TERMINATED,
+    SUSPENDED_READY,
+    SUSPENDED_BLOCKED,
 }

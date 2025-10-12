@@ -4,6 +4,8 @@
  */
 package requirements;
 
+import requirements.Process;
+
 /**
  *
  * @author Daniel
@@ -20,6 +22,12 @@ public class OS {
         this.memory = memory;
         this.disk = disk;
         this.scheduler = new Scheduler();
+    }
+    
+    // El OS llama al planificador para que agregue el proceso
+    public void addProcess(Process p){
+        scheduler.addProcessScheduler(p);
+        
     }
 
     public int getMemory() {

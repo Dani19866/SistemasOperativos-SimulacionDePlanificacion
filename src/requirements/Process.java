@@ -13,11 +13,7 @@ import structures.StateProcess;
  */
 public class Process {
 
-    private PCB pcb;
-    private String name;
-    private int quantityInstruction;
-    private ProcessType processType;
-    private StateProcess stateProcess;
+    private final PCB pcb;
 
     // Si el proceso es I/O, debe especificarse cuantos ciclos se necesitan
     // para generar una excepción y cuantos para satisfacerla. También se debe
@@ -27,6 +23,7 @@ public class Process {
 
     public Process(PCB pcb) {
         this.pcb = pcb;
+        
     }
 
 }

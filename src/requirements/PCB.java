@@ -46,4 +46,17 @@ public class PCB {
         this.id = UUID.randomUUID().toString();
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public StateProcess getStateProcess() {
+        return stateProcess;
+    }
+
+    public ProcessType getProcessType() {
+        return processType;
+    }
+
+    
 }
