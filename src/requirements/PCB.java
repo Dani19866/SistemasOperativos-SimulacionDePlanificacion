@@ -67,7 +67,7 @@ public class PCB {
      * Revisa si el proceso debe ser bloqueado por una operación de E/S.
      * Incrementa el contador de ciclos en cada llamada.
      *
-     * @return true 
+     * @return true
      */
     public boolean blockForIO() {
         // Esta lógica solo aplica a procesos I/O-Bound
@@ -82,7 +82,7 @@ public class PCB {
 
     /**
      * Reinicia el contador de la ráfaga de CPU.
-     * 
+     *
      */
     public void restartCyclesExecuteIO() {
         this.cyclesExecute = 0;
@@ -92,7 +92,7 @@ public class PCB {
     public String getId() {
         return id;
     }
-    
+
     public String getName() {
         return name;
     }
@@ -125,7 +125,7 @@ public class PCB {
         return cyclesExecute;
     }
     // </editor-fold> 
-    
+
     // <editor-fold defaultstate="collapsed" desc="Setters">
     public void setStateProcess(StateProcess stateProcess) {
         this.stateProcess = stateProcess;
