@@ -4,6 +4,11 @@
  */
 package requirements;
 
+<<<<<<< HEAD
+import requirements.Process;
+
+=======
+>>>>>>> 72d9b4ef3f8d84445d4f18e02fcdeabdea4dad77
 /**
  *
  * @author Daniel
@@ -21,6 +26,15 @@ public class OS {
         this.disk = disk;
         this.scheduler = new Scheduler();
     }
+<<<<<<< HEAD
+    
+    // El OS llama al planificador para que agregue el proceso
+    public void addProcess(Process p){
+        scheduler.addProcessScheduler(p);
+        
+    }
+=======
+>>>>>>> 72d9b4ef3f8d84445d4f18e02fcdeabdea4dad77
 
     public int getMemory() {
         return memory.memorySize.getSize();
