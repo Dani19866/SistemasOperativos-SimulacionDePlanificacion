@@ -23,7 +23,7 @@ public class PCB {
 
     // Características de un I/O-Bound
     int cyclesExcepcion;        // Ciclos de un proceso antes de solicitar operación E/S
-    int cyclesCompleteIO;       // Ciclos que el proecso permanecerá bloqueado. Utilizar en el Scheduler
+    int cyclesCompleteIO;       // Scheduler: Ciclos que el proecso permanecerá bloqueado
     int cyclesExecute;          // Contador para la ráfaga de CPU actual
 
     /**
