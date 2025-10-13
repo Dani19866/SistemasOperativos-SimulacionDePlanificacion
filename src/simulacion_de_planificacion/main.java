@@ -27,7 +27,7 @@ public class main {
 
         Memory memory = new Memory(MemorySizeKb.KB_EQUALS_TO_8_GB);
         Disk disk = new Disk(MemorySizeKb.KB_EQUALS_TO_32_GB);
-        OS pc = new OS(memory, disk);
+        // OS pc = new OS(memory, disk);
 
 //        // 1. Creo PCB
 //        PCB pcb = new PCB("Proceso 1", 0, ProcessType.CPU_BOUND);

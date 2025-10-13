@@ -12,24 +12,30 @@ import requirements.Process;
  */
 public class OS {
 
-    private final CPU cpu;
-    public Memory memory;
-    private final Disk disk;
-    private final Scheduler scheduler;
-    private final boolean runningOS;
+    CPU cpu;
+    Memory memory;
+    Disk disk;
+    Scheduler scheduler;
+    boolean runningOS;
+    int cycleDuration;
 
-    public OS(Memory memory, Disk disk) {
+    public OS(Memory memory, Disk disk, int cycleDuration) {
         this.cpu = new CPU();
         this.memory = memory;
         this.disk = disk;
         this.scheduler = new Scheduler(this.cpu.getRunningProcess());
         this.runningOS = true;
+        this.cycleDuration = cycleDuration;
     }
-    
-    // El OS llama al planificador para que agregue el proceso
-    public void addProcess(Process p){
+
+    /**
+     * El Sistema Operativo llama al planificador para que
+     * añada el proceso en la cola de listos.
+     * 
+     * @param p
+     */
+    public void addProcess(Process p) {
         scheduler.addProcessScheduler(p);
-        
     }
 
     public int getMemory() {
