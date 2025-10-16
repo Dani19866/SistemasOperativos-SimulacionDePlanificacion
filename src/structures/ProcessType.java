@@ -1,14 +1,14 @@
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Enum.java to edit this template
  */
-package Clases;
+package structures;
 
 /**
  *
- * @author rtkn0_z8ls
+ * @author Daniel
  */
 public enum ProcessType {
     CPU_BOUND,
-    IO_BOUND
+    IO_BOUND,
 }
