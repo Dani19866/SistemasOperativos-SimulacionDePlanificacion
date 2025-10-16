@@ -4,6 +4,7 @@
  */
 package simulacion_de_planificacion;
 
+import IGU.PanelPrincipal;
 import structures.ArrayList;
 
 /**
@@ -16,6 +17,9 @@ public class main {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
+        PanelPrincipal panel = new PanelPrincipal();
+        panel.setVisible(true);
+        panel.setLocationRelativeTo(null);
         
     }
 }
