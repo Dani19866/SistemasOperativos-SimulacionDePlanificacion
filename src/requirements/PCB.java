@@ -21,11 +21,15 @@ public class PCB {
     int pc;
     int mar;
     int priory;
+    float memorySpace;
 
     // Características de un I/O-Bound
     int cyclesExcepcion;        // Ciclos de un proceso antes de solicitar operación E/S
     int cyclesCompleteIO;       // Scheduler: Ciclos que el proecso permanecerá bloqueado
     int cyclesExecute;          // Contador para la ráfaga de CPU actual
+
+    // Auditoría
+    float timeProcess;          // Tiempo de procesador utilizado
 
     /**
      * Constructor para procesos CPU-Bound
@@ -33,8 +37,9 @@ public class PCB {
      * @param name Nombre del proceso
      * @param processType Tipo de proceso
      * @param priory
+     * @param memorySpace
      */
-    public PCB(String name, ProcessType processType, int priory) {
+    public PCB(String name, ProcessType processType, int priory, float memorySpace) {
 
         this.id = UUID.randomUUID().toString();
         this.name = name;
@@ -43,6 +48,7 @@ public class PCB {
         this.pc = 0;
         this.mar = 0;
         this.priory = priory;
+        this.memorySpace = memorySpace;
     }
 
     /**
@@ -53,8 +59,9 @@ public class PCB {
      * @param cyclesExcepcion
      * @param cyclesCompleteIO
      * @param priory
+     * @param memorySpace
      */
-    public PCB(String name, ProcessType processType, int cyclesExcepcion, int cyclesCompleteIO, int priory) {
+    public PCB(String name, ProcessType processType, int cyclesExcepcion, int cyclesCompleteIO, int priory, float memorySpace) {
 
         this.id = UUID.randomUUID().toString();
         this.name = name;
@@ -63,12 +70,13 @@ public class PCB {
         this.pc = 0;
         this.mar = 0;
         this.priory = priory;
-
+        this.memorySpace = memorySpace;
 
         // Asignamos los valores específicos para la E/S
         this.cyclesExcepcion = cyclesExcepcion;
         this.cyclesCompleteIO = cyclesCompleteIO;
         this.cyclesExecute = 0; // El contador siempre empieza en cero
+
     }
 
     /**
@@ -98,24 +106,24 @@ public class PCB {
 
     /**
      * Incrementar program counter
-     * 
+     *
      * Si el procesos está RUNNING, se incrementa
-     * 
+     *
      */
-    public void increasePc(){
+    public void increasePc() {
         this.pc++;
     }
-    
+
     /**
      * Incrementar Memory Address Register
-     * 
+     *
      * Si el procesos está RUNNING, se incrementa
-     * 
+     *
      */
-    public void increaseMar(){
+    public void increaseMar() {
         this.mar++;
     }
-    
+
     // <editor-fold defaultstate="collapsed" desc="Getters">
     public String getId() {
         return id;
