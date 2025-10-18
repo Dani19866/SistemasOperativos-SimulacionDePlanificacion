@@ -23,9 +23,10 @@ public class Process {
      * @param name
      * @param processType
      * @param instructions
+     * @param priory
      */
-    public Process(String name, ProcessType processType, int instructions) {
-        this.pcb = new PCB(name, processType);
+    public Process(String name, ProcessType processType, int instructions, int priory) {
+        this.pcb = new PCB(name, processType, priory);
         this.instructions = instructions;
         this.countInstructions = 0;
     }
@@ -38,9 +39,10 @@ public class Process {
      * @param cyclesExcepcion
      * @param cyclesCompleteIO
      * @param instructions
+     * @param priory
      */
-    public Process(String name, ProcessType processType, int cyclesExcepcion, int cyclesCompleteIO, int instructions) {
-        this.pcb = new PCB(name, processType, cyclesExcepcion, cyclesCompleteIO);
+    public Process(String name, ProcessType processType, int cyclesExcepcion, int cyclesCompleteIO, int instructions, int priory) {
+        this.pcb = new PCB(name, processType, cyclesExcepcion, cyclesCompleteIO, priory);
         this.instructions = instructions;
         this.countInstructions = 0;
     }
