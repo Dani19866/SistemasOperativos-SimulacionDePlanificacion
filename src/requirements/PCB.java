@@ -20,6 +20,7 @@ public class PCB {
     ProcessType processType;
     int pc;
     int mar;
+    int priory;
 
     // Características de un I/O-Bound
     int cyclesExcepcion;        // Ciclos de un proceso antes de solicitar operación E/S
@@ -31,14 +32,17 @@ public class PCB {
      *
      * @param name Nombre del proceso
      * @param processType Tipo de proceso
+     * @param priory
      */
-    public PCB(String name, ProcessType processType) {
+    public PCB(String name, ProcessType processType, int priory) {
+
         this.id = UUID.randomUUID().toString();
         this.name = name;
         this.processType = processType;
         this.stateProcess = StateProcess.NEW;
         this.pc = 0;
         this.mar = 0;
+        this.priory = priory;
     }
 
     /**
@@ -48,14 +52,18 @@ public class PCB {
      * @param processType
      * @param cyclesExcepcion
      * @param cyclesCompleteIO
+     * @param priory
      */
-    public PCB(String name, ProcessType processType, int cyclesExcepcion, int cyclesCompleteIO) {
+    public PCB(String name, ProcessType processType, int cyclesExcepcion, int cyclesCompleteIO, int priory) {
+
         this.id = UUID.randomUUID().toString();
         this.name = name;
         this.processType = processType;
         this.stateProcess = StateProcess.NEW;
         this.pc = 0;
         this.mar = 0;
+        this.priory = priory;
+
 
         // Asignamos los valores específicos para la E/S
         this.cyclesExcepcion = cyclesExcepcion;
@@ -88,6 +96,26 @@ public class PCB {
         this.cyclesExecute = 0;
     }
 
+    /**
+     * Incrementar program counter
+     * 
+     * Si el procesos está RUNNING, se incrementa
+     * 
+     */
+    public void increasePc(){
+        this.pc++;
+    }
+    
+    /**
+     * Incrementar Memory Address Register
+     * 
+     * Si el procesos está RUNNING, se incrementa
+     * 
+     */
+    public void increaseMar(){
+        this.mar++;
+    }
+    
     // <editor-fold defaultstate="collapsed" desc="Getters">
     public String getId() {
         return id;
@@ -133,14 +161,6 @@ public class PCB {
 
     public void setProcessType(ProcessType processType) {
         this.processType = processType;
-    }
-
-    public void setPc(int pc) {
-        this.pc = pc;
-    }
-
-    public void setMar(int mar) {
-        this.mar = mar;
     }
     // </editor-fold> 
 }
