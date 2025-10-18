@@ -20,6 +20,7 @@ public class OS {
     int cycleDuration;
 
     public OS(Memory memory, Disk disk, int cycleDuration) {
+
         this.cpu = new CPU();
         this.memory = memory;
         this.disk = disk;

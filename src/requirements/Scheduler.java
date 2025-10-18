@@ -69,10 +69,11 @@ public class Scheduler {
         
         // Relog y Quantum
         this.counter = 0;
-        this.quantum = 0;  // ARREGLAR NICOLE referenciar al CPU
+        this.quantum = 0;
 
         // Inicializar semáforo
         this.mutex = new Semaphore(1);
+        this.runningProcess = runningProcess;
     }
 
     /**
@@ -121,7 +122,7 @@ public class Scheduler {
     }
 
     public void addProcessScheduler(Process p) {
-        
+
     }
 
     public void changeQuantum() {

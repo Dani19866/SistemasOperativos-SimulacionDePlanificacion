@@ -28,7 +28,7 @@ public class main {
 
         Memory memory = new Memory(MemorySizeKb.KB_EQUALS_TO_8_GB);
         Disk disk = new Disk(MemorySizeKb.KB_EQUALS_TO_32_GB);
-           
+
     }
 
     // <editor-fold defaultstate="collapsed" desc="Actualizar apariencia">    

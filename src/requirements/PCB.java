@@ -35,6 +35,7 @@ public class PCB {
      * @param priory
      */
     public PCB(String name, ProcessType processType, int priory) {
+
         this.id = UUID.randomUUID().toString();
         this.name = name;
         this.processType = processType;
@@ -54,6 +55,7 @@ public class PCB {
      * @param priory
      */
     public PCB(String name, ProcessType processType, int cyclesExcepcion, int cyclesCompleteIO, int priory) {
+
         this.id = UUID.randomUUID().toString();
         this.name = name;
         this.processType = processType;
@@ -61,6 +63,7 @@ public class PCB {
         this.pc = 0;
         this.mar = 0;
         this.priory = priory;
+
 
         // Asignamos los valores específicos para la E/S
         this.cyclesExcepcion = cyclesExcepcion;
