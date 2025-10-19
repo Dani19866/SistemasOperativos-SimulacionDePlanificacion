@@ -28,6 +28,7 @@ public class Process {
      */
     public Process(String name, ProcessType processType, int instructions, int priory, float memorySpace) {
         this.pcb = new PCB(name, processType, priory, memorySpace);
+
         this.instructions = instructions;
         this.countInstructions = 0;
     }
@@ -57,53 +58,55 @@ public class Process {
     public void executeInstruction() {
         // Verificar si no está terminado
         if (!this.isTerminated()) {
-            
+
             // Incrementar Program Counter (PC) y Memory Address (MAR)
             this.pcb.increasePc();
             this.pcb.increaseMar();
-            
+
             // Incrementar número de instrucciones
             this.countInstructions++;
-            
+
             // Verificar si ha llegado a su punto de instrucciones
-            if (this.instructions == this.countInstructions){
+            if (this.instructions == this.countInstructions) {
                 this.pcb.setStateProcess(StateProcess.TERMINATED);
             }
         }
     }
-    
+
     /**
      * Verifica si el proceso debe bloquearse por una operación de E/S
      * Solo es válido para procesos I/O-Bound
-     * 
-     * Básicamente simula una ráfaga de CPU.  Un proceso I/O-Bound se ejecuta 
-     * por un número determinado de ciclos (ciclosExcepcion) y, al cumplirse, 
+     *
+     * Básicamente simula una ráfaga de CPU. Un proceso I/O-Bound se ejecuta
+     * por un número determinado de ciclos (ciclosExcepcion) y, al cumplirse,
      * solicita una operación de E/S, lo que causa que se bloquee.
-     * 
-     * @return 
+     *
+     * @return
      */
-    public boolean shouldBeBlocked(){
+    public boolean shouldBeBlocked() {
         return this.pcb.blockForIO();
     }
-    
+
     /**
      * Comprobar si un proceso terminó
-     * 
+     *
      * @return boolean
      */
     public boolean isTerminated() {
         return this.pcb.getStateProcess() == StateProcess.TERMINATED;
     }
-    
+
     /**
      * Reinicia el contador de operaciones I/O
-     * Se debe llamar a este método cuando el proceso sale de la cola de bloqueados.
+     * Se debe llamar a este método cuando el proceso sale de la cola de
+     * bloqueados.
      */
     public void restartBurstCounter() {
         this.pcb.restartCyclesExecuteIO();
     }
     
-    public int getRemainingInstructions(){
+    public int getRemainingInstructions() {
         return instructions - countInstructions;
     }
+
 }

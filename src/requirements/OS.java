@@ -41,6 +41,7 @@ public class OS {
     /**
      * PLANIFICADOR: Agregar proceso -> Cola de listos SEGÚN estrategia
      *
+
      * @param p
      */
     public void addProcess(Process p) {

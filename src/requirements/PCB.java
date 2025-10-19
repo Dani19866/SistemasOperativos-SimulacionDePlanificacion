@@ -23,6 +23,7 @@ public class PCB {
     int priory;
     float memorySpace;
 
+
     // Características de un I/O-Bound
     int cyclesExcepcion;        // Ciclos de un proceso antes de solicitar operación E/S
     int cyclesCompleteIO;       // Scheduler: Ciclos que el proecso permanecerá bloqueado
@@ -62,7 +63,6 @@ public class PCB {
      * @param memorySpace
      */
     public PCB(String name, ProcessType processType, int cyclesExcepcion, int cyclesCompleteIO, int priory, float memorySpace) {
-
         this.id = UUID.randomUUID().toString();
         this.name = name;
         this.processType = processType;
