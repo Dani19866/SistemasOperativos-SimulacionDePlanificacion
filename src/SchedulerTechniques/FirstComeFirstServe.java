@@ -3,6 +3,7 @@ package SchedulerTechniques;
 import structures.ArrayList;
 import structures.Queue;
 import requirements.Process;
+import structures.ProcessType;
 
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
@@ -43,7 +44,8 @@ public class FirstComeFirstServe extends SchedulerStrategy {
         this.runningProcess = runningProcess;
     }
 
-    public void nextProcess() {
-
+    @Override
+    public Process nextProcess() {
+        return new Process("asd", ProcessType.CPU_BOUND, 12, 12, 12);
     }
 }

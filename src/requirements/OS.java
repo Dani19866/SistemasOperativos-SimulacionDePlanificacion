@@ -5,6 +5,7 @@
 package requirements;
 
 import requirements.Process;
+import structures.StateOS;
 
 /**
  *
@@ -13,30 +14,99 @@ import requirements.Process;
 public class OS {
 
     CPU cpu;
+    StateOS os_status;
     Memory memory;
     Disk disk;
     Scheduler scheduler;
-    boolean runningOS;
-    int cycleDuration;
+    int globalCyclesDuration;
+    int globalCycles;
 
-    public OS(Memory memory, Disk disk, int cycleDuration) {
-
-        this.cpu = new CPU();
+    public OS(Memory memory, Disk disk, int globalCyclesDuration) {
         this.memory = memory;
         this.disk = disk;
         this.scheduler = new Scheduler(this.cpu.getRunningProcess());
-        this.runningOS = true;
-        this.cycleDuration = cycleDuration;
+        this.cpu = new CPU(this, this.scheduler);
+        this.os_status = StateOS.ON;
+        this.globalCyclesDuration = globalCyclesDuration;
+        this.globalCycles = 0;
     }
 
     /**
-     * El Sistema Operativo llama al planificador para que
-     * añada el proceso en la cola de listos.
-     * 
+     * PLANIFICADOR: Siguiente proceso a ejecutar SEGÚN estrategia
+     */
+    public Process nextProcess() {
+        return this.scheduler.nextProcess();
+    }
+    
+    /**
+     * PLANIFICADOR: Agregar proceso -> Cola de listos SEGÚN estrategia
+     *
+
      * @param p
      */
     public void addProcess(Process p) {
         scheduler.addProcessScheduler(p);
+    }
+    
+    /**
+     * Proceso -> Cola de bloqueados | Manejar bloqueo con un hilo
+     *
+     * @param p
+     */
+    public synchronized void blockProcess(Process p) {
+        // 1. Modificar el estado del proceso a Bloqueado
+        // 2. Encolar el proceso a la cola de Bloqueados
+        // 3. Invocar un hilo para manejar aquellos procesos bloqueados
+    }
+
+    /**
+     * Proceso -> Cola de terminados
+     *
+     * @param p
+     */
+    public void finishProcess(Process p) {
+        // 1. Setear el estado del proceso en Terminado
+        // 2. Encolar en la lista de Bloqueados
+    }
+
+    /**
+     * Manejar bloqueo del proceso con HILOS | Añade el proceso con addProcess()
+     *
+     * @param p
+     */
+    public void blockProcessHandler(Process p) {
+        // 1. Obtener los ciclos para completar el bloqueo
+        // 2. Multiplicar ciclos por duración de ciclo = tiempo max bloqueo
+        // 3. Extraer el proceso de la cola (descolar el proceso)
+        // 4. Reiniciar el contador de bloqueo de ese proceso
+        // 5. Verificar si no está terminado
+        //      a. Si no está terminado, entonces se modifica el estado (Ready)
+        //         y se añade el proceso (addProcess)
+    }
+
+    /**
+     * Incrementa los ciclos del CPU
+     */
+    public void increaseCycles() {
+        this.globalCycles++;
+    }
+
+    /**
+     * Obtener el proceso que está corriendo actualmente
+     *
+     * @return
+     */
+    public Process getRunningProcess() {
+        return cpu.runningProcess;
+    }
+    
+    // <editor-fold defaultstate="collapsed" desc="Getters">
+    public int getGlobalCyclesDuration() {
+        return globalCyclesDuration;
+    }
+
+    public int getGlobalCycles() {
+        return globalCycles;
     }
 
     public int getMemory() {
@@ -51,4 +121,11 @@ public class OS {
         System.out.println("Memoria RAM: " + getMemory() + " Kb" + "\nMemoria en disco: " + getDisk() + " Kb");
 
     }
+    // </editor-fold> 
+
+    // <editor-fold defaultstate="collapsed" desc="Setters">
+    public void setGlobalCyclesDuration(int globalCyclesDuration) {
+        this.globalCyclesDuration = globalCyclesDuration;
+    }
+    // </editor-fold> 
 }
