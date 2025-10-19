@@ -6,7 +6,7 @@ package requirements;
 
 import SchedulerTechniques.FB;
 import SchedulerTechniques.FirstComeFirstServe;
-import SchedulerTechniques.Hibrid;
+import SchedulerTechniques.SRT;
 import SchedulerTechniques.RoundRobin;
 import SchedulerTechniques.SPN;
 import SchedulerTechniques.SRR;
@@ -15,6 +15,7 @@ import SchedulerTechniques.StrategyScheduler;
 import java.util.concurrent.Semaphore;
 import structures.ArrayList;
 import structures.Queue;
+import requirements.Process;
 
 /**
  *
@@ -35,9 +36,7 @@ public class Scheduler {
 
     // Estrategia actual
     SchedulerStrategy currentStrategy;
-
-    // Relog global
-    int counter;
+    StrategyScheduler typeStrategy;
 
     // Quantum (Tiempo max por proceso)
     int quantum;
@@ -66,9 +65,9 @@ public class Scheduler {
                 this.readyProcess, this.readySuspendedProcess, this.blockedProcess,
                 this.blockedSuspendedProcess, this.newProcess, this.outProcess, this.runningProcess
         );
+        this.typeStrategy = StrategyScheduler.RoundRobin;
 
         // Relog y Quantum
-        this.counter = 0;
         this.quantum = 0;
 
         // Inicializar semáforo
@@ -79,9 +78,10 @@ public class Scheduler {
     /**
      * Cambia el proceso actual por otro
      *
+     * @return 
      */
-    public void nextProcess() {
-        currentStrategy.nextProcess();
+    public Process nextProcess() {
+        return currentStrategy.nextProcess();
     }
 
     /**
@@ -94,36 +94,47 @@ public class Scheduler {
         // El switch se mueve aquí, que es su lugar lógico.
         // Crea el objeto SOLO cuando el usuario pide cambiar de estrategia.
         switch (strategyEnum) {
-            case FB ->
+            case FB:
                 currentStrategy = new FB(
                         this.readyProcess, this.readySuspendedProcess, this.blockedProcess,
                         this.blockedSuspendedProcess, this.newProcess, this.outProcess, this.runningProcess
                 );
-            case FirstComeFirstServe ->
+                this.typeStrategy = StrategyScheduler.FB;
+                
+            case FirstComeFirstServe:
                 currentStrategy = new FirstComeFirstServe(
                         this.readyProcess, this.readySuspendedProcess, this.blockedProcess,
                         this.blockedSuspendedProcess, this.newProcess, this.outProcess, this.runningProcess
                 );
-            case Hibrid ->
-                currentStrategy = new Hibrid(
+                this.typeStrategy = StrategyScheduler.FirstComeFirstServe;
+                
+            case SRT:
+                currentStrategy = new SRT(
                         this.readyProcess, this.readySuspendedProcess, this.blockedProcess,
                         this.blockedSuspendedProcess, this.newProcess, this.outProcess, this.runningProcess
                 );
-            case RoundRobin ->
+                this.typeStrategy = StrategyScheduler.SRT;
+                
+            case RoundRobin:
                 currentStrategy = new RoundRobin(
                         this.readyProcess, this.readySuspendedProcess, this.blockedProcess,
                         this.blockedSuspendedProcess, this.newProcess, this.outProcess, this.runningProcess
                 );
-            case SPN ->
+                this.typeStrategy = StrategyScheduler.RoundRobin;
+                
+            case SPN:
                 currentStrategy = new SPN(
                         this.readyProcess, this.readySuspendedProcess, this.blockedProcess,
                         this.blockedSuspendedProcess, this.newProcess, this.outProcess, this.runningProcess
                 );
-            case SRR ->
+                this.typeStrategy = StrategyScheduler.SPN;
+                
+            case SRR:
                 currentStrategy = new SRR(
                         this.readyProcess, this.readySuspendedProcess, this.blockedProcess,
                         this.blockedSuspendedProcess, this.newProcess, this.outProcess, this.runningProcess
                 );
+                this.typeStrategy = StrategyScheduler.SRR;
         }
     }
 
@@ -142,7 +153,15 @@ public class Scheduler {
     public void changeQuantum(int quantum) {
         this.setQuantum(quantum);
     }
-
+    
+    /**
+     * Devuelve la estrategia que se está usando en ese momento 
+     * @return 
+     */
+    public StrategyScheduler getStrategy(){
+        return typeStrategy;
+    }
+    
     // <editor-fold defaultstate="collapsed" desc="Getters">
     // </editor-fold>
     
