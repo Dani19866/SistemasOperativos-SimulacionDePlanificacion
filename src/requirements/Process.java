@@ -102,4 +102,8 @@ public class Process {
     public void restartBurstCounter() {
         this.pcb.restartCyclesExecuteIO();
     }
+    
+    public int getRemainingInstructions(){
+        return instructions - countInstructions;
+    }
 }
