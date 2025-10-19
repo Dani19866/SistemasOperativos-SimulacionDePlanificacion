@@ -7,12 +7,13 @@ package SchedulerTechniques;
 import structures.ArrayList;
 import structures.Queue;
 import requirements.Process;
+import structures.ProcessType;
 
 /**
  *
  * @author Daniel
  */
-public class Hibrid extends SchedulerStrategy{
+public class SRT extends SchedulerStrategy{
 
     // Procesos en ejecución
     Process runningProcess;
@@ -25,7 +26,7 @@ public class Hibrid extends SchedulerStrategy{
     Queue<Process> newProcess;
     ArrayList<Process> outProcess;
 
-    public Hibrid(
+    public SRT(
             Queue<Process> readyProcess,
             Queue<Process> readySuspendedProcess,
             Queue<Process> blockedProcess,
@@ -43,7 +44,8 @@ public class Hibrid extends SchedulerStrategy{
         this.runningProcess = runningProcess;
     }
 
-    public void nextProcess() {
-
+    @Override
+    public Process nextProcess() {
+        return new Process("asd", ProcessType.CPU_BOUND, 12, 12, 12);
     }
 }

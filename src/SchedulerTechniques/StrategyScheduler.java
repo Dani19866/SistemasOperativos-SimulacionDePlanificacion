@@ -11,7 +11,7 @@ package SchedulerTechniques;
 public enum StrategyScheduler {
     FB,
     FirstComeFirstServe,
-    Hibrid,
+    SRT,
     RoundRobin,
     SPN,
     SRR,
