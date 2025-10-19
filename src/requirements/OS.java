@@ -5,6 +5,7 @@
 package requirements;
 
 import requirements.Process;
+import structures.StateOS;
 
 /**
  *
@@ -13,32 +14,32 @@ import requirements.Process;
 public class OS {
 
     CPU cpu;
+    StateOS os_status;
     Memory memory;
     Disk disk;
     Scheduler scheduler;
-    boolean runningOS;
     int globalCyclesDuration;
     int globalCycles;
 
     public OS(Memory memory, Disk disk, int globalCyclesDuration) {
-        this.cpu = new CPU();
         this.memory = memory;
         this.disk = disk;
         this.scheduler = new Scheduler(this.cpu.getRunningProcess());
-        this.runningOS = true;
+        this.cpu = new CPU(this, this.scheduler);
+        this.os_status = StateOS.ON;
         this.globalCyclesDuration = globalCyclesDuration;
         this.globalCycles = 0;
     }
 
     /**
-     * Siguiente proceso a ejecutar
+     * PLANIFICADOR: Siguiente proceso a ejecutar SEGÚN estrategia
      */
-    public void nextProcess() {
-        this.scheduler.nextProcess();
+    public Process nextProcess() {
+        return this.scheduler.nextProcess();
     }
     
     /**
-     * Proceso -> Cola de listos
+     * PLANIFICADOR: Agregar proceso -> Cola de listos SEGÚN estrategia
      *
      * @param p
      */
@@ -48,19 +49,21 @@ public class OS {
     
     /**
      * Proceso -> Cola de bloqueados | Manejar bloqueo con un hilo
+     *
      * @param p
      */
-    public synchronized void blockProcess(Process p){
+    public synchronized void blockProcess(Process p) {
         // 1. Modificar el estado del proceso a Bloqueado
         // 2. Encolar el proceso a la cola de Bloqueados
         // 3. Invocar un hilo para manejar aquellos procesos bloqueados
     }
-    
+
     /**
      * Proceso -> Cola de terminados
+     *
      * @param p
      */
-    public void finishProcess(Process p){
+    public void finishProcess(Process p) {
         // 1. Setear el estado del proceso en Terminado
         // 2. Encolar en la lista de Bloqueados
     }
@@ -79,7 +82,7 @@ public class OS {
         //      a. Si no está terminado, entonces se modifica el estado (Ready)
         //         y se añade el proceso (addProcess)
     }
-    
+
     /**
      * Incrementa los ciclos del CPU
      */
@@ -95,7 +98,7 @@ public class OS {
     public Process getRunningProcess() {
         return cpu.runningProcess;
     }
-
+    
     // <editor-fold defaultstate="collapsed" desc="Getters">
     public int getGlobalCyclesDuration() {
         return globalCyclesDuration;
