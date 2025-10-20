@@ -92,8 +92,13 @@ public class CPU extends Thread {
 
                     // 2. Bucle de ejecución de instrucciones
                     while (p.instructions > 0) {
+                        // Permite no saturar el sistema. Ejecuta ciclos con la duración que es indicada (ej: 1s por ciclo)
                         Thread.sleep(os.globalCyclesDuration);
+                        
+                        // Ejecuta las instrucciones del proceso
                         this.runningProcess.executeInstruction();
+                        
+
                         this.increaseGlobalCycle();
 
                         // 2.1. Condición de parada
@@ -103,42 +108,22 @@ public class CPU extends Thread {
 
                         // 2.2. Condiciones de parada específicas de la política
                         switch (scheduler.getStrategy()) {
-                            case RoundRobin:
+                            case RoundRobin -> {
                                 this.quantum--;
                                 if (quantum <= 0) {
                                     this.addProcess();
-                                    return; // Termina el ciclo de run()
                                 }
-                                break; // Sale del switch, NO del bucle while
-
-                            case SRT:
-                                try {
-                                    mutex.acquire();
-                                    Process nextP = os.scheduler.readyProcess.peek();
-                                    if (nextP != null && this.runningProcess.getRemainingInstructions() > nextP.getRemainingInstructions()) {
-                                        this.addProcess();
-                                        mutex.release();
-                                        return; // Termina el ciclo de run()
-                                    }
-                                } finally {
-                                    if (mutex.availablePermits() == 0) {
-                                        mutex.release();
-                                    }
+                            }
+                            case SRT -> {
+                                Process nextP = os.scheduler.readyProcess.peek();
+                                if (nextP != null && this.runningProcess.getRemainingInstructions() > nextP.getRemainingInstructions()) {
+                                    this.addProcess();
                                 }
-                                break; // Sale del switch, NO del bucle while
+                            }
+                            default -> {
+                                // Para FCFS, SJF, HRRN, etc., no hacemos nada.
+                            }
 
-                            // Para FCFS, SJF, HRRN, etc., no hacemos nada.
-                            default:
-                                break; // Sale del switch
-                        }
-                    }
-
-                    // 3. Manejar el estado final del proceso
-                    if (this.runningProcess != null) {
-                        if (this.runningProcess.isTerminated()) {
-                            this.finishProcess();
-                        } else if (this.runningProcess.shouldBeBlocked()) {
-                            this.blockProcess();
                         }
                     }
                 }
