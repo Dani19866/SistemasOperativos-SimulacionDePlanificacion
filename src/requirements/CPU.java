@@ -98,7 +98,7 @@ public class CPU extends Thread {
                         // Ejecuta las instrucciones del proceso
                         this.runningProcess.executeInstruction();
                         
-                        // Incrementa la cantidad de ciclos ejecutados (global)
+
                         this.increaseGlobalCycle();
 
                         // 2.1. Condición de parada
@@ -123,6 +123,7 @@ public class CPU extends Thread {
                             default -> {
                                 // Para FCFS, SJF, HRRN, etc., no hacemos nada.
                             }
+
                         }
                     }
                 }
