@@ -8,7 +8,7 @@ import SchedulerTechniques.FB;
 import SchedulerTechniques.FirstComeFirstServe;
 import SchedulerTechniques.SRT;
 import SchedulerTechniques.RoundRobin;
-import SchedulerTechniques.SPN;
+import SchedulerTechniques.HRRN;
 import SchedulerTechniques.SJF;
 import SchedulerTechniques.SchedulerStrategy;
 import SchedulerTechniques.StrategyScheduler;
@@ -122,12 +122,12 @@ public class Scheduler {
                 );
                 this.typeStrategy = StrategyScheduler.RoundRobin;
                 
-            case SPN:
-                currentStrategy = new SPN(
+            case HRRN:
+                currentStrategy = new HRRN(
                         this.readyProcess, this.readySuspendedProcess, this.blockedProcess,
                         this.blockedSuspendedProcess, this.newProcess, this.outProcess, this.runningProcess
                 );
-                this.typeStrategy = StrategyScheduler.SPN;
+                this.typeStrategy = StrategyScheduler.HRRN;
                 
             case SJF:
                 currentStrategy = new SJF(

@@ -31,6 +31,7 @@ public class PCB {
 
     // Auditoría
     float timeProcess;          // Tiempo de procesador utilizado
+    int tiempoLlegada;
 
     /**
      * Constructor para procesos CPU-Bound
@@ -160,7 +161,12 @@ public class PCB {
     public int getCyclesExecute() {
         return cyclesExecute;
     }
-    // </editor-fold> 
+    
+     public int getTiempoLlegada() {
+        return tiempoLlegada;
+    }
+     //
+     //</editor-fold> 
 
     // <editor-fold defaultstate="collapsed" desc="Setters">
     public void setStateProcess(StateProcess stateProcess) {
@@ -170,5 +176,9 @@ public class PCB {
     public void setProcessType(ProcessType processType) {
         this.processType = processType;
     }
+    public void setTiempoLlegada(int tiempoLlegada) {
+        this.tiempoLlegada = tiempoLlegada;
+    }
+    //
     // </editor-fold> 
 }

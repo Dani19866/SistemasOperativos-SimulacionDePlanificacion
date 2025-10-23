@@ -113,4 +113,9 @@ public class Process {
         return instructions ;
     }
     
+    public PCB getPCB() {
+        return pcb;
+    }
+    
+    
 }

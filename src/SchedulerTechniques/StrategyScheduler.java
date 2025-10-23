@@ -13,6 +13,6 @@ public enum StrategyScheduler {
     FirstComeFirstServe,
     SRT,
     RoundRobin,
-    SPN,
+    HRRN,
     SJF,
 }
