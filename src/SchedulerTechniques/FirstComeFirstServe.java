@@ -1,8 +1,10 @@
 package SchedulerTechniques;
 
+import java.util.concurrent.Semaphore;
 import structures.ArrayList;
 import structures.Queue;
 import requirements.Process;
+import structures.ProcessType;
 
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
@@ -10,9 +12,10 @@ import requirements.Process;
  */
 /**
  *
- * @author Daniel
+ * @author Nicole
  */
 public class FirstComeFirstServe extends SchedulerStrategy {
+    private final Semaphore mutex = new Semaphore(1);
 
     // Procesos en ejecución
     Process runningProcess;
@@ -24,7 +27,7 @@ public class FirstComeFirstServe extends SchedulerStrategy {
     Queue<Process> blockedSuspendedProcess;
     Queue<Process> newProcess;
     ArrayList<Process> outProcess;
-
+    
     public FirstComeFirstServe(
             Queue<Process> readyProcess,
             Queue<Process> readySuspendedProcess,
@@ -43,7 +46,34 @@ public class FirstComeFirstServe extends SchedulerStrategy {
         this.runningProcess = runningProcess;
     }
 
-    public void nextProcess() {
-
+     @Override
+    public Process nextProcess() {
+        try{
+            mutex.acquire();
+            if (readyProcess.isEmpty()) return null;
+            else return readyProcess.dequeue(); // obtiene el primero en llegar
+        
+        }catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return null;
+        } finally {
+            mutex.release();
+        }
+    }
+    
+    
+    public void addProcess(Process p) {
+        try {
+            mutex.acquire();
+            readyProcess.enqueue(p); // Agrega el proceso al final de la cola
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        } finally {
+            mutex.release();
+        }
+    }
+    
+     public boolean isEmpty() {
+        return readyProcess.isEmpty();
     }
 }

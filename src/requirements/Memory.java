@@ -12,7 +12,6 @@ import structures.MemorySizeKb;
  */
 public class Memory {
     public MemorySizeKb memorySize;
-    
 
     public Memory(MemorySizeKb memory) {
         this.memorySize = memory;

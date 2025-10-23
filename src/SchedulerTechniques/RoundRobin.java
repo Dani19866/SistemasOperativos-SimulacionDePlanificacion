@@ -4,9 +4,12 @@
  */
 package SchedulerTechniques;
 
+
+import java.util.concurrent.Semaphore;
 import structures.ArrayList;
 import structures.Queue;
 import requirements.Process;
+import structures.ProcessType;
 
 /**
  *
@@ -16,6 +19,7 @@ public class RoundRobin extends SchedulerStrategy{
 
     // Procesos en ejecución
     Process runningProcess;
+    
 
     // Colas de procesos
     Queue<Process> readyProcess;
@@ -24,6 +28,10 @@ public class RoundRobin extends SchedulerStrategy{
     Queue<Process> blockedSuspendedProcess;
     Queue<Process> newProcess;
     ArrayList<Process> outProcess;
+    
+    //Uso de semaforo 
+    Semaphore mutex;
+     
 
     public RoundRobin(
             Queue<Process> readyProcess,
@@ -33,6 +41,8 @@ public class RoundRobin extends SchedulerStrategy{
             Queue<Process> newProcess,
             ArrayList<Process> outProcess,
             Process runningProcess
+            
+            
     ) {
         this.readyProcess = readyProcess;
         this.readySuspendedProcess = readySuspendedProcess;
@@ -43,7 +53,33 @@ public class RoundRobin extends SchedulerStrategy{
         this.runningProcess = runningProcess;
     }
 
-    public void nextProcess() {
-
+    @Override
+    public Process nextProcess() {
+    try {
+        mutex.acquire();                      
+        return readyProcess.isEmpty()
+               ? null
+               : readyProcess.dequeue();       
+    } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();   
+        return null;
+    } finally {
+        mutex.release();    
     }
 }
+    public void addProcess(Process p) {
+        try {
+            mutex.acquire();
+            readyProcess.enqueue(p);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        } finally {
+            mutex.release();
+        }
+    }
+    
+     public boolean isEmpty() {
+        return readyProcess.isEmpty();
+    }
+}
+    

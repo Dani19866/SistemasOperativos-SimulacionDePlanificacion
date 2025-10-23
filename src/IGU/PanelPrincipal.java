@@ -4,7 +4,6 @@
  */
 package IGU;
 
-import javax.swing.JLabel;
 
 /**
  *
@@ -72,19 +71,16 @@ public class PanelPrincipal extends javax.swing.JFrame {
 
         jLabel1.setBackground(new java.awt.Color(0, 0, 0));
         jLabel1.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
-        jLabel1.setForeground(new java.awt.Color(0, 0, 0));
         jLabel1.setText("Nombre del Proceso");
         jPanel2.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 90, -1, -1));
 
         jLabel2.setBackground(new java.awt.Color(0, 0, 0));
         jLabel2.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
-        jLabel2.setForeground(new java.awt.Color(0, 0, 0));
         jLabel2.setText("Quantum");
         jPanel2.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 120, -1, -1));
         jPanel2.add(quantumchoice, new org.netbeans.lib.awtextra.AbsoluteConstraints(580, 120, 160, -1));
 
         titulo.setFont(new java.awt.Font("Dialog", 0, 48)); // NOI18N
-        titulo.setForeground(new java.awt.Color(0, 0, 0));
         titulo.setText("Simulador de Procesos ");
         jPanel2.add(titulo, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 20, -1, -1));
         jPanel2.add(politicachoice, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 120, 380, -1));
@@ -97,7 +93,6 @@ public class PanelPrincipal extends javax.swing.JFrame {
 
         instrucciones.setBackground(new java.awt.Color(0, 0, 0));
         instrucciones.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
-        instrucciones.setForeground(new java.awt.Color(0, 0, 0));
         instrucciones.setText("N. de Instrucciones:");
         jPanel2.add(instrucciones, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 190, -1, -1));
 
@@ -117,13 +112,11 @@ public class PanelPrincipal extends javax.swing.JFrame {
 
         tipo.setBackground(new java.awt.Color(0, 0, 0));
         tipo.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
-        tipo.setForeground(new java.awt.Color(0, 0, 0));
         tipo.setText("Tipo:");
         jPanel2.add(tipo, new org.netbeans.lib.awtextra.AbsoluteConstraints(360, 190, -1, -1));
 
         ciclo.setBackground(new java.awt.Color(0, 0, 0));
         ciclo.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
-        ciclo.setForeground(new java.awt.Color(0, 0, 0));
         ciclo.setText("Ciclo (ms): ");
         jPanel2.add(ciclo, new org.netbeans.lib.awtextra.AbsoluteConstraints(600, 190, -1, -1));
 
@@ -133,22 +126,18 @@ public class PanelPrincipal extends javax.swing.JFrame {
 
         quantum.setBackground(new java.awt.Color(0, 0, 0));
         quantum.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
-        quantum.setForeground(new java.awt.Color(0, 0, 0));
         jPanel2.add(quantum, new org.netbeans.lib.awtextra.AbsoluteConstraints(504, 179, -1, -1));
 
         jLabel3.setBackground(new java.awt.Color(0, 0, 0));
         jLabel3.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
-        jLabel3.setForeground(new java.awt.Color(0, 0, 0));
         jLabel3.setText("Politica");
         jPanel2.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 120, -1, -1));
 
-        jTextField1.setBackground(new java.awt.Color(255, 255, 255));
         jTextField1.setText("Nombre");
         jPanel2.add(jTextField1, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 90, 540, -1));
 
         jButton1.setBackground(new java.awt.Color(102, 153, 255));
         jButton1.setFont(new java.awt.Font("Dialog", 1, 12)); // NOI18N
-        jButton1.setForeground(new java.awt.Color(0, 0, 0));
         jButton1.setText("Cargar JSON/CSV");
         jButton1.setBorder(null);
         jButton1.addActionListener(new java.awt.event.ActionListener() {
@@ -172,7 +161,6 @@ public class PanelPrincipal extends javax.swing.JFrame {
 
         jButton3.setBackground(new java.awt.Color(102, 153, 255));
         jButton3.setFont(new java.awt.Font("Dialog", 1, 12)); // NOI18N
-        jButton3.setForeground(new java.awt.Color(0, 0, 0));
         jButton3.setText("Cargar Datos");
         jButton3.setBorder(null);
         jButton3.addActionListener(new java.awt.event.ActionListener() {
@@ -184,7 +172,6 @@ public class PanelPrincipal extends javax.swing.JFrame {
 
         jButton4.setBackground(new java.awt.Color(102, 153, 255));
         jButton4.setFont(new java.awt.Font("Dialog", 1, 12)); // NOI18N
-        jButton4.setForeground(new java.awt.Color(0, 0, 0));
         jButton4.setText("Iniciar Proceso");
         jButton4.setBorder(null);
         jButton4.addActionListener(new java.awt.event.ActionListener() {
@@ -194,7 +181,6 @@ public class PanelPrincipal extends javax.swing.JFrame {
         });
         jPanel2.add(jButton4, new org.netbeans.lib.awtextra.AbsoluteConstraints(830, 160, 120, 30));
 
-        boxtipo1.setBackground(new java.awt.Color(255, 255, 255));
         boxtipo1.setEditable(true);
         boxtipo1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
         boxtipo1.setBorder(null);

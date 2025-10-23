@@ -97,6 +97,11 @@ public class Queue<T> {
     public int size() {
         return size;
     }
+    /** 
+     * Devuelve el tamanio 
+     * @return 
+     */
+    
 
     /**
      * Devuelve una representación en formato de cadena de la cola.

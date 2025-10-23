@@ -4,10 +4,12 @@
  */
 package SchedulerTechniques;
 
+import requirements.Process;
+
 /**
  *
  * @author Daniel
  */
 public abstract class SchedulerStrategy {
-    public void nextProcess(){}
+    abstract public Process nextProcess();
 }

@@ -13,91 +13,100 @@ import structures.StateProcess;
  */
 public class Process {
 
-    private final PCB pcb;
-    int totalInstructions;
-    int remainingInstructions;
+    public PCB pcb;
+    int instructions;
+    int countInstructions;
 
-    // Si el proceso es I/O, debe especificarse cuantos ciclos se necesitan
-    // para generar una excepción y cuantos para satisfacerla. También se debe
-    // permitir la configuración de la duración de ciclo
-    private int cycles;
-    private int cycleDurantion;
-    /*Chequear ^^^^^^^^^^^^^^^^^^^^^^6*/
+    /**
+     * Constructor para procesos CPU-Bound
+     *
+     * @param name
+     * @param processType
+     * @param instructions
+     * @param priory
+     * @param memorySpace
+     */
+    public Process(String name, ProcessType processType, int instructions, int priory, float memorySpace) {
+        this.pcb = new PCB(name, processType, priory, memorySpace);
 
-    /* Creacion del construtor de proceso */
-    /* LO HACEMOS PRIVADO, para que no se puedan llamar directamente*/
-    public Process(int totalInstructions,PCB pcb) {
-        if (totalInstructions <= 0) {
-            throw new IllegalArgumentException("El total de instrucciones debe ser positivo.");
+        this.instructions = instructions;
+        this.countInstructions = 0;
+    }
+
+    /**
+     * Constructor para procesos I/O-Bound
+     *
+     * @param name
+     * @param processType
+     * @param cyclesExcepcion
+     * @param cyclesCompleteIO
+     * @param instructions
+     * @param priory
+     * @param memorySpace
+     */
+    public Process(String name, ProcessType processType, int cyclesExcepcion, int cyclesCompleteIO, int instructions, int priory, float memorySpace) {
+        this.pcb = new PCB(name, processType, cyclesExcepcion, cyclesCompleteIO, priory, memorySpace);
+        this.instructions = instructions;
+        this.countInstructions = 0;
+    }
+
+    /**
+     * Ejecutar una instrucción del proceso.
+     * Verifica si no está terminado
+     * También setea automáticamente si ha llegado a sus instrucciones totales
+     */
+    public void executeInstruction() {
+        // Verificar si no está terminado
+        if (!this.isTerminated()) {
+
+            // Incrementar Program Counter (PC) y Memory Address (MAR)
+            this.pcb.increasePc();
+            this.pcb.increaseMar();
+
+            // Incrementar número de instrucciones
+            this.countInstructions++;
+
+            // Verificar si ha llegado a su punto de instrucciones
+            if (this.instructions == this.countInstructions) {
+                this.pcb.setStateProcess(StateProcess.TERMINATED);
+            }
         }
-        this.totalInstructions = totalInstructions;
-        this.remainingInstructions = totalInstructions;
-        this.pcb = pcb; 
     }
-/*  
-    /* Contructor publico para CPU-Bound
-    public static Process createCpuBound(String nombre, int totalInstructions, int priority) {
-        // Crea el PCB específico para CPU-Bound
-        PCB pcb = PCB.createCpuBound(nombre, priority);
-        return new Process(totalInstructions,pcb);
+
+    /**
+     * Verifica si el proceso debe bloquearse por una operación de E/S
+     * Solo es válido para procesos I/O-Bound
+     *
+     * Básicamente simula una ráfaga de CPU. Un proceso I/O-Bound se ejecuta
+     * por un número determinado de ciclos (ciclosExcepcion) y, al cumplirse,
+     * solicita una operación de E/S, lo que causa que se bloquee.
+     *
+     * @return
+     */
+    public boolean shouldBeBlocked() {
+        return this.pcb.blockForIO();
     }
-    public static Process createIoBound(String nombre, int totalInstructions, int priority, int cyclesExcepcion, int cyclesCompleteIO) {
-        // Crea el PCB específico para I/O-Bound
-        PCB pcb = PCB.createIoBound(nombre, priority, cyclesExcepcion, cyclesCompleteIO);
-        return new Process(totalInstructions,pcb);
+
+    /**
+     * Comprobar si un proceso terminó
+     *
+     * @return boolean
+     */
+    public boolean isTerminated() {
+        return this.pcb.getStateProcess() == StateProcess.TERMINATED;
     }
-    
-    */
-    
-    /* Ejecucion del proceso*/
-     public synchronized void ExecuteIntructions(){
-        if (!isFinished()){
-            // actualizar contadores en el PCB 
-            this.remainingInstructions--;
-            pcb.increasePc();
-            pcb.increaseMar();
-        }
-        if(isFinished()){
-         pcb.setStateProcess(StateProcess.TERMINATED);
-        }
-     }
-    
-    /* Si el proceso termino, entonces se ejecuta esto*/
-     public boolean isFinished() {
-        return this.remainingInstructions <= 0;
-        
-    }
-     
-    // <editor-fold defaultstate="collapsed" desc="Getters"> 
-    public PCB getPCB() {
-        return pcb;
+
+    /**
+     * Reinicia el contador de operaciones I/O
+     * Se debe llamar a este método cuando el proceso sale de la cola de
+     * bloqueados.
+     */
+    public void restartBurstCounter() {
+        this.pcb.restartCyclesExecuteIO();
     }
     
     public int getRemainingInstructions() {
-        return remainingInstructions;
+        return instructions - countInstructions;
     }
-    
-    public int gettotalInstructions(){
-        return totalInstructions;
-    }
-    
-    public int getExecutedInstructions(){
-        return totalInstructions - remainingInstructions;
-    }
-    // </editor-fold> 
 
-    
-    // <editor-fold defaultstate="collapsed" desc="Setters"> 
-    /* No deberia haber setters??
-   
-    */
-    
-    
-    // </editor-fold> 
-
-    
-    
-    
-    
-    
 }
