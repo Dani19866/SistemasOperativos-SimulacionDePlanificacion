@@ -108,5 +108,9 @@ public class Process {
     public int getRemainingInstructions() {
         return instructions - countInstructions;
     }
-
+    
+    public int getInstructions() {
+        return instructions ;
+    }
+    
 }

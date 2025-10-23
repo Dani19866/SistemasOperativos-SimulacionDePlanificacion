@@ -14,5 +14,5 @@ public enum StrategyScheduler {
     SRT,
     RoundRobin,
     SPN,
-    SRR,
+    SJF,
 }

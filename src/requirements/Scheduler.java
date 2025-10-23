@@ -9,7 +9,7 @@ import SchedulerTechniques.FirstComeFirstServe;
 import SchedulerTechniques.SRT;
 import SchedulerTechniques.RoundRobin;
 import SchedulerTechniques.SPN;
-import SchedulerTechniques.SRR;
+import SchedulerTechniques.SJF;
 import SchedulerTechniques.SchedulerStrategy;
 import SchedulerTechniques.StrategyScheduler;
 import java.util.concurrent.Semaphore;
@@ -129,12 +129,12 @@ public class Scheduler {
                 );
                 this.typeStrategy = StrategyScheduler.SPN;
                 
-            case SRR:
-                currentStrategy = new SRR(
+            case SJF:
+                currentStrategy = new SJF(
                         this.readyProcess, this.readySuspendedProcess, this.blockedProcess,
                         this.blockedSuspendedProcess, this.newProcess, this.outProcess, this.runningProcess
                 );
-                this.typeStrategy = StrategyScheduler.SRR;
+                this.typeStrategy = StrategyScheduler.SJF;
         }
     }
 
