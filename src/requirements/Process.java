@@ -117,5 +117,27 @@ public class Process {
         return pcb;
     }
     
+    // METODOS PARA MLFQ
+    
+    public int getPrioridadMLFQ(){
+        return this.pcb.getPrioridadMLFQ();
+    }
+    
+    public boolean haAgotadoQuantum() {
+        return this.pcb.haAgotadoQuantumMLFQ();
+    }
+    
+    public void setFlagAgotadoQuantum(boolean valor) {
+        this.pcb.setFlagAgotadoQuantumMLFQ(valor);
+    }
+    
+    public void resetFlagQuantum() {
+        this.pcb.setFlagAgotadoQuantumMLFQ(false);
+    }
+    
+    public void setPrioridadMLFQ(int prioridadMLFQ) {
+        this.pcb.setPrioridadMLFQ(prioridadMLFQ);
+    }
+    
     
 }

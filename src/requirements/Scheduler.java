@@ -43,6 +43,8 @@ public class Scheduler {
 
     // Semáforo para proteger la cola de listos
     Semaphore mutex;
+    
+    
 
     /**
      * Constructor de la planificación
@@ -154,6 +156,7 @@ public class Scheduler {
     public void changeQuantum(int quantum) {
         this.setQuantum(quantum);
     }
+    
     
     /**
      * Devuelve la estrategia que se está usando en ese momento 

@@ -1,47 +1,17 @@
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-<?xml version="1.0" encoding="UTF-8"?>
-<project-private xmlns="http://www.netbeans.org/ns/project-private/1">
-    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
-</project-private>
-=======
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
->>>>>>> origin/main
->>>>>>> origin/main
 <?xml version="1.0" encoding="UTF-8"?>
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/Daniel/Documents/Git/SistemasOperativos-SimulacionDePlanificacion/src/requirements/Scheduler.java</file>
-            <file>file:/C:/Users/Daniel/Documents/Git/SistemasOperativos-SimulacionDePlanificacion/src/SchedulerTechniques/SchedulerStrategy.java</file>
-            <file>file:/C:/Users/Daniel/Documents/Git/SistemasOperativos-SimulacionDePlanificacion/src/requirements/PCB.java</file>
-            <file>file:/C:/Users/Daniel/Documents/Git/SistemasOperativos-SimulacionDePlanificacion/src/requirements/OS.java</file>
-            <file>file:/C:/Users/Daniel/Documents/Git/SistemasOperativos-SimulacionDePlanificacion/src/SchedulerTechniques/StrategyScheduler.java</file>
-            <file>file:/C:/Users/Daniel/Documents/Git/SistemasOperativos-SimulacionDePlanificacion/src/requirements/Process.java</file>
+            <file>file:/C:/Users/rtkn0_z8ls/OneDrive/Documents/NetBeansProjects/SO_Proyecto/src/SchedulerTechniques/HRRN.java</file>
+            <file>file:/C:/Users/rtkn0_z8ls/OneDrive/Documents/NetBeansProjects/SO_Proyecto/src/SchedulerTechniques/RoundRobin.java</file>
+            <file>file:/C:/Users/rtkn0_z8ls/OneDrive/Documents/NetBeansProjects/SO_Proyecto/src/requirements/Scheduler.java</file>
+            <file>file:/C:/Users/rtkn0_z8ls/OneDrive/Documents/NetBeansProjects/SO_Proyecto/src/requirements/PCB.java</file>
+            <file>file:/C:/Users/rtkn0_z8ls/OneDrive/Documents/NetBeansProjects/SO_Proyecto/src/SchedulerTechniques/SJF.java</file>
+            <file>file:/C:/Users/rtkn0_z8ls/OneDrive/Documents/NetBeansProjects/SO_Proyecto/src/requirements/Process.java</file>
+            <file>file:/C:/Users/rtkn0_z8ls/OneDrive/Documents/NetBeansProjects/SO_Proyecto/src/SchedulerTechniques/StrategyScheduler.java</file>
+            <file>file:/C:/Users/rtkn0_z8ls/OneDrive/Documents/NetBeansProjects/SO_Proyecto/src/SchedulerTechniques/FirstComeFirstServe.java</file>
+            <file>file:/C:/Users/rtkn0_z8ls/OneDrive/Documents/NetBeansProjects/SO_Proyecto/src/SchedulerTechniques/FB.java</file>
         </group>
     </open-files>
 </project-private>
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-=======
-=======
-<?xml version="1.0" encoding="UTF-8"?>
-<project-private xmlns="http://www.netbeans.org/ns/project-private/1">
-    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
-    <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
-        <group>
-            <file>file:/C:/Users/Daniel/Documents/Git/SistemasOperativos-SimulacionDePlanificacion/src/requirements/PCB.java</file>
-            <file>file:/C:/Users/Daniel/Documents/Git/SistemasOperativos-SimulacionDePlanificacion/src/requirements/CPU.java</file>
-            <file>file:/C:/Users/Daniel/Documents/Git/SistemasOperativos-SimulacionDePlanificacion/src/simulacion_de_planificacion/main.java</file>
-        </group>
-    </open-files>
-</project-private>
->>>>>>> origin/main
->>>>>>> origin/main
->>>>>>> origin/main
->>>>>>> origin/main
