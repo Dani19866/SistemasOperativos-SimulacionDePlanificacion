@@ -46,7 +46,7 @@ public class CPU extends Thread {
      */
     public void addProcess() {
         this.runningProcess.pcb.setStateProcess(StateProcess.READY);
-        os.addProcess(runningProcess);
+        os.returnProcessReady(runningProcess);  //se cambio a returnprocesstoready
         this.freeProcess();
     }
 
