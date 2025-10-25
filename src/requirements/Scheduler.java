@@ -102,6 +102,7 @@ public class Scheduler {
                         this.blockedSuspendedProcess, this.newProcess, this.outProcess, this.runningProcess
                 );
                 this.typeStrategy = StrategyScheduler.FB;
+            
                 
             case FirstComeFirstServe:
                 currentStrategy = new FirstComeFirstServe(
@@ -109,6 +110,7 @@ public class Scheduler {
                         this.blockedSuspendedProcess, this.newProcess, this.outProcess, this.runningProcess
                 );
                 this.typeStrategy = StrategyScheduler.FirstComeFirstServe;
+            
                 
             case SRT:
                 currentStrategy = new SRT(
@@ -116,6 +118,7 @@ public class Scheduler {
                         this.blockedSuspendedProcess, this.newProcess, this.outProcess, this.runningProcess
                 );
                 this.typeStrategy = StrategyScheduler.SRT;
+           
                 
             case RoundRobin:
                 currentStrategy = new RoundRobin(
@@ -123,20 +126,23 @@ public class Scheduler {
                         this.blockedSuspendedProcess, this.newProcess, this.outProcess, this.runningProcess
                 );
                 this.typeStrategy = StrategyScheduler.RoundRobin;
-                
+            
             case HRRN:
                 currentStrategy = new HRRN(
                         this.readyProcess, this.readySuspendedProcess, this.blockedProcess,
                         this.blockedSuspendedProcess, this.newProcess, this.outProcess, this.runningProcess
                 );
                 this.typeStrategy = StrategyScheduler.HRRN;
+        
                 
             case SJF:
                 currentStrategy = new SJF(
                         this.readyProcess, this.readySuspendedProcess, this.blockedProcess,
                         this.blockedSuspendedProcess, this.newProcess, this.outProcess, this.runningProcess
                 );
-                this.typeStrategy = StrategyScheduler.SJF;
+                this.typeStrategy = StrategyScheduler.SJF;  
+           
+                
         }
     }
 

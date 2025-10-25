@@ -4,8 +4,11 @@
  */
 package requirements;
 
+import java.util.Set;
 import requirements.Process;
+import structures.ProcessType;
 import structures.StateOS;
+import structures.StateProcess;
 
 /**
  *
@@ -20,6 +23,7 @@ public class OS {
     Scheduler scheduler;
     int globalCyclesDuration;
     int globalCycles;
+    int currentMemoryUsage;
 
     public OS(Memory memory, Disk disk, int globalCyclesDuration) {
         this.memory = memory;
@@ -29,6 +33,7 @@ public class OS {
         this.os_status = StateOS.ON;
         this.globalCyclesDuration = globalCyclesDuration;
         this.globalCycles = 0;
+        int currentMemoryUsage = 0;
     }
 
     /**
@@ -45,8 +50,23 @@ public class OS {
      * @param p
      */
     public void addProcess(Process p) {
-        scheduler.addProcessScheduler(p);
+        //scheduler.addProcessScheduler(p);
+        // Asignamos el tiempo de llegada
+        p.getPCB().setTiempoLlegada(this.globalCycles);
+        p.getPCB().setStateProcess(StateProcess.NEW);
+        scheduler.newProcess.enqueue(p);  // Colocamos el proceso en la cola de nuevos 
+        
+        this.checkAndLoadProcesses();   // Mueve de New a Ready si hay espacio 
     }
+    /**
+     * CPU llama cuando se necesita devolver un proceso que fue SUSPENDIDO.
+     * @param p 
+     */
+    public void returnProcessReady(Process p ){
+        p.getPCB().setStateProcess(StateProcess.READY);
+        scheduler.readyProcess.enqueue(p); // encolamos a la cola de Listos 
+    }
+    
     
     /**
      * Proceso -> Cola de bloqueados | Manejar bloqueo con un hilo
@@ -83,7 +103,56 @@ public class OS {
         //      a. Si no está terminado, entonces se modifica el estado (Ready)
         //         y se añade el proceso (addProcess)
     }
-
+    
+    /**
+     * Si hay espacio, intenta cargar los procesos a memoria 
+     * desde las cola de suspendidos a listos 
+     * Tambien carga los proceso a Listos
+     * Se llama cuando un proceso TERMINA o cuando uno NUEVO llega.
+    */
+    private synchronized void checkAndLoadProcesses() {
+        boolean memoryFree;
+        do{
+            memoryFree = false;
+            
+            if(!scheduler.readySuspendedProcess.isEmpty()){
+                Process p = this.scheduler.readySuspendedProcess.peek();
+                int neededMemory = p.getRemainingInstructions();
+                
+                // Si la cantidad de memoria que el proceos necesita mas la que
+                // todavia se esta usando es menor o igual que el tamanio
+                // total de la memoria
+                if(currentMemoryUsage + neededMemory <= this.memory.memorySize.getSize()){ 
+                    // Hay espacio, se carga el proceso a memoria 
+                   p = scheduler.readySuspendedProcess.dequeue();
+                   currentMemoryUsage += neededMemory; //Actualizamos el contador de memoria usada
+                   p.getPCB().setStateProcess(StateProcess.READY);
+                   scheduler.readyProcess.enqueue(p);
+                   memoryFree = true; // Cargamos un proceso 
+                }
+            }
+                // No se reanudaron los procesos, cargamos nuevos procesos
+                if (!memoryFree && !this.scheduler.newProcess.isEmpty()){
+                    Process p = this.scheduler.newProcess.peek();
+                    int neededMemory = p.getInstructions();
+                    
+                    if (this.currentMemoryUsage + neededMemory <= this.memory.memorySize.getSize()) {
+                        // Hay espacio, se carga 
+                        p = this.scheduler.newProcess.dequeue();
+                        this.currentMemoryUsage += neededMemory; //Actualizamos el contador de memoria usada
+                        p.getPCB().setStateProcess(StateProcess.READY);
+                        this.scheduler.readyProcess.enqueue(p);
+                        memoryFree = true; // Cargamos un proceso 
+                        
+                } else {
+                    // No hay espacio. Intentamos suspender a alguien.
+                    //if (trySuspendBlockedProcess()) { FALTA ESTE METODO 
+                        memoryFree = true;
+                    }
+                }
+            } while (memoryFree); // Repetir mientras logremos mover procesos
+    }
+    
     /**
      * Incrementa los ciclos del CPU
      */
