@@ -75,9 +75,19 @@ public class OS {
      */
     public synchronized void blockProcess(Process p) {
         // 1. Modificar el estado del proceso a Bloqueado
+        p.getPCB().setStateProcess(StateProcess.BLOCKED);
         // 2. Encolar el proceso a la cola de Bloqueados
+        scheduler.blockedProcess.enqueue(p);
         // 3. Invocar un hilo para manejar aquellos procesos bloqueados
+        // Espera de I/O
+        Thread IOThread = new Thread(() -> {
+            blockProcessHandler(p);
+        });
+        IOThread.start(); // Inicia el hilo
     }
+        
+        
+    
 
     /**
      * Proceso -> Cola de terminados
@@ -104,13 +114,46 @@ public class OS {
      * @param p
      */
     public void blockProcessHandler(Process p) {
+        try{
         // 1. Obtener los ciclos para completar el bloqueo
+        int cyclesToWait = p.getPCB().getCyclesCompleteIO();
         // 2. Multiplicar ciclos por duración de ciclo = tiempo max bloqueo
-        // 3. Extraer el proceso de la cola (descolar el proceso)
-        // 4. Reiniciar el contador de bloqueo de ese proceso
-        // 5. Verificar si no está terminado
-        //      a. Si no está terminado, entonces se modifica el estado (Ready)
-        //         y se añade el proceso (addProcess)
+        int TimeMaxBlock = (int) cyclesToWait * this.globalCyclesDuration;
+        //3. Simulamos la espera
+        Thread.sleep(TimeMaxBlock);
+        // 4. Termino el proceso. Reiniciar el contador 
+        p.restartBurstCounter();
+        // 5. Desbloquear el proceso
+        //Usamos synchronized, para que los procesos no accendan al mismo tiempo
+        synchronized (this.scheduler) {
+        // 6. Verificar si no está terminado
+            if(p.getPCB().getStateProcess() == StateProcess.BLOCKED){
+                // Si entra, significa que sigue en memoria.
+                // Lo movemos de Blocked a Ready
+            // a. Extraemos el proceso de la cola (descolar el proceso). 
+            //    usamos metodo de queue -> remove()
+                scheduler.blockedProcess.remove(p);
+            //  b. Si no está terminado, modificar estado y añadir a listos
+            if (!p.isTerminated()) {
+                    p.getPCB().setStateProcess(StateProcess.READY);
+                    this.scheduler.readyProcess.enqueue(p);
+                }
+            } else if(p.getPCB().getStateProcess() == StateProcess.SUSPENDED_BLOCKED){
+                // Lo movemos de BLOCKED_SUSPENDED -> READY_SUSPENDED
+                this.scheduler.blockedSuspendedProcess.remove(p);
+                
+                if (!p.isTerminated()) {
+                        p.getPCB().setStateProcess(StateProcess.SUSPENDED_READY);
+                        this.scheduler.readySuspendedProcess.enqueue(p);
+                }
+                
+            }
+        } // Fin del bloque synchronized
+        
+        }catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                System.err.println("Hilo de E/S interrumpido para " + p.getPCB().getName());
+            }
     }
     
     /**
@@ -163,6 +206,34 @@ public class OS {
     }
     
     /**
+     * Intenta suspender el primer proceso en la cola de bloqueados
+     * para liberar memoria.
+     * Llamado por checkAndLoadProcesses() cuando no hay memoria.
+     * * @return true si se logró suspender y liberar memoria.
+     */
+    private synchronized boolean trySuspendBlockedProcess() {
+        if (this.scheduler.blockedProcess.isEmpty()) {
+            return false; // No hay a quién suspender
+        } 
+        // 1. Sacamos al primer proceso bloqueado
+        Process p = scheduler.blockedProcess.dequeue();
+        
+        // 2. Cambiamos su estado y lo movemos a la cola de suspendidos
+        p.getPCB().setStateProcess(StateProcess.SUSPENDED_BLOCKED);
+        scheduler.blockedSuspendedProcess.enqueue(p);
+        
+        // 3. Liberamos memoria!!!!!!
+        this.currentMemoryUsage -= p.getInstructions();
+        System.out.println("MEMORIA: El " + p.getPCB().getName() + " suspendido. Memoria liberada."); // Para verificar
+        
+        // Se Supone que este metodo es llamado checkAndLoadProcesses(). Una vez termine:
+        // 4. El hilo que lo estaba esperando (blockProcessHandler) 
+        //se encargará de moverlo a READY_SUSPENDED cuando termine su E/S.
+        return true;
+        
+    }
+    
+    /**
      * Incrementa los ciclos del CPU
      */
     public void increaseCycles() {
@@ -206,4 +277,5 @@ public class OS {
         this.globalCyclesDuration = globalCyclesDuration;
     }
     // </editor-fold> 
+
 }

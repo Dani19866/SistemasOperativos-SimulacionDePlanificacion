@@ -102,6 +102,52 @@ public class Queue<T> {
      * @return 
      */
     
+    /**
+     * Elimina un nodo específico de la cola, sin importar su posición.
+     * Su complejidad es O(n) porque debe buscar el nodo.
+     * @param value El elemento que se va a eliminar.
+     * @return true si el elemento fue encontrado y eliminado, false si no.
+     */
+    public boolean remove(T value) {
+        if (isEmpty()) {
+            return false;
+        }
+            // Caso 1: El nodo a eliminar es el 'front'
+            if (front.data.equals(value)) {
+                // dequeue() ya maneja el caso de que sea el único nodo
+                // o de que 'front' deba avanzar.
+                dequeue(); 
+                return true;
+            }
+            // Caso 2: El nodo a eliminar está en medio o al final
+            Node<T> current = front;
+            Node<T> previous = null;
+
+            // Iteramos hasta encontrar el valor o llegar al final
+            while (current != null && !current.data.equals(value)) {
+                previous = current;
+                current = current.next;
+            }
+            // Si current es null, significa que no encontramos el valor
+            if (current == null) {
+                return false;
+            }
+            // Saltamos el nodo 'current'
+            previous.next = current.next;
+            
+            // Caso 3: Era el nodo a eliminar el rear
+            if (current == rear) {
+                // Si es así, el nuevo 'rear' es el nodo 'previous'
+                rear = previous;
+            }
+
+            size--;
+            return true;
+    }
+
+    
+    
+    
 
     /**
      * Devuelve una representación en formato de cadena de la cola.

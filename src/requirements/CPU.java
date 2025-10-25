@@ -44,7 +44,7 @@ public class CPU extends Thread {
      * Alista un proceso | Llama a la función OS_addProcess(runningProcess)
      *
      */
-    public void addProcess() {
+    public void preemptProcess() {
         this.runningProcess.pcb.setStateProcess(StateProcess.READY);
         os.returnProcessReady(runningProcess);  //se cambio a returnprocesstoready
         this.freeProcess();
@@ -111,13 +111,13 @@ public class CPU extends Thread {
                             case RoundRobin -> {
                                 this.quantum--;
                                 if (quantum <= 0) {
-                                    this.addProcess();
+                                    this.preemptProcess();
                                 }
                             }
                             case SRT -> {
                                 Process nextP = os.scheduler.readyProcess.peek();
                                 if (nextP != null && this.runningProcess.getRemainingInstructions() > nextP.getRemainingInstructions()) {
-                                    this.addProcess();
+                                    this.preemptProcess();
                                 }
                             }
                             default -> {
@@ -130,7 +130,7 @@ public class CPU extends Thread {
             } catch (InterruptedException ex) {
                 Thread.currentThread().interrupt();
                 if (this.runningProcess != null) {
-                    this.addProcess();
+                    this.preemptProcess();
                 }
             }
         }
