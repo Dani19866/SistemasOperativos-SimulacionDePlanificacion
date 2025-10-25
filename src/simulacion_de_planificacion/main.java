@@ -24,6 +24,8 @@ public class main {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
+        PanelPrincipal pp = new PanelPrincipal();
+        pp.setVisible(true);
         newAppareance();
 
         Memory memory = new Memory(MemorySizeKb.KB_EQUALS_TO_8_GB);

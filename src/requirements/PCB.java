@@ -21,7 +21,7 @@ public class PCB {
     int pc;
     int mar;
     int priory;
-    float memorySpace;
+   
 
 
     // Características de un I/O-Bound
@@ -45,7 +45,7 @@ public class PCB {
      * @param priory
      * @param memorySpace
      */
-    public PCB(String name, ProcessType processType, int priory, float memorySpace) {
+    public PCB(String name, ProcessType processType, int priory) {
 
         this.id = UUID.randomUUID().toString();
         this.name = name;
@@ -54,7 +54,7 @@ public class PCB {
         this.pc = 0;
         this.mar = 0;
         this.priory = priory;
-        this.memorySpace = memorySpace;
+        
         
         // --- INICIALIZACIÓN PARA MLFQ ---
         this.prioridadMLFQ = 0; // 0 = Proceso nuevo
@@ -71,7 +71,7 @@ public class PCB {
      * @param priory
      * @param memorySpace
      */
-    public PCB(String name, ProcessType processType, int cyclesExcepcion, int cyclesCompleteIO, int priory, float memorySpace) {
+    public PCB(String name, ProcessType processType, int cyclesExcepcion, int cyclesCompleteIO, int priory) {
         this.id = UUID.randomUUID().toString();
         this.name = name;
         this.processType = processType;
@@ -79,7 +79,7 @@ public class PCB {
         this.pc = 0;
         this.mar = 0;
         this.priory = priory;
-        this.memorySpace = memorySpace;
+        
 
         // Asignamos los valores específicos para la E/S
         this.cyclesExcepcion = cyclesExcepcion;

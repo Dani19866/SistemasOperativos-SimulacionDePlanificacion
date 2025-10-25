@@ -4,19 +4,49 @@
  */
 package IGU;
 
+import SchedulerTechniques.StrategyScheduler;
+import java.io.File;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import requirements.Process;
+
+import requirements.Scheduler;
+import structures.ProcessType;
+
 
 /**
  *
  * @author rtkn0_z8ls
  */
 public class PanelPrincipal extends javax.swing.JFrame {
-
+    private File selectedFile;
     /**
      * Creates new form PanelPrincipal
      */
-    public PanelPrincipal() {
+    public PanelPrincipal() { 
+        this.setVisible(true);
         initComponents();
+     // 1. Poblar el JComboBox de Politicas de Planificacion
+        String[] Politicas = { 
+        "Round Robin", 
+        "FCFS", 
+        "SJF", 
+        "SRT", 
+        "HRRN", 
+        "FB" 
+        };
+        PoliticaName.setModel(new javax.swing.DefaultComboBoxModel<>(Politicas));
+        
+         // 2. Poblar el JComboBox de Tipos de Proceso
+        String[] TipoProceso = { 
+            "CPU-Bound", 
+            "I/O-Bound"
+        };
+        TypeProcess.setModel(new javax.swing.DefaultComboBoxModel<>(TipoProceso));
+
     }
+   
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -30,25 +60,30 @@ public class PanelPrincipal extends javax.swing.JFrame {
         jPanel3 = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
-        quantumchoice = new java.awt.Choice();
         titulo = new javax.swing.JLabel();
-        politicachoice = new java.awt.Choice();
-        label1 = new javax.swing.JLabel();
         instrucciones = new javax.swing.JLabel();
-        spinnerinstrucciones = new javax.swing.JSpinner();
-        boxtipo = new javax.swing.JComboBox<>();
         tipo = new javax.swing.JLabel();
         ciclo = new javax.swing.JLabel();
         Spinnerciclo = new javax.swing.JSpinner();
         quantum = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
-        jButton1 = new javax.swing.JButton();
+        NombreProceso = new javax.swing.JTextField();
+        cargarFile = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
-        jButton3 = new javax.swing.JButton();
+        cargarDatos = new javax.swing.JButton();
         jButton4 = new javax.swing.JButton();
-        boxtipo1 = new javax.swing.JComboBox<>();
+        CantidadInstrucciones = new javax.swing.JSpinner();
+        PoliticaName = new javax.swing.JComboBox<>();
+        TypeProcess = new javax.swing.JComboBox<>();
+        ciclo1 = new javax.swing.JLabel();
+        Priory = new javax.swing.JSpinner();
+        ciclo2 = new javax.swing.JLabel();
+        ciclo3 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
+        CyclesIO = new javax.swing.JSpinner();
+        jSeparator1 = new javax.swing.JSeparator();
+        jButton5 = new javax.swing.JButton();
+        CyclesEx = new javax.swing.JSpinner();
         jPanel4 = new javax.swing.JPanel();
         Listalisto = new java.awt.Panel();
         Listabloqueados = new java.awt.Panel();
@@ -74,55 +109,28 @@ public class PanelPrincipal extends javax.swing.JFrame {
         jLabel1.setText("Nombre del Proceso");
         jPanel2.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 90, -1, -1));
 
-        jLabel2.setBackground(new java.awt.Color(0, 0, 0));
-        jLabel2.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
-        jLabel2.setText("Quantum");
-        jPanel2.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 120, -1, -1));
-        jPanel2.add(quantumchoice, new org.netbeans.lib.awtextra.AbsoluteConstraints(580, 120, 160, -1));
-
         titulo.setFont(new java.awt.Font("Dialog", 0, 48)); // NOI18N
         titulo.setText("Simulador de Procesos ");
         jPanel2.add(titulo, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 20, -1, -1));
-        jPanel2.add(politicachoice, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 120, 380, -1));
-
-        label1.setBackground(new java.awt.Color(0, 0, 0));
-        label1.setFont(new java.awt.Font("Dialog", 2, 14)); // NOI18N
-        label1.setForeground(new java.awt.Color(102, 102, 102));
-        label1.setText("Introduzca los atributos del proceso  ");
-        jPanel2.add(label1, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 160, -1, -1));
 
         instrucciones.setBackground(new java.awt.Color(0, 0, 0));
         instrucciones.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
         instrucciones.setText("N. de Instrucciones:");
-        jPanel2.add(instrucciones, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 190, -1, -1));
-
-        spinnerinstrucciones.setModel(new javax.swing.SpinnerNumberModel(0, 0, 10000, 1));
-        spinnerinstrucciones.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
-        jPanel2.add(spinnerinstrucciones, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 190, 140, 25));
-
-        boxtipo.setBackground(new java.awt.Color(51, 51, 51));
-        boxtipo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-        boxtipo.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
-        boxtipo.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                boxtipoActionPerformed(evt);
-            }
-        });
-        jPanel2.add(boxtipo, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 190, 190, 25));
+        jPanel2.add(instrucciones, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 150, -1, -1));
 
         tipo.setBackground(new java.awt.Color(0, 0, 0));
         tipo.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
         tipo.setText("Tipo:");
-        jPanel2.add(tipo, new org.netbeans.lib.awtextra.AbsoluteConstraints(360, 190, -1, -1));
+        jPanel2.add(tipo, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 120, -1, -1));
 
         ciclo.setBackground(new java.awt.Color(0, 0, 0));
         ciclo.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
-        ciclo.setText("Ciclo (ms): ");
-        jPanel2.add(ciclo, new org.netbeans.lib.awtextra.AbsoluteConstraints(600, 190, -1, -1));
+        ciclo.setText("generar excepcion");
+        jPanel2.add(ciclo, new org.netbeans.lib.awtextra.AbsoluteConstraints(460, 110, 120, -1));
 
         Spinnerciclo.setModel(new javax.swing.SpinnerNumberModel(0, 0, 10000, 1));
         Spinnerciclo.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
-        jPanel2.add(Spinnerciclo, new org.netbeans.lib.awtextra.AbsoluteConstraints(670, 190, 75, 25));
+        jPanel2.add(Spinnerciclo, new org.netbeans.lib.awtextra.AbsoluteConstraints(590, 230, 170, 25));
 
         quantum.setBackground(new java.awt.Color(0, 0, 0));
         quantum.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
@@ -130,22 +138,28 @@ public class PanelPrincipal extends javax.swing.JFrame {
 
         jLabel3.setBackground(new java.awt.Color(0, 0, 0));
         jLabel3.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
-        jLabel3.setText("Politica");
-        jPanel2.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 120, -1, -1));
+        jLabel3.setText("Duracion del ciclo Ejec.");
+        jPanel2.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(430, 230, -1, -1));
 
-        jTextField1.setText("Nombre");
-        jPanel2.add(jTextField1, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 90, 540, -1));
-
-        jButton1.setBackground(new java.awt.Color(102, 153, 255));
-        jButton1.setFont(new java.awt.Font("Dialog", 1, 12)); // NOI18N
-        jButton1.setText("Cargar JSON/CSV");
-        jButton1.setBorder(null);
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        NombreProceso.setText("Nombre");
+        NombreProceso.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                NombreProcesoActionPerformed(evt);
             }
         });
-        jPanel2.add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(830, 80, 120, 30));
+        jPanel2.add(NombreProceso, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 90, 170, -1));
+
+        cargarFile.setBackground(new java.awt.Color(0, 102, 255));
+        cargarFile.setFont(new java.awt.Font("Dialog", 1, 12)); // NOI18N
+        cargarFile.setForeground(new java.awt.Color(255, 255, 255));
+        cargarFile.setText("Subir JSON/CSV");
+        cargarFile.setBorder(null);
+        cargarFile.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cargarFileActionPerformed(evt);
+            }
+        });
+        jPanel2.add(cargarFile, new org.netbeans.lib.awtextra.AbsoluteConstraints(920, 100, 120, 30));
 
         jButton2.setBackground(new java.awt.Color(0, 102, 255));
         jButton2.setFont(new java.awt.Font("Dialog", 1, 12)); // NOI18N
@@ -157,39 +171,99 @@ public class PanelPrincipal extends javax.swing.JFrame {
                 jButton2ActionPerformed(evt);
             }
         });
-        jPanel2.add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(830, 230, 120, 30));
+        jPanel2.add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(920, 220, 120, 30));
 
-        jButton3.setBackground(new java.awt.Color(102, 153, 255));
-        jButton3.setFont(new java.awt.Font("Dialog", 1, 12)); // NOI18N
-        jButton3.setText("Cargar Datos");
-        jButton3.setBorder(null);
-        jButton3.addActionListener(new java.awt.event.ActionListener() {
+        cargarDatos.setBackground(new java.awt.Color(0, 102, 255));
+        cargarDatos.setFont(new java.awt.Font("Dialog", 1, 12)); // NOI18N
+        cargarDatos.setForeground(new java.awt.Color(255, 255, 255));
+        cargarDatos.setText("Cargar Datos");
+        cargarDatos.setBorder(null);
+        cargarDatos.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton3ActionPerformed(evt);
+                cargarDatosActionPerformed(evt);
             }
         });
-        jPanel2.add(jButton3, new org.netbeans.lib.awtextra.AbsoluteConstraints(830, 120, 120, 30));
+        jPanel2.add(cargarDatos, new org.netbeans.lib.awtextra.AbsoluteConstraints(920, 140, 120, 30));
 
-        jButton4.setBackground(new java.awt.Color(102, 153, 255));
+        jButton4.setBackground(new java.awt.Color(0, 102, 255));
         jButton4.setFont(new java.awt.Font("Dialog", 1, 12)); // NOI18N
-        jButton4.setText("Iniciar Proceso");
+        jButton4.setForeground(new java.awt.Color(255, 255, 255));
+        jButton4.setText("Guardar");
         jButton4.setBorder(null);
         jButton4.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton4ActionPerformed(evt);
             }
         });
-        jPanel2.add(jButton4, new org.netbeans.lib.awtextra.AbsoluteConstraints(830, 160, 120, 30));
+        jPanel2.add(jButton4, new org.netbeans.lib.awtextra.AbsoluteConstraints(790, 220, 100, 30));
 
-        boxtipo1.setEditable(true);
-        boxtipo1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-        boxtipo1.setBorder(null);
-        boxtipo1.addActionListener(new java.awt.event.ActionListener() {
+        CantidadInstrucciones.setModel(new javax.swing.SpinnerNumberModel(0, 0, 10000, 1));
+        CantidadInstrucciones.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        jPanel2.add(CantidadInstrucciones, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 150, 170, 25));
+
+        PoliticaName.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        PoliticaName.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                boxtipo1ActionPerformed(evt);
+                PoliticaNameActionPerformed(evt);
             }
         });
-        jPanel2.add(boxtipo1, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 190, 190, 25));
+        jPanel2.add(PoliticaName, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 230, 170, -1));
+
+        TypeProcess.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        TypeProcess.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                TypeProcessActionPerformed(evt);
+            }
+        });
+        jPanel2.add(TypeProcess, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 120, 170, -1));
+
+        ciclo1.setBackground(new java.awt.Color(0, 0, 0));
+        ciclo1.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
+        ciclo1.setText("satisfacer excepcion");
+        jPanel2.add(ciclo1, new org.netbeans.lib.awtextra.AbsoluteConstraints(450, 160, 130, -1));
+
+        Priory.setModel(new javax.swing.SpinnerNumberModel(0, 0, 10000, 1));
+        Priory.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        jPanel2.add(Priory, new org.netbeans.lib.awtextra.AbsoluteConstraints(850, 60, 50, 25));
+
+        ciclo2.setBackground(new java.awt.Color(0, 0, 0));
+        ciclo2.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
+        ciclo2.setText("Cantidad de ciclos para ");
+        jPanel2.add(ciclo2, new org.netbeans.lib.awtextra.AbsoluteConstraints(430, 90, 160, -1));
+
+        ciclo3.setBackground(new java.awt.Color(0, 0, 0));
+        ciclo3.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
+        ciclo3.setText("Cantidad de ciclos para ");
+        jPanel2.add(ciclo3, new org.netbeans.lib.awtextra.AbsoluteConstraints(430, 140, 160, -1));
+
+        jLabel5.setBackground(new java.awt.Color(0, 0, 0));
+        jLabel5.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
+        jLabel5.setText("Politica");
+        jPanel2.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 230, -1, -1));
+
+        CyclesIO.setModel(new javax.swing.SpinnerNumberModel(0, 0, 10000, 1));
+        CyclesIO.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        jPanel2.add(CyclesIO, new org.netbeans.lib.awtextra.AbsoluteConstraints(590, 150, 170, 25));
+
+        jSeparator1.setBackground(new java.awt.Color(204, 204, 204));
+        jSeparator1.setForeground(new java.awt.Color(153, 153, 153));
+        jPanel2.add(jSeparator1, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 200, 700, -1));
+
+        jButton5.setBackground(new java.awt.Color(102, 153, 255));
+        jButton5.setFont(new java.awt.Font("Dialog", 3, 12)); // NOI18N
+        jButton5.setForeground(new java.awt.Color(255, 255, 255));
+        jButton5.setText("Iniciar Proceso");
+        jButton5.setBorder(null);
+        jButton5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton5ActionPerformed(evt);
+            }
+        });
+        jPanel2.add(jButton5, new org.netbeans.lib.awtextra.AbsoluteConstraints(790, 120, 100, 30));
+
+        CyclesEx.setModel(new javax.swing.SpinnerNumberModel(0, 0, 10000, 1));
+        CyclesEx.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        jPanel2.add(CyclesEx, new org.netbeans.lib.awtextra.AbsoluteConstraints(590, 100, 170, 25));
 
         jPanel3.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1110, 280));
 
@@ -348,18 +422,33 @@ public class PanelPrincipal extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void boxtipoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boxtipoActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_boxtipoActionPerformed
+    private void cargarFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cargarFileActionPerformed
+           JFileChooser selarchivo = new JFileChooser();
+        FileNameExtensionFilter filter = new FileNameExtensionFilter(" Archivos JSON", "json");
+        selarchivo.setFileFilter(filter);
+        int val = selarchivo.showOpenDialog(null);
+        if (val == JFileChooser.APPROVE_OPTION){
+            if(selarchivo.getSelectedFile() != null){
+            selectedFile = selarchivo.getSelectedFile();
+            JOptionPane.showMessageDialog(null, "El archivo seleccionado es: " + selectedFile.getName());}
+        else {
+            JOptionPane.showMessageDialog(null,"Archivo no seleccionado");
+        }}
+    }//GEN-LAST:event_cargarFileActionPerformed
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton1ActionPerformed
-
-    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton3ActionPerformed
-
+    private void cargarDatosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cargarDatosActionPerformed
+         if (isEmpty()){
+            //SE MUESTRA UN MENSAJE DE ERROR EN CASO DE QUE NO SE HAYA SELECCIONADO NINGUN ARCHIVO
+            JOptionPane.showMessageDialog(null, "Debe seleccionar un archivo primero");
+         }else{
+             String filePath = selectedFile.getAbsolutePath();
+         }
+         
+    }//GEN-LAST:event_cargarDatosActionPerformed
+    private boolean isEmpty(){
+        return selectedFile  == null;
+    }
+    
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton2ActionPerformed
@@ -368,9 +457,116 @@ public class PanelPrincipal extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton4ActionPerformed
 
-    private void boxtipo1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boxtipo1ActionPerformed
+    private void NombreProcesoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_NombreProcesoActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_boxtipo1ActionPerformed
+    }//GEN-LAST:event_NombreProcesoActionPerformed
+
+    private void PoliticaNameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_PoliticaNameActionPerformed
+         // Obtener el algoritmo seleccionado
+        String algoritmo = (String) PoliticaName.getSelectedItem();
+
+        // Crear el nuevo planificador según el algoritmo seleccionado
+        StrategyScheduler newScheduler;
+        switch (algoritmo) {
+            case "FCFS":
+                newScheduler = StrategyScheduler.FirstComeFirstServe;
+                break;
+            case "SJF":
+                newScheduler = StrategyScheduler.SJF;
+                break;
+            case "Round Robin":
+                newScheduler = StrategyScheduler.RoundRobin;
+                break;
+            case "HRRN":
+                newScheduler = StrategyScheduler.HRRN;
+                break;
+            case "SRT":
+                newScheduler = StrategyScheduler.SRT;
+                break;
+            case "FB":
+                newScheduler = StrategyScheduler.FB;
+            default:
+                JOptionPane.showMessageDialog(PanelPrincipal.this, "Algoritmo no soportado."); // Usar Simulador.this para referenciar la ventana principal
+                return;
+        }
+
+    }//GEN-LAST:event_PoliticaNameActionPerformed
+
+    private void TypeProcessActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_TypeProcessActionPerformed
+         // Obtener el tipo de proceos seleccionado
+        String typeSelect = (String) TypeProcess.getSelectedItem();
+        
+        // Comprobar si es I/O-Bound
+        boolean esIOBound = typeSelect.equals("I/O-Bound");
+        /**
+         *  Asumiendo que los componentes se llaman así:
+            lblCyclesExcepcion.setVisible(esIOBound);
+            txtCyclesExcepcion.setVisible(esIOBound);
+            lblCyclesCompleteIO.setVisible(esIOBound);
+            txtCyclesCompleteIO.setVisible(esIOBound);
+         */
+    }//GEN-LAST:event_TypeProcessActionPerformed
+
+    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
+        try {
+        // 1. LEER DATOS EN COMUN
+        String nombre = NombreProceso.getText();
+        int instrucciones = (Integer) CantidadInstrucciones.getValue();
+        int priory = (Integer) Priory.getValue();
+        
+        // 2. LEER TIPO DE PROCESO SELECCIONADO
+        String TypeSelected = (String) TypeProcess.getSelectedItem();
+        
+        Process newProcess; // El proceso que vamos a crear
+        
+            // 3. DECIDIR QUÉ CONSTRUCTOR USAR
+            if (TypeSelected.equals("I/O-Bound")) {
+                int cyclesEx = (Integer) CyclesEx.getValue();
+                int cyclesIO = (Integer) CyclesIO.getValue();
+                
+            newProcess = new Process(
+                nombre, 
+                ProcessType.IO_BOUND,
+                cyclesEx, 
+                cyclesIO, 
+                instrucciones, 
+                priory
+            ); 
+        }else { // Es "CPU-Bound"
+            
+            newProcess = new Process(
+                nombre, 
+                ProcessType.CPU_BOUND,
+                instrucciones, 
+                priory 
+            );
+        }
+        // Mensaje de Proceso creado correctamente 
+        JOptionPane.showMessageDialog(this, "Proceso " + nombre + " creado exitosamente.");
+        
+        // Limpiar los campos 
+        NombreProceso.setText("");
+        CantidadInstrucciones.setValue(0);
+        Priory.setValue(0);
+        CyclesEx.setValue(0);
+        CyclesIO.setValue(0);
+        
+        } catch (NumberFormatException e) {
+            
+        // Captura error de Formato 
+        JOptionPane.showMessageDialog(this, 
+            "Error: Revisa los campos numéricos.\nDeben ser números válidos.", 
+            "Error de Formato", 
+            JOptionPane.ERROR_MESSAGE);
+        
+        } catch (Exception e) {
+            // Capturar cualquier otro error 
+             JOptionPane.showMessageDialog(this, 
+                "Ocurrió un error: " + e.getMessage(), 
+                "Error", 
+                JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_jButton5ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -388,6 +584,9 @@ public class PanelPrincipal extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel Bloqueados;
+    private javax.swing.JSpinner CantidadInstrucciones;
+    private javax.swing.JSpinner CyclesEx;
+    private javax.swing.JSpinner CyclesIO;
     private javax.swing.JLabel Finalizados;
     private java.awt.Panel ListaFinalizado;
     private java.awt.Panel Listabloqueados;
@@ -395,28 +594,30 @@ public class PanelPrincipal extends javax.swing.JFrame {
     private java.awt.Panel Listalisto1;
     private javax.swing.JLabel Listo;
     private javax.swing.JLabel Listo1;
+    private javax.swing.JTextField NombreProceso;
+    private javax.swing.JComboBox<String> PoliticaName;
+    private javax.swing.JSpinner Priory;
     private javax.swing.JSpinner Spinnerciclo;
-    private javax.swing.JComboBox<String> boxtipo;
-    private javax.swing.JComboBox<String> boxtipo1;
+    private javax.swing.JComboBox<String> TypeProcess;
+    private javax.swing.JButton cargarDatos;
+    private javax.swing.JButton cargarFile;
     private javax.swing.JLabel ciclo;
+    private javax.swing.JLabel ciclo1;
+    private javax.swing.JLabel ciclo2;
+    private javax.swing.JLabel ciclo3;
     private javax.swing.JLabel instrucciones;
-    private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
+    private javax.swing.JButton jButton5;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
-    private javax.swing.JTextField jTextField1;
-    private javax.swing.JLabel label1;
-    private java.awt.Choice politicachoice;
+    private javax.swing.JSeparator jSeparator1;
     private javax.swing.JLabel quantum;
-    private java.awt.Choice quantumchoice;
-    private javax.swing.JSpinner spinnerinstrucciones;
     private javax.swing.JLabel tipo;
     private javax.swing.JLabel titulo;
     // End of variables declaration//GEN-END:variables
