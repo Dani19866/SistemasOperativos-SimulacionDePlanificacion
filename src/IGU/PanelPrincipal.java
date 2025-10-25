@@ -68,7 +68,7 @@ public class PanelPrincipal extends javax.swing.JFrame {
         quantum = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         NombreProceso = new javax.swing.JTextField();
-        cargarFile = new javax.swing.JButton();
+        randomProcess = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
         cargarDatos = new javax.swing.JButton();
         jButton4 = new javax.swing.JButton();
@@ -76,13 +76,14 @@ public class PanelPrincipal extends javax.swing.JFrame {
         PoliticaName = new javax.swing.JComboBox<>();
         TypeProcess = new javax.swing.JComboBox<>();
         ciclo1 = new javax.swing.JLabel();
-        Priory = new javax.swing.JSpinner();
         ciclo2 = new javax.swing.JLabel();
         ciclo3 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
         CyclesIO = new javax.swing.JSpinner();
         jSeparator1 = new javax.swing.JSeparator();
-        jButton5 = new javax.swing.JButton();
+        IniciarProceso = new javax.swing.JButton();
+        Priory = new javax.swing.JSpinner();
+        cargarFile = new javax.swing.JButton();
         CyclesEx = new javax.swing.JSpinner();
         jPanel4 = new javax.swing.JPanel();
         Listalisto = new java.awt.Panel();
@@ -149,17 +150,17 @@ public class PanelPrincipal extends javax.swing.JFrame {
         });
         jPanel2.add(NombreProceso, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 90, 170, -1));
 
-        cargarFile.setBackground(new java.awt.Color(0, 102, 255));
-        cargarFile.setFont(new java.awt.Font("Dialog", 1, 12)); // NOI18N
-        cargarFile.setForeground(new java.awt.Color(255, 255, 255));
-        cargarFile.setText("Subir JSON/CSV");
-        cargarFile.setBorder(null);
-        cargarFile.addActionListener(new java.awt.event.ActionListener() {
+        randomProcess.setBackground(new java.awt.Color(0, 102, 255));
+        randomProcess.setFont(new java.awt.Font("Dialog", 1, 12)); // NOI18N
+        randomProcess.setForeground(new java.awt.Color(255, 255, 255));
+        randomProcess.setText("Cargar Aleatorios");
+        randomProcess.setBorder(null);
+        randomProcess.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cargarFileActionPerformed(evt);
+                randomProcessActionPerformed(evt);
             }
         });
-        jPanel2.add(cargarFile, new org.netbeans.lib.awtextra.AbsoluteConstraints(920, 100, 120, 30));
+        jPanel2.add(randomProcess, new org.netbeans.lib.awtextra.AbsoluteConstraints(920, 60, 120, 30));
 
         jButton2.setBackground(new java.awt.Color(0, 102, 255));
         jButton2.setFont(new java.awt.Font("Dialog", 1, 12)); // NOI18N
@@ -222,10 +223,6 @@ public class PanelPrincipal extends javax.swing.JFrame {
         ciclo1.setText("satisfacer excepcion");
         jPanel2.add(ciclo1, new org.netbeans.lib.awtextra.AbsoluteConstraints(450, 160, 130, -1));
 
-        Priory.setModel(new javax.swing.SpinnerNumberModel(0, 0, 10000, 1));
-        Priory.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
-        jPanel2.add(Priory, new org.netbeans.lib.awtextra.AbsoluteConstraints(850, 60, 50, 25));
-
         ciclo2.setBackground(new java.awt.Color(0, 0, 0));
         ciclo2.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
         ciclo2.setText("Cantidad de ciclos para ");
@@ -249,17 +246,33 @@ public class PanelPrincipal extends javax.swing.JFrame {
         jSeparator1.setForeground(new java.awt.Color(153, 153, 153));
         jPanel2.add(jSeparator1, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 200, 700, -1));
 
-        jButton5.setBackground(new java.awt.Color(102, 153, 255));
-        jButton5.setFont(new java.awt.Font("Dialog", 3, 12)); // NOI18N
-        jButton5.setForeground(new java.awt.Color(255, 255, 255));
-        jButton5.setText("Iniciar Proceso");
-        jButton5.setBorder(null);
-        jButton5.addActionListener(new java.awt.event.ActionListener() {
+        IniciarProceso.setBackground(new java.awt.Color(102, 153, 255));
+        IniciarProceso.setFont(new java.awt.Font("Dialog", 3, 12)); // NOI18N
+        IniciarProceso.setForeground(new java.awt.Color(255, 255, 255));
+        IniciarProceso.setText("Iniciar Proceso");
+        IniciarProceso.setBorder(null);
+        IniciarProceso.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton5ActionPerformed(evt);
+                IniciarProcesoActionPerformed(evt);
             }
         });
-        jPanel2.add(jButton5, new org.netbeans.lib.awtextra.AbsoluteConstraints(790, 120, 100, 30));
+        jPanel2.add(IniciarProceso, new org.netbeans.lib.awtextra.AbsoluteConstraints(790, 120, 100, 30));
+
+        Priory.setModel(new javax.swing.SpinnerNumberModel(0, 0, 10000, 1));
+        Priory.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        jPanel2.add(Priory, new org.netbeans.lib.awtextra.AbsoluteConstraints(820, 70, 60, 25));
+
+        cargarFile.setBackground(new java.awt.Color(0, 102, 255));
+        cargarFile.setFont(new java.awt.Font("Dialog", 1, 12)); // NOI18N
+        cargarFile.setForeground(new java.awt.Color(255, 255, 255));
+        cargarFile.setText("Subir JSON/CSV");
+        cargarFile.setBorder(null);
+        cargarFile.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cargarFileActionPerformed(evt);
+            }
+        });
+        jPanel2.add(cargarFile, new org.netbeans.lib.awtextra.AbsoluteConstraints(920, 100, 120, 30));
 
         CyclesEx.setModel(new javax.swing.SpinnerNumberModel(0, 0, 10000, 1));
         CyclesEx.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
@@ -422,7 +435,7 @@ public class PanelPrincipal extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void cargarFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cargarFileActionPerformed
+    private void randomProcessActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_randomProcessActionPerformed
            JFileChooser selarchivo = new JFileChooser();
         FileNameExtensionFilter filter = new FileNameExtensionFilter(" Archivos JSON", "json");
         selarchivo.setFileFilter(filter);
@@ -434,7 +447,7 @@ public class PanelPrincipal extends javax.swing.JFrame {
         else {
             JOptionPane.showMessageDialog(null,"Archivo no seleccionado");
         }}
-    }//GEN-LAST:event_cargarFileActionPerformed
+    }//GEN-LAST:event_randomProcessActionPerformed
 
     private void cargarDatosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cargarDatosActionPerformed
          if (isEmpty()){
@@ -507,7 +520,7 @@ public class PanelPrincipal extends javax.swing.JFrame {
          */
     }//GEN-LAST:event_TypeProcessActionPerformed
 
-    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
+    private void IniciarProcesoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_IniciarProcesoActionPerformed
         try {
         // 1. LEER DATOS EN COMUN
         String nombre = NombreProceso.getText();
@@ -521,7 +534,7 @@ public class PanelPrincipal extends javax.swing.JFrame {
         
             // 3. DECIDIR QUÉ CONSTRUCTOR USAR
             if (TypeSelected.equals("I/O-Bound")) {
-                int cyclesEx = (Integer) CyclesEx.getValue();
+                int cyclesEx = (Integer) Priory.getValue();
                 int cyclesIO = (Integer) CyclesIO.getValue();
                 
             newProcess = new Process(
@@ -542,13 +555,13 @@ public class PanelPrincipal extends javax.swing.JFrame {
             );
         }
         // Mensaje de Proceso creado correctamente 
-        JOptionPane.showMessageDialog(this, "Proceso " + nombre + " creado exitosamente.");
+        JOptionPane.showMessageDialog(this, "El " + nombre + " creado exitosamente.");
         
         // Limpiar los campos 
         NombreProceso.setText("");
         CantidadInstrucciones.setValue(0);
         Priory.setValue(0);
-        CyclesEx.setValue(0);
+        Priory.setValue(0);
         CyclesIO.setValue(0);
         
         } catch (NumberFormatException e) {
@@ -566,7 +579,11 @@ public class PanelPrincipal extends javax.swing.JFrame {
                 "Error", 
                 JOptionPane.ERROR_MESSAGE);
         }
-    }//GEN-LAST:event_jButton5ActionPerformed
+    }//GEN-LAST:event_IniciarProcesoActionPerformed
+
+    private void cargarFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cargarFileActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_cargarFileActionPerformed
 
     /**
      * @param args the command line arguments
@@ -588,6 +605,7 @@ public class PanelPrincipal extends javax.swing.JFrame {
     private javax.swing.JSpinner CyclesEx;
     private javax.swing.JSpinner CyclesIO;
     private javax.swing.JLabel Finalizados;
+    private javax.swing.JButton IniciarProceso;
     private java.awt.Panel ListaFinalizado;
     private java.awt.Panel Listabloqueados;
     private java.awt.Panel Listalisto;
@@ -608,7 +626,6 @@ public class PanelPrincipal extends javax.swing.JFrame {
     private javax.swing.JLabel instrucciones;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton4;
-    private javax.swing.JButton jButton5;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -618,6 +635,7 @@ public class PanelPrincipal extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel4;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JLabel quantum;
+    private javax.swing.JButton randomProcess;
     private javax.swing.JLabel tipo;
     private javax.swing.JLabel titulo;
     // End of variables declaration//GEN-END:variables
