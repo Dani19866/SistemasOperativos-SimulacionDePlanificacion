@@ -86,8 +86,17 @@ public class OS {
      */
     public void finishProcess(Process p) {
         // 1. Setear el estado del proceso en Terminado
+        p.getPCB().setStateProcess(StateProcess.TERMINATED);
         // 2. Encolar en la lista de Bloqueados
+        scheduler.outProcess.add(p);
+        // 3. Liberar Memoria
+        currentMemoryUsage -= p.getInstructions();
+        
+        //4. Avisamos al planificador que hay espacio disponible 
+        this.checkAndLoadProcesses();
+        
     }
+    
 
     /**
      * Manejar bloqueo del proceso con HILOS | Añade el proceso con addProcess()
