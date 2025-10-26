@@ -97,6 +97,14 @@ public class Queue<T> {
     public int size() {
         return size;
     }
+    /**
+     * Devuelve el primer nodo (front) de la cola.
+     * Esto permite la iteración externa.
+     * @return El nodo 'front'.
+     */
+    public Node<T> getFirstNode() {
+        return front;
+    }
     /** 
      * Devuelve el tamanio 
      * @return 

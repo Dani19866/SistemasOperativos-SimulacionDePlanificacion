@@ -10,13 +10,17 @@ import javax.swing.JOptionPane;
 import SchedulerTechniques.StrategyScheduler;
 import java.io.File;
 import java.util.Random;
+import javax.swing.DefaultListModel;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
+import requirements.PCB;
 import requirements.Process;
 
 import requirements.Scheduler;
+import requirements.SimulationListener;
 import structures.ProcessType;
 
 
@@ -24,36 +28,27 @@ import structures.ProcessType;
  *
  * @author rtkn0_z8ls
  */
-public class PanelPrincipal extends javax.swing.JFrame {
+public class PanelPrincipal extends javax.swing.JFrame implements SimulationListener {
     private File selectedFile;
     private OS os; // Referenciamos a nuestro OS
     
-    private DefaultTableModel modeloTablaListos = new DefaultTableModel(
-            new Object[][]{}, new String[]{"ID", "NAME", "STATE", "PC", "MAR"}
-        );
-
-        private DefaultTableModel modeloTablaBloqueados = new DefaultTableModel(
-                new Object[][]{}, new String[]{"ID", "NAME", "STATE", "PC", "MAR"}
-        );
-
-        private DefaultTableModel modeloTablaTerminados = new DefaultTableModel(
-                new Object[][]{}, new String[]{"ID", "NAME", "STATE", "PC", "MAR"}
-        );
-
-        private DefaultTableModel modeloTablaSupendido = new DefaultTableModel(
-                new Object[][]{}, new String[]{"ID", "NAME", "STATE", "PC", "MAR"}
-        );
+    private DefaultListModel<String> modeloListaListos = new DefaultListModel<>();
+    private DefaultListModel<String> modeloListaBloqueados = new DefaultListModel<>();
+    private DefaultListModel<String> modeloListaTerminados = new DefaultListModel<>();
+    private DefaultListModel<String> modeloListaSupendido = new DefaultListModel<>();
     /**
      * Creates new form PanelPrincipal
      */
     public PanelPrincipal(OS os) { 
+        initComponents();
         this.os = os;
         this.setVisible(true);
-        initComponents();
-        colaSupendidos.setModel(modeloTablaSupendido);
-        colaListos.setModel(modeloTablaListos);
-        colaBloqueado.setModel(modeloTablaBloqueados);
-        colaOut.setModel(modeloTablaTerminados);
+        
+        colaListos.setModel(modeloListaListos);
+        colaBloqueados.setModel(modeloListaBloqueados);
+        colaFinalizados.setModel(modeloListaTerminados);
+        colaSuspendidos.setModel(modeloListaSupendido);
+        this.os.addSimulationListener(this);
         
      // 1. Poblar el JComboBox de Politicas de Planificacion
         String[] Politicas = { 
@@ -121,14 +116,14 @@ public class PanelPrincipal extends javax.swing.JFrame {
         Finalizados = new javax.swing.JLabel();
         Listo1 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        colaSupendidos = new javax.swing.JTable();
-        jScrollPane3 = new javax.swing.JScrollPane();
-        colaListos = new javax.swing.JTable();
-        jScrollPane4 = new javax.swing.JScrollPane();
-        colaBloqueado = new javax.swing.JTable();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        colaOut = new javax.swing.JTable();
+        jScrollPane6 = new javax.swing.JScrollPane();
+        colaFinalizados = new javax.swing.JList<>();
+        jScrollPane7 = new javax.swing.JScrollPane();
+        colaSuspendidos = new javax.swing.JList<>();
+        jScrollPane8 = new javax.swing.JScrollPane();
+        colaListos = new javax.swing.JList<>();
+        jScrollPane9 = new javax.swing.JScrollPane();
+        colaBloqueados = new javax.swing.JList<>();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(245, 247, 250));
@@ -340,65 +335,41 @@ public class PanelPrincipal extends javax.swing.JFrame {
         jLabel4.setText("Proceso en Ejecución");
         jPanel4.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(81, 305, -1, -1));
 
-        colaSupendidos.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null}
-            },
-            new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4", "Title 5"
-            }
-        ));
-        jScrollPane2.setViewportView(colaSupendidos);
+        colaFinalizados.setModel(new javax.swing.AbstractListModel<String>() {
+            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
+            public int getSize() { return strings.length; }
+            public String getElementAt(int i) { return strings[i]; }
+        });
+        jScrollPane6.setViewportView(colaFinalizados);
 
-        jPanel4.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 40, 240, 250));
+        jPanel4.add(jScrollPane6, new org.netbeans.lib.awtextra.AbsoluteConstraints(810, 50, 220, 240));
 
-        colaListos.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null}
-            },
-            new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4", "Title 5"
-            }
-        ));
-        jScrollPane3.setViewportView(colaListos);
+        colaSuspendidos.setModel(new javax.swing.AbstractListModel<String>() {
+            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
+            public int getSize() { return strings.length; }
+            public String getElementAt(int i) { return strings[i]; }
+        });
+        jScrollPane7.setViewportView(colaSuspendidos);
 
-        jPanel4.add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 40, 240, 250));
+        jPanel4.add(jScrollPane7, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 50, 220, 240));
 
-        colaBloqueado.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null}
-            },
-            new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4", "Title 5"
-            }
-        ));
-        jScrollPane4.setViewportView(colaBloqueado);
+        colaListos.setModel(new javax.swing.AbstractListModel<String>() {
+            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
+            public int getSize() { return strings.length; }
+            public String getElementAt(int i) { return strings[i]; }
+        });
+        jScrollPane8.setViewportView(colaListos);
 
-        jPanel4.add(jScrollPane4, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 40, 240, 250));
+        jPanel4.add(jScrollPane8, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 50, 220, 240));
 
-        colaOut.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null}
-            },
-            new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4", "Title 5"
-            }
-        ));
-        jScrollPane1.setViewportView(colaOut);
+        colaBloqueados.setModel(new javax.swing.AbstractListModel<String>() {
+            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
+            public int getSize() { return strings.length; }
+            public String getElementAt(int i) { return strings[i]; }
+        });
+        jScrollPane9.setViewportView(colaBloqueados);
 
-        jPanel4.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(810, 40, 240, 250));
+        jPanel4.add(jScrollPane9, new org.netbeans.lib.awtextra.AbsoluteConstraints(560, 50, 220, 240));
 
         jPanel3.add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(-10, 280, 1120, 440));
 
@@ -415,9 +386,108 @@ public class PanelPrincipal extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+    /**
+     * Este método es llamado por el HILO DEL OS (el "Ingeniero")
+     * cada vez que el OS llama a fireQueuesChanged().
+     */
+    @Override
+    public void onProcessQueuesChanged() {
+        
+        // ¡NO podemos actualizar la GUI directamente desde aquí!
+        // (Estamos en el hilo incorrecto).
+
+        // 1. Creamos una "tarea" (un objeto Runnable) para el hilo de la GUI.
+        Runnable tareaDeActualizacion = new Runnable() {
+            @Override
+            public void run() {
+                // 3. Este código SÍ se ejecuta en el HILO DE LA GUI (el "Pintor").
+                // Es 100% seguro llamar a tu método de pintado desde aquí.
+                
+                // (Este es el método "jefe" que creamos para las JList)
+                actualizarTodasLasTablas(); 
+            }
+        };
+
+        // 2. Le entregamos la "tarea" a Swing (el "buzón") para que la ponga 
+        // en la cola de tareas del "Pintor" (el hilo de la GUI).
+        SwingUtilities.invokeLater(tareaDeActualizacion);
+    } 
     
+    /**
+        * MÉTODO "JEFE" (Casi igual, solo cambian los nombres de los modelos)
+        */
+       private void actualizarTodasLasTablas() {
+
+           // 1. Actualiza la lista de LISTOS
+           actualizarListaUnica(
+                   os.getReadyQueueSnapshot(),  // La "foto" segura de la cola
+                   modeloListaListos            // El modelo de la JList
+           );
+       
+           // 2. Actualiza la lista de BLOQUEADOS
+           actualizarListaUnica(
+                   os.getBlockedQueueSnapshot(),
+                   modeloListaBloqueados
+           );
+
+           // 3. Actualiza la lista de TERMINADOS
+           actualizarListaUnica(
+                   os.getFinishedListSnapshot(),
+                   modeloListaTerminados
+           );
+
+           // 4. Actualiza la lista de SUSPENDIDOS (combina ambas colas)
+           modeloListaSupendido.clear(); // Limpia la lista de suspendidos
+
+           // Añade los Blocked-Suspended
+           actualizarListaUnica(
+                   os.getBlockedSuspendedQueueSnapshot(),
+                   modeloListaSupendido,
+                   false // 'false' para que se añadan debajo de los anteriores
+           );
+           }
     
-    
+    /**
+    * 
+    *
+    * @param procesos La "foto" (List<Process>) de la cola a dibujar.
+    * @param modelo El DefaultListModel<String> de la JList que se va a actualizar.
+    */
+        private void actualizarListaUnica(java.util.List<Process> procesos, DefaultListModel<String> modelo) {
+            actualizarListaUnica(procesos, modelo, true);
+        }
+
+        /**
+         * Sobrecarga del método AYUDANTE que permite decidir si se limpia la lista o no.
+         *
+         * @param procesos La "foto" (List<Process>) de la cola a dibujar.
+         * @param modelo El DefaultListModel<String> de la JList que se va a actualizar.
+         * @param limpiarLista Si es true, limpia la lista (modelo.clear()) antes de añadir.
+         */
+        private void actualizarListaUnica(java.util.List<Process> procesos, DefaultListModel<String> modelo, boolean limpiarLista) {
+
+            // 1. Limpia la lista si se le indica
+            if (limpiarLista) {
+                modelo.clear(); // El comando para limpiar un JList
+            }
+
+            // 2. Itera sobre la "foto" (la List<Process> segura)
+            for (Process p : procesos) {
+                PCB pcb = p.getPCB();
+
+                
+                // Creamos un ÚNICO String con la info que queremos mostrar.
+                // Puedes poner lo que quieras aquí.
+                String textoProceso = String.format("Nombre: %s | PC: %d | MAR: %d", 
+                                  pcb.getName(), 
+                                  pcb.getPc(),
+                                  pcb.getMar());
+
+                // 4. Añade el String al modelo
+                modelo.addElement(textoProceso);
+            }
+        }
+
     private void randomProcessActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_randomProcessActionPerformed
         Random rand = new Random();
 
@@ -641,10 +711,10 @@ public class PanelPrincipal extends javax.swing.JFrame {
     private javax.swing.JLabel ciclo1;
     private javax.swing.JLabel ciclo2;
     private javax.swing.JLabel ciclo3;
-    private javax.swing.JTable colaBloqueado;
-    private javax.swing.JTable colaListos;
-    private javax.swing.JTable colaOut;
-    private javax.swing.JTable colaSupendidos;
+    private javax.swing.JList<String> colaBloqueados;
+    private javax.swing.JList<String> colaFinalizados;
+    private javax.swing.JList<String> colaListos;
+    private javax.swing.JList<String> colaSuspendidos;
     private javax.swing.JLabel instrucciones;
     private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
@@ -654,10 +724,10 @@ public class PanelPrincipal extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
-    private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JScrollPane jScrollPane3;
-    private javax.swing.JScrollPane jScrollPane4;
+    private javax.swing.JScrollPane jScrollPane6;
+    private javax.swing.JScrollPane jScrollPane7;
+    private javax.swing.JScrollPane jScrollPane8;
+    private javax.swing.JScrollPane jScrollPane9;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JLabel quantum;
     private javax.swing.JButton randomProcess;

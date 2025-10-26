@@ -5,11 +5,15 @@
 package requirements;
 
 import SchedulerTechniques.StrategyScheduler;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import requirements.Process;
+import structures.Node;
 import structures.ProcessType;
 import structures.StateOS;
 import structures.StateProcess;
+import requirements.SimulationListener;
 
 /**
  *
@@ -26,8 +30,11 @@ public class OS {
     int totalMemorySize;      // Límite de memoria (en instrucciones)
     int totalDiskSize;
     private boolean simulacionIniciada = false;
+    private final List<SimulationListener> listeners;
+    
 
     public OS(int memorySize, int diskSize, int globalCyclesDuration) {
+        this.listeners = new ArrayList<>();
         this.totalMemorySize = memorySize;
         this.totalDiskSize = diskSize;
         this.cpu = new CPU(this, null);
@@ -38,7 +45,7 @@ public class OS {
         this.globalCycles = 0;
         int currentMemoryUsage = 0;
     }
-
+   
     /**
      * PLANIFICADOR: Siguiente proceso a ejecutar SEGÚN estrategia
      */
@@ -71,7 +78,6 @@ public class OS {
         scheduler.readyProcess.enqueue(p); // encolamos a la cola de Listos 
         System.out.println("SO: Agregado a Ready -> " + p.getPCB().getName());
         this.tryToWakeUpCPU();
-        
     }
     
     /**
@@ -85,6 +91,7 @@ public class OS {
         // 2. Encolar el proceso a la cola de Bloqueados
         scheduler.blockedProcess.enqueue(p);
         System.out.println("SO: Proceso bloqueado -> " + p.getPCB().getName());
+        fireQueuesChanged();
         // 3. Invocar un hilo para manejar aquellos procesos bloqueados
         // Espera de I/O
         Thread IOThread = new Thread(() -> {
@@ -112,6 +119,7 @@ public class OS {
         
         //4. Avisamos al planificador que hay espacio disponible 
         this.checkAndLoadProcesses();
+        fireQueuesChanged();
         
     }
     
@@ -162,6 +170,7 @@ public class OS {
                 Thread.currentThread().interrupt();
                 System.err.println("Hilo de E/S interrumpido para " + p.getPCB().getName());
             }
+        fireQueuesChanged();
         this.tryToWakeUpCPU();
     }
     
@@ -212,6 +221,8 @@ public class OS {
                     }
                 }
             } while (memoryFree); // Repetir mientras logremos mover procesos
+        
+            fireQueuesChanged();
             this.tryToWakeUpCPU();
     }
     
@@ -242,6 +253,8 @@ public class OS {
         return true;
         
     }
+    
+   
      public void startSimulation() {
         this.cpu.start();
     }
@@ -281,6 +294,7 @@ public class OS {
 
     public void getSpecifications() {
         System.out.println("Memoria RAM: " + getMemory() + " Kb" + "\nMemoria en disco: " + getDisk() + " Kb");
+        
 
     }
     public synchronized void tryToWakeUpCPU() {
@@ -291,6 +305,22 @@ public class OS {
         }
         // Si ya está corriendo, no hacemos nada.
         // La CPU tomará el siguiente proceso cuando termine el actual.
+    }
+    public synchronized void addSimulationListener(SimulationListener listener) {
+        if (!listeners.contains(listener)) {
+            listeners.add(listener);
+        }
+    }
+
+    /**
+     * Notifica a todos los listeners (la GUI) que 
+     * las colas de procesos han cambiado y deben redibujarse.
+     */
+    private synchronized void fireQueuesChanged() {
+        // Itera sobre todos los listeners y les avisa
+        for (SimulationListener listener : listeners) {
+            listener.onProcessQueuesChanged();
+        }
     }
    
     
@@ -323,4 +353,91 @@ public class OS {
    }
     // </editor-fold> 
 
+   //-----------------------------------------------------------------------------------------------------------------------------------------
+   // Copias de Listas (FOTO)
+   /**
+ * Devuelve una copia (snapshot) segura de la cola de Listos.
+ * Itera la cola de forma segura usando getFirstNode().
+ * @return Una List<Process> de los procesos listos.
+ */
+        public synchronized java.util.List<Process> getReadyQueueSnapshot() {
+            java.util.List<Process> snapshot = new java.util.ArrayList<>();
+
+            // Obtenemos el primer nodo
+            Node<Process> actual = this.scheduler.readyProcess.getFirstNode();
+
+            // Iteramos nodo por nodo, igual que en tu 'toString()'
+            while (actual != null) {
+                snapshot.add(actual.getData());
+                actual = actual.getNext();
+            }
+            return snapshot;
+        }
+        /**
+     * Devuelve una copia (snapshot) segura de la cola de Bloqueados.
+     */
+    public synchronized java.util.List<Process> getBlockedQueueSnapshot() {
+        java.util.List<Process> snapshot = new java.util.ArrayList<>();
+        Node<Process> actual = this.scheduler.blockedProcess.getFirstNode();
+        while (actual != null) {
+            snapshot.add(actual.getData());
+            actual = actual.getNext();
+        }
+        return snapshot;
+    }
+
+    /**
+     * Devuelve una copia (snapshot) segura de la lista de Terminados.
+     * Tu 'outProcess' es un ArrayList (definido en Scheduler.java),
+     * así que solo lo clonamos para seguridad.
+     * @return 
+     */
+    public synchronized java.util.List<Process> getFinishedListSnapshot() {
+        // 1. Crea una lista de Java vacía
+        java.util.List<Process> snapshot = new java.util.ArrayList<>();
+        
+        if (this.scheduler.outProcess != null) {
+            
+            // 2. Itera manualmente sobre tu 'structures.ArrayList'
+            //    (Esto asume que tiene los métodos .size() y .get(i))
+            for (int i = 0; i < this.scheduler.outProcess.size(); i++) {
+                
+                // 3. Obtiene el proceso y lo añade a la lista de Java
+                Process p = this.scheduler.outProcess.get(i);
+                snapshot.add(p);
+            }
+        }
+        
+        // 4. Devuelve la lista de Java (que SÍ es iterable)
+        return snapshot;
+    }
+    /**
+     * Devuelve una copia (snapshot) segura de la cola de Listos-Suspendidos.
+     * @return 
+     */
+    public synchronized java.util.List<Process> getReadySuspendedQueueSnapshot() {
+        java.util.List<Process> snapshot = new java.util.ArrayList<>();
+        Node<Process> actual = this.scheduler.readySuspendedProcess.getFirstNode();
+        while (actual != null) {
+            snapshot.add(actual.getData());
+            actual = actual.getNext();
+        }
+        return snapshot;
+    }
+    
+    /**
+     * Devuelve una copia (snapshot) segura de la cola de Bloqueados-Suspendidos.
+     * @return 
+     */
+    public synchronized java.util.List<Process> getBlockedSuspendedQueueSnapshot() {
+        java.util.List<Process> snapshot = new java.util.ArrayList<>();
+        Node<Process> actual = this.scheduler.blockedSuspendedProcess.getFirstNode();
+        while (actual != null) {
+            snapshot.add(actual.getData());
+            actual = actual.getNext();
+        }
+        return snapshot;
+    }
+   
+   
 }
