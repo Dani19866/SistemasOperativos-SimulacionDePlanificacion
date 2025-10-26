@@ -8,6 +8,7 @@ import SchedulerTechniques.FB;
 import SchedulerTechniques.FirstComeFirstServe;
 import SchedulerTechniques.SRT;
 import SchedulerTechniques.RoundRobin;
+
 import SchedulerTechniques.HRRN;
 import SchedulerTechniques.SJF;
 import SchedulerTechniques.SchedulerStrategy;
@@ -42,16 +43,19 @@ public class Scheduler {
 
     // Semáforo para proteger la cola de listos
     Semaphore mutex;
+
     
     
 
     /**
      * Constructor de la planificación
      *
+
      * @param cpu La instancia de la CPU
      */
     public Scheduler(CPU cpu) {
         this.cpu = cpu;
+
         // Inicializar cola de procesos
         this.readyProcess = new Queue<>();
         this.readySuspendedProcess = new Queue<>();
@@ -59,13 +63,17 @@ public class Scheduler {
         this.blockedSuspendedProcess = new Queue<>();
         this.newProcess = new Queue<>();
         this.outProcess = new ArrayList<>();
+
         
+
 
         // Inicializar planificador por defecto: RoundRobin
         this.currentStrategy = new RoundRobin(
                 this.readyProcess, this.readySuspendedProcess, this.blockedProcess,
+
                 this.blockedSuspendedProcess, this.newProcess, this.outProcess, this.cpu
               
+
         );
         this.typeStrategy = StrategyScheduler.RoundRobin;
 
@@ -74,7 +82,9 @@ public class Scheduler {
 
         // Inicializar semáforo
         this.mutex = new Semaphore(1);
+
         this.cpu = cpu;
+
     }
 
     /**
@@ -95,36 +105,45 @@ public class Scheduler {
     public void changeStrategy(StrategyScheduler strategyEnum) {
         // El switch se mueve aquí, que es su lugar lógico.
         // Crea el objeto SOLO cuando el usuario pide cambiar de estrategia.
+
         
         Process currentRunning = (this.cpu != null) ? this.cpu.getRunningProcess() : null;
+
         switch (strategyEnum) {
             case FB:
                 currentStrategy = new FB(
                         this.readyProcess, this.readySuspendedProcess, this.blockedProcess,
+
                         this.blockedSuspendedProcess, this.newProcess, this.outProcess, this.cpu
                 );
                 this.typeStrategy = StrategyScheduler.FB;
             
+
                 
             case FirstComeFirstServe:
                 currentStrategy = new FirstComeFirstServe(
                         this.readyProcess, this.readySuspendedProcess, this.blockedProcess,
+
                         this.blockedSuspendedProcess, this.newProcess, this.outProcess, this.cpu
                 );
                 this.typeStrategy = StrategyScheduler.FirstComeFirstServe;
             
+
                 
             case SRT:
                 currentStrategy = new SRT(
                         this.readyProcess, this.readySuspendedProcess, this.blockedProcess,
+
                         this.blockedSuspendedProcess, this.newProcess, this.outProcess, this.cpu
                 );
                 this.typeStrategy = StrategyScheduler.SRT;
            
+
                 
             case RoundRobin:
                 currentStrategy = new RoundRobin(
                         this.readyProcess, this.readySuspendedProcess, this.blockedProcess,
+
                         this.blockedSuspendedProcess, this.newProcess, this.outProcess, this.cpu
                 );
                 this.typeStrategy = StrategyScheduler.RoundRobin;
@@ -142,9 +161,7 @@ public class Scheduler {
                         this.readyProcess, this.readySuspendedProcess, this.blockedProcess,
                         this.blockedSuspendedProcess, this.newProcess, this.outProcess, this.cpu
                 );
-                this.typeStrategy = StrategyScheduler.SJF;  
-           
-                
+                this.typeStrategy = StrategyScheduler.SJF;
         }
     }
 
@@ -154,7 +171,9 @@ public class Scheduler {
      * @param p
      */
     public void addProcessScheduler(Process p) {
+
             // es lo mismo que os.returnProcessReady
+
     }
 
     /**
@@ -165,7 +184,9 @@ public class Scheduler {
         this.setQuantum(quantum);
     }
     
+
     
+
     /**
      * Devuelve la estrategia que se está usando en ese momento 
      * @return 

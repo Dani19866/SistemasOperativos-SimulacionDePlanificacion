@@ -97,6 +97,7 @@ public class Queue<T> {
     public int size() {
         return size;
     }
+
     /**
      * Devuelve el primer nodo (front) de la cola.
      * Esto permite la iteración externa.
@@ -152,10 +153,6 @@ public class Queue<T> {
             size--;
             return true;
     }
-
-    
-    
-    
 
     /**
      * Devuelve una representación en formato de cadena de la cola.

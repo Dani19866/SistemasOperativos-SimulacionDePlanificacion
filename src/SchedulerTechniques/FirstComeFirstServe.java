@@ -1,5 +1,6 @@
 package SchedulerTechniques;
 
+
 import java.util.concurrent.Semaphore;
 import requirements.CPU;
 import structures.ArrayList;
@@ -13,6 +14,7 @@ import structures.ProcessType;
  */
 /**
  *
+
  * @author Nicole
  */
 public class FirstComeFirstServe extends SchedulerStrategy {
@@ -21,6 +23,7 @@ public class FirstComeFirstServe extends SchedulerStrategy {
     // Procesos en ejecución
     CPU cpu;
 
+
     // Colas de procesos
     Queue<Process> readyProcess;
     Queue<Process> readySuspendedProcess;
@@ -28,7 +31,9 @@ public class FirstComeFirstServe extends SchedulerStrategy {
     Queue<Process> blockedSuspendedProcess;
     Queue<Process> newProcess;
     ArrayList<Process> outProcess;
+
     
+
     public FirstComeFirstServe(
             Queue<Process> readyProcess,
             Queue<Process> readySuspendedProcess,
@@ -36,7 +41,9 @@ public class FirstComeFirstServe extends SchedulerStrategy {
             Queue<Process> blockedSuspendedProcess,
             Queue<Process> newProcess,
             ArrayList<Process> outProcess,
+
             CPU cpu
+
     ) {
         this.readyProcess = readyProcess;
         this.readySuspendedProcess = readySuspendedProcess;
@@ -44,6 +51,7 @@ public class FirstComeFirstServe extends SchedulerStrategy {
         this.blockedSuspendedProcess = blockedSuspendedProcess;
         this.newProcess = newProcess;
         this.outProcess = outProcess;
+
         this.cpu = cpu;
     }
 

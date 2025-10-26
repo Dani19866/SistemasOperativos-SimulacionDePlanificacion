@@ -21,6 +21,7 @@ public class Node<T> {
         this.data = data;
         this.next = null; // Por defecto, el siguiente nodo es nulo.
     }
+
     
     public T getData() {
         return data;
@@ -29,4 +30,5 @@ public class Node<T> {
     public Node<T> getNext() {
         return next;
     }
+
 }

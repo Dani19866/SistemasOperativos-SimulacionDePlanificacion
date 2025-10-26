@@ -4,6 +4,7 @@
  */
 package requirements;
 
+
 import SchedulerTechniques.StrategyScheduler;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +21,7 @@ import requirements.SimulationListener;
  * @author Daniel
  */
 public class OS {
+
 
     public CPU cpu;
     StateOS os_status;
@@ -48,6 +50,7 @@ public class OS {
         this.currentMemoryUsage = 0;
     }
    
+
     /**
      * PLANIFICADOR: Siguiente proceso a ejecutar SEGÚN estrategia
      */
@@ -91,6 +94,7 @@ public class OS {
      */
     public synchronized void blockProcess(Process p) {
         // 1. Modificar el estado del proceso a Bloqueado
+
         p.getPCB().setStateProcess(StateProcess.BLOCKED);
         // 2. Encolar el proceso a la cola de Bloqueados
         scheduler.blockedProcess.enqueue(p);
@@ -103,7 +107,6 @@ public class OS {
         });
         IOThread.start(); // Inicia el hilo
     }
-        
     /**
      * Proceso -> Cola de terminados
      *
@@ -111,6 +114,7 @@ public class OS {
      */
     public void finishProcess(Process p) {
         // 1. Setear el estado del proceso en Terminado
+
         p.getPCB().setStateProcess(StateProcess.TERMINATED);
         // 2. Encolar en la lista de Bloqueados
         scheduler.outProcess.add(p);
@@ -122,6 +126,7 @@ public class OS {
         this.checkAndLoadProcesses();
         fireQueuesChanged();
         
+
     }
 
     /**
@@ -130,6 +135,7 @@ public class OS {
      * @param p
      */
     public void blockProcessHandler(Process p) {
+
         try{
         // 1. Obtener los ciclos para completar el bloqueo
         int cyclesToWait = p.getPCB().getCyclesCompleteIO();
@@ -269,11 +275,13 @@ public class OS {
         this.cpu.start();
     }
     
+
     /**
      * Incrementa los ciclos del CPU
      */
     public void increaseCycles() {
         this.globalCycles++;
+
         
         if (this.cpu.getRunningProcess() != null) {
         this.cpuBusyCycles++;
@@ -298,6 +306,7 @@ public class OS {
            return utilizationHistory;
        }
        
+
     /**
      * Obtener el proceso que está corriendo actualmente
      *
@@ -317,6 +326,7 @@ public class OS {
     }
 
     public int getMemory() {
+
         return this.totalMemorySize;
     }
     
@@ -354,14 +364,13 @@ public class OS {
             listener.onProcessQueuesChanged();
         }
     }
-   
-    
     // </editor-fold> 
 
     // <editor-fold defaultstate="collapsed" desc="Setters">
     public void setGlobalCyclesDuration(int globalCyclesDuration) {
         this.globalCyclesDuration = globalCyclesDuration;
     }
+
     /**
     * Método público (puente) para permitir que la GUI cambie
     * la estrategia de planificación del Scheduler.
@@ -516,6 +525,4 @@ public class OS {
 
         // [0] = CPU-Bound, [1] = I/O-Bound
         return new int[]{cpuBoundCount, ioBoundCount};
-    }
-    
-}
+    }}

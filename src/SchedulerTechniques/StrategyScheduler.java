@@ -15,4 +15,5 @@ public enum StrategyScheduler {
     RoundRobin,
     HRRN,
     SJF,
+
 }

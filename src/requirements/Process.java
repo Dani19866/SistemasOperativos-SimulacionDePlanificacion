@@ -24,6 +24,7 @@ public class Process {
      * @param processType
      * @param instructions
      * @param priory
+
      * 
      */
     public Process(String name, ProcessType processType, int instructions, int priory) {
@@ -42,10 +43,12 @@ public class Process {
      * @param cyclesCompleteIO
      * @param instructions
      * @param priory
+
      * 
      */
     public Process(String name, ProcessType processType, int cyclesExcepcion, int cyclesCompleteIO, int instructions, int priory) {
         this.pcb = new PCB(name, processType, cyclesExcepcion, cyclesCompleteIO, priory);
+
         this.instructions = instructions;
         this.countInstructions = 0;
     }
@@ -108,7 +111,7 @@ public class Process {
     public int getRemainingInstructions() {
         return instructions - countInstructions;
     }
-    
+
     public int getInstructions() {
         return instructions ;
     }
@@ -140,4 +143,5 @@ public class Process {
     }
     
     
+
 }

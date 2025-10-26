@@ -21,7 +21,9 @@ public class PCB {
     int pc;
     int mar;
     int priory;
+
    
+
 
 
     // Características de un I/O-Bound
@@ -31,11 +33,13 @@ public class PCB {
 
     // Auditoría
     float timeProcess;          // Tiempo de procesador utilizado
+
     int tiempoLlegada;
     
     // --- NUEVOS CAMPOS PLANIFICACION PARA MLFQ (FB) ---
     private int prioridadMLFQ;      // Nivel de cola (1=Alta, 2=Media, 3=Baja)
     private boolean agotoQuantumMLFQ; // Flag de comunicación CPU -> Planificador
+
 
     /**
      * Constructor para procesos CPU-Bound
@@ -45,7 +49,9 @@ public class PCB {
      * @param priory
      * @param memorySpace
      */
+
     public PCB(String name, ProcessType processType, int priory) {
+
 
         this.id = UUID.randomUUID().toString();
         this.name = name;
@@ -54,11 +60,13 @@ public class PCB {
         this.pc = 0;
         this.mar = 0;
         this.priory = priory;
+
         
         
         // --- INICIALIZACIÓN PARA MLFQ ---
         this.prioridadMLFQ = 0; // 0 = Proceso nuevo
         this.agotoQuantumMLFQ = false;
+
     }
 
     /**
@@ -71,7 +79,9 @@ public class PCB {
      * @param priory
      * @param memorySpace
      */
+
     public PCB(String name, ProcessType processType, int cyclesExcepcion, int cyclesCompleteIO, int priory) {
+
         this.id = UUID.randomUUID().toString();
         this.name = name;
         this.processType = processType;
@@ -79,16 +89,20 @@ public class PCB {
         this.pc = 0;
         this.mar = 0;
         this.priory = priory;
+
         
+
 
         // Asignamos los valores específicos para la E/S
         this.cyclesExcepcion = cyclesExcepcion;
         this.cyclesCompleteIO = cyclesCompleteIO;
         this.cyclesExecute = 0; // El contador siempre empieza en cero
+
         
         // --- INICIALIZACIÓN PARA MLFQ ---
         this.prioridadMLFQ = 0; // 0 = Proceso nuevo
         this.agotoQuantumMLFQ = false;
+
 
     }
 
@@ -154,11 +168,13 @@ public class PCB {
         return processType;
     }
 
+
     
     public boolean haAgotadoQuantumMLFQ() {
         return agotoQuantumMLFQ;
     }
     
+
     public int getPc() {
         return pc;
     }
@@ -178,6 +194,7 @@ public class PCB {
     public int getCyclesExecute() {
         return cyclesExecute;
     }
+
     
      public int getTiempoLlegada() {
         return tiempoLlegada;
@@ -202,6 +219,7 @@ public class PCB {
     public void setProcessType(ProcessType processType) {
         this.processType = processType;
     }
+
     public void setTiempoLlegada(int tiempoLlegada) {
         this.tiempoLlegada = tiempoLlegada;
     }
@@ -220,5 +238,6 @@ public class PCB {
         this.prioridadMLFQ = prioridadMLFQ;
     }
     //
+
     // </editor-fold> 
 }

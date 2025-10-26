@@ -16,6 +16,7 @@ import structures.ProcessType;
  *
  * @author Daniel
  */
+
 public class FB extends SchedulerStrategy{ 
     private final Semaphore mutex = new Semaphore(1);
     // Las 3 colas de listos, una para cada nivel de prioridad
@@ -26,6 +27,7 @@ public class FB extends SchedulerStrategy{
     // Procesos en ejecución
     CPU cpu;
 
+
     // Colas de procesos
     Queue<Process> readyProcess;
     Queue<Process> readySuspendedProcess;
@@ -33,9 +35,11 @@ public class FB extends SchedulerStrategy{
     Queue<Process> blockedSuspendedProcess;
     Queue<Process> newProcess;
     ArrayList<Process> outProcess;
+
     
     int quantumQ1;
     int quantumQ2;
+
 
     public FB(
             Queue<Process> readyProcess,
@@ -44,14 +48,17 @@ public class FB extends SchedulerStrategy{
             Queue<Process> blockedSuspendedProcess,
             Queue<Process> newProcess,
             ArrayList<Process> outProcess,
+
             CPU cpu
     ) { //super(); // Llama al constructor de Planificador (que inicializa el mutex)
+
         this.readyProcess = readyProcess;
         this.readySuspendedProcess = readySuspendedProcess;
         this.blockedProcess = blockedProcess;
         this.blockedSuspendedProcess = blockedSuspendedProcess;
         this.newProcess = newProcess;
         this.outProcess = outProcess;
+
         this.cpu = cpu;
         this.colaQ1 = new Queue<>();
         this.colaQ2 = new Queue<>();
@@ -203,3 +210,4 @@ public class FB extends SchedulerStrategy{
     
     
 }
+

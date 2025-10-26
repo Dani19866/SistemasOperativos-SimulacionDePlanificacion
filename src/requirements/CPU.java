@@ -44,6 +44,7 @@ public class CPU extends Thread {
      * Alista un proceso | Llama a la función OS_addProcess(runningProcess)
      *
      */
+
     public void preemptProcess() {
         this.runningProcess.pcb.setStateProcess(StateProcess.READY);
         os.returnProcessReady(runningProcess);  //se cambio a returnprocesstoready
@@ -79,6 +80,7 @@ public class CPU extends Thread {
     public void run() {
         while (os.os_status == StateOS.ON) {
             try {
+
                 mutex.acquire(); // CPU duerme
 
                 Process p = os.nextProcess();
@@ -88,6 +90,7 @@ public class CPU extends Thread {
                     // --- Tu lógica de ejecución (¡esta parte está bien!) ---
                     System.out.println("CPU " + p.getPCB().getId() + " ha iniciado.");
                     System.out.println("CPU: Ejecutando " + p.pcb.name);
+
                     this.runningProcess = p;
                     p.pcb.setStateProcess(StateProcess.RUNNING);
 
@@ -96,6 +99,7 @@ public class CPU extends Thread {
                     }
 
                     // 2. Bucle de ejecución de instrucciones
+
                     while (this.runningProcess.getRemainingInstructions() > 0) {
 
                         Thread.sleep(os.globalCyclesDuration);
@@ -111,10 +115,12 @@ public class CPU extends Thread {
                         
                         // 2.2. Condiciones de parada específicas de la política
                         boolean preempted = false; // Un flag para saber si fuimos expropiados
+
                         switch (scheduler.getStrategy()) {
                             case RoundRobin -> {
                                 this.quantum--;
                                 if (quantum <= 0) {
+
                                     this.preemptProcess(); // Esto pone runningProcess = null
                                     preempted = true;    // Levantamos el flag
                                 }
@@ -122,6 +128,7 @@ public class CPU extends Thread {
                             case SRT -> {
                                 Process nextP = os.scheduler.readyProcess.peek();
                                 if (nextP != null && this.runningProcess.getRemainingInstructions() > nextP.getRemainingInstructions()) {
+
                                     this.preemptProcess(); // Esto pone runningProcess = null
                                     preempted = true;    // Levantamos el flag
                                 }
@@ -154,6 +161,7 @@ public class CPU extends Thread {
                 Thread.currentThread().interrupt();
                 if (this.runningProcess != null) {
                     this.preemptProcess();
+
                 }
             }
         }
@@ -174,9 +182,11 @@ public class CPU extends Thread {
         this.runningProcess = null;
     }
 
+
     public void wakeUp() {
         this.mutex.release();
     }
+
 
     // <editor-fold defaultstate="collapsed" desc="Getters">
     public Process getRunningProcess() {
@@ -192,5 +202,6 @@ public class CPU extends Thread {
     public void setScheduler(Scheduler scheduler) {
         this.scheduler = scheduler;
     }
+
     // </editor-fold>
 }
