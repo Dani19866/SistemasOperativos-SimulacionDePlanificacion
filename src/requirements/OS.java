@@ -43,7 +43,7 @@ public class OS {
         this.os_status = StateOS.ON;
         this.globalCyclesDuration = globalCyclesDuration;
         this.globalCycles = 0;
-        int currentMemoryUsage = 0;
+        this.currentMemoryUsage = 0;
     }
    
     /**
@@ -62,6 +62,8 @@ public class OS {
     public void addProcess(Process p) {
         //scheduler.addProcessScheduler(p);
         // Asignamos el tiempo de llegada
+        int processSize = p.getInstructions();
+        
         p.getPCB().setTiempoLlegada(this.globalCycles);
         p.getPCB().setStateProcess(StateProcess.NEW);
         scheduler.newProcess.enqueue(p);  // Colocamos el proceso en la cola de nuevos 
@@ -180,51 +182,62 @@ public class OS {
      * Tambien carga los proceso a Listos
      * Se llama cuando un proceso TERMINA o cuando uno NUEVO llega.
     */
+    
     private synchronized void checkAndLoadProcesses() {
-        boolean memoryFree;
-        do{
-            memoryFree = false;
-            
-            if(!scheduler.readySuspendedProcess.isEmpty()){
-                Process p = this.scheduler.readySuspendedProcess.peek();
-                int neededMemory = p.getInstructions();
-                
-                // Si la cantidad de memoria que el proceos necesita mas la que
-                // todavia se esta usando es menor o igual que el tamanio
-                // total de la memoria
-                if(currentMemoryUsage + neededMemory <= this.totalMemorySize){ 
-                    // Hay espacio, se carga el proceso a memoria 
-                   p = scheduler.readySuspendedProcess.dequeue();
-                   currentMemoryUsage += neededMemory; //Actualizamos el contador de memoria usada
-                   p.getPCB().setStateProcess(StateProcess.READY);
-                   scheduler.readyProcess.enqueue(p);
-                   memoryFree = true; // Cargamos un proceso 
+            boolean memoryFree;
+            do {
+                memoryFree = false;
+
+                if (!scheduler.readySuspendedProcess.isEmpty()) {
+                    Process p = this.scheduler.readySuspendedProcess.peek();
+                    int neededMemory = p.getInstructions();
+                    // Si la cantidad de memoria que el proceso necesita mas la que
+                    // todavia se esta usando es menor o igual que el tamanio
+                    // total de la memoria
+                    if (currentMemoryUsage + neededMemory <= this.totalMemorySize) {
+                        // Hay espacio, se carga el proceso a memoria
+                        p = scheduler.readySuspendedProcess.dequeue();
+                        this.currentMemoryUsage += neededMemory; // Actualizamos el contador de memoria usada
+                        p.getPCB().setStateProcess(StateProcess.READY);
+                        scheduler.readyProcess.enqueue(p);
+                        memoryFree = true; // Cargamos un proceso
+                    }
                 }
-            }
-                // No se reanudaron los procesos, cargamos nuevos procesos
-                if (!memoryFree && !this.scheduler.newProcess.isEmpty()){
+
+                // No se reanudaron procesos de suspendidos, cargamos nuevos procesos
+                if (!memoryFree && !this.scheduler.newProcess.isEmpty()) {
                     Process p = this.scheduler.newProcess.peek();
                     int neededMemory = p.getInstructions();
-                    
+
                     if (this.currentMemoryUsage + neededMemory <= this.totalMemorySize) {
-                        // Hay espacio, se carga 
+                        // Lógica: Largo Plazo (New -> Ready) - Hay espacio
                         p = this.scheduler.newProcess.dequeue();
-                        this.currentMemoryUsage += neededMemory; //Actualizamos el contador de memoria usada
+                        this.currentMemoryUsage += neededMemory; // Actualizamos el contador de memoria usada
                         p.getPCB().setStateProcess(StateProcess.READY);
                         this.scheduler.readyProcess.enqueue(p);
-                        memoryFree = true; // Cargamos un proceso 
-                        
-                } else {
-                    // No hay espacio. Intentamos suspender a alguien.
-                    //if (trySuspendBlockedProcess()) { FALTA ESTE METODO 
-                        memoryFree = true;
+                        memoryFree = true; // Cargamos un proceso
+
+                    } else {
+                        // Lógica: Largo Plazo - NO HAY ESPACIO. (Swapping o Suspensión)
+
+                        if (trySuspendBlockedProcess()) {
+                            // ¡Éxito! Liberamos memoria. memoryFree=true repite el do-while.
+                            memoryFree = true;
+                        } else {
+                            
+                            p = this.scheduler.newProcess.dequeue();
+                            p.getPCB().setStateProcess(StateProcess.SUSPENDED_READY);
+                            this.scheduler.readySuspendedProcess.enqueue(p);
+                            System.out.println("OS: Memoria insuficiente para " + p.getPCB().getName()+ ". Movido a Listo-Suspendido.");
+                            memoryFree = true;
+                        }
                     }
                 }
             } while (memoryFree); // Repetir mientras logremos mover procesos
-        
+
             fireQueuesChanged();
             this.tryToWakeUpCPU();
-    }
+        }            
     
     /**
      * Intenta suspender el primer proceso en la cola de bloqueados
@@ -250,6 +263,7 @@ public class OS {
         // Se Supone que este metodo es llamado checkAndLoadProcesses(). Una vez termine:
         // 4. El hilo que lo estaba esperando (blockProcessHandler) 
         //se encargará de moverlo a READY_SUSPENDED cuando termine su E/S.
+        fireQueuesChanged();
         return true;
         
     }
@@ -300,7 +314,7 @@ public class OS {
     public synchronized void tryToWakeUpCPU() {
         // Solo despierta a la CPU si NO está ejecutando un proceso
         if (simulacionIniciada && cpu.getRunningProcess() == null) {
-            System.out.println("OS: ¡Despertando a la CPU! (Trabajo nuevo en Ready)");
+            System.out.println("Trabajo en Ready");
             this.cpu.wakeUp();
         }
         // Si ya está corriendo, no hacemos nada.

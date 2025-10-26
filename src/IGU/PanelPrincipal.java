@@ -36,6 +36,7 @@ public class PanelPrincipal extends javax.swing.JFrame implements SimulationList
     private DefaultListModel<String> modeloListaBloqueados = new DefaultListModel<>();
     private DefaultListModel<String> modeloListaTerminados = new DefaultListModel<>();
     private DefaultListModel<String> modeloListaSupendido = new DefaultListModel<>();
+    private DefaultListModel<String> modeloBloqueadoSupendido = new DefaultListModel<>();
     /**
      * Creates new form PanelPrincipal
      */
@@ -47,7 +48,9 @@ public class PanelPrincipal extends javax.swing.JFrame implements SimulationList
         colaListos.setModel(modeloListaListos);
         colaBloqueados.setModel(modeloListaBloqueados);
         colaFinalizados.setModel(modeloListaTerminados);
-        colaSuspendidos.setModel(modeloListaSupendido);
+        colaSuspendidosB.setModel(modeloBloqueadoSupendido);
+        colaSuspendidosL.setModel(modeloListaSupendido);
+        
         this.os.addSimulationListener(this);
         
      // 1. Poblar el JComboBox de Politicas de Planificacion
@@ -115,15 +118,18 @@ public class PanelPrincipal extends javax.swing.JFrame implements SimulationList
         Bloqueados = new javax.swing.JLabel();
         Finalizados = new javax.swing.JLabel();
         Listo1 = new javax.swing.JLabel();
-        jLabel4 = new javax.swing.JLabel();
         jScrollPane6 = new javax.swing.JScrollPane();
         colaFinalizados = new javax.swing.JList<>();
         jScrollPane7 = new javax.swing.JScrollPane();
-        colaSuspendidos = new javax.swing.JList<>();
+        colaSuspendidosB = new javax.swing.JList<>();
         jScrollPane8 = new javax.swing.JScrollPane();
-        colaListos = new javax.swing.JList<>();
+        colaSuspendidosL = new javax.swing.JList<>();
         jScrollPane9 = new javax.swing.JScrollPane();
         colaBloqueados = new javax.swing.JList<>();
+        jScrollPane10 = new javax.swing.JScrollPane();
+        colaListos = new javax.swing.JList<>();
+        Listo2 = new javax.swing.JLabel();
+        Listo3 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(245, 247, 250));
@@ -315,25 +321,20 @@ public class PanelPrincipal extends javax.swing.JFrame implements SimulationList
 
         Listo.setForeground(new java.awt.Color(102, 102, 102));
         Listo.setText("Listos");
-        jPanel4.add(Listo, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 20, -1, -1));
+        jPanel4.add(Listo, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 10, -1, -1));
 
         Bloqueados.setForeground(new java.awt.Color(102, 102, 102));
         Bloqueados.setText("Bloqueados");
-        jPanel4.add(Bloqueados, new org.netbeans.lib.awtextra.AbsoluteConstraints(630, 16, -1, 20));
+        jPanel4.add(Bloqueados, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 10, -1, 20));
 
         Finalizados.setForeground(new java.awt.Color(102, 102, 102));
         Finalizados.setText("Finalizados");
-        jPanel4.add(Finalizados, new org.netbeans.lib.awtextra.AbsoluteConstraints(862, 15, -1, -1));
+        jPanel4.add(Finalizados, new org.netbeans.lib.awtextra.AbsoluteConstraints(680, 10, -1, -1));
 
+        Listo1.setFont(new java.awt.Font("Dialog", 3, 14)); // NOI18N
         Listo1.setForeground(new java.awt.Color(102, 102, 102));
-        Listo1.setText("Suspendidos");
-        jPanel4.add(Listo1, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 20, -1, -1));
-
-        jLabel4.setBackground(new java.awt.Color(51, 51, 51));
-        jLabel4.setFont(new java.awt.Font("Dialog", 2, 14)); // NOI18N
-        jLabel4.setForeground(new java.awt.Color(51, 51, 51));
-        jLabel4.setText("Proceso en Ejecución");
-        jPanel4.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(81, 305, -1, -1));
+        Listo1.setText("Procesos en Ejecucion ");
+        jPanel4.add(Listo1, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 310, -1, -1));
 
         colaFinalizados.setModel(new javax.swing.AbstractListModel<String>() {
             String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
@@ -342,25 +343,25 @@ public class PanelPrincipal extends javax.swing.JFrame implements SimulationList
         });
         jScrollPane6.setViewportView(colaFinalizados);
 
-        jPanel4.add(jScrollPane6, new org.netbeans.lib.awtextra.AbsoluteConstraints(810, 50, 220, 240));
+        jPanel4.add(jScrollPane6, new org.netbeans.lib.awtextra.AbsoluteConstraints(610, 40, 220, 240));
 
-        colaSuspendidos.setModel(new javax.swing.AbstractListModel<String>() {
+        colaSuspendidosB.setModel(new javax.swing.AbstractListModel<String>() {
             String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
             public int getSize() { return strings.length; }
             public String getElementAt(int i) { return strings[i]; }
         });
-        jScrollPane7.setViewportView(colaSuspendidos);
+        jScrollPane7.setViewportView(colaSuspendidosB);
 
-        jPanel4.add(jScrollPane7, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 50, 220, 240));
+        jPanel4.add(jScrollPane7, new org.netbeans.lib.awtextra.AbsoluteConstraints(860, 260, 220, 130));
 
-        colaListos.setModel(new javax.swing.AbstractListModel<String>() {
+        colaSuspendidosL.setModel(new javax.swing.AbstractListModel<String>() {
             String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
             public int getSize() { return strings.length; }
             public String getElementAt(int i) { return strings[i]; }
         });
-        jScrollPane8.setViewportView(colaListos);
+        jScrollPane8.setViewportView(colaSuspendidosL);
 
-        jPanel4.add(jScrollPane8, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 50, 220, 240));
+        jPanel4.add(jScrollPane8, new org.netbeans.lib.awtextra.AbsoluteConstraints(860, 40, 220, 180));
 
         colaBloqueados.setModel(new javax.swing.AbstractListModel<String>() {
             String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
@@ -369,19 +370,38 @@ public class PanelPrincipal extends javax.swing.JFrame implements SimulationList
         });
         jScrollPane9.setViewportView(colaBloqueados);
 
-        jPanel4.add(jScrollPane9, new org.netbeans.lib.awtextra.AbsoluteConstraints(560, 50, 220, 240));
+        jPanel4.add(jScrollPane9, new org.netbeans.lib.awtextra.AbsoluteConstraints(340, 40, 220, 240));
 
-        jPanel3.add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(-10, 280, 1120, 440));
+        colaListos.setModel(new javax.swing.AbstractListModel<String>() {
+            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
+            public int getSize() { return strings.length; }
+            public String getElementAt(int i) { return strings[i]; }
+        });
+        jScrollPane10.setViewportView(colaListos);
+
+        jPanel4.add(jScrollPane10, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 40, 220, 240));
+
+        Listo2.setForeground(new java.awt.Color(102, 102, 102));
+        Listo2.setText("Suspendidos Bloqueados");
+        jPanel4.add(Listo2, new org.netbeans.lib.awtextra.AbsoluteConstraints(870, 230, -1, -1));
+
+        Listo3.setForeground(new java.awt.Color(102, 102, 102));
+        Listo3.setText("Suspendidos Listos");
+        jPanel4.add(Listo3, new org.netbeans.lib.awtextra.AbsoluteConstraints(900, 10, -1, -1));
+
+        jPanel3.add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(-10, 280, 1120, 510));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 1054, Short.MAX_VALUE)
+            .addComponent(jPanel3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 1092, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 632, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
 
         pack();
@@ -400,10 +420,7 @@ public class PanelPrincipal extends javax.swing.JFrame implements SimulationList
         Runnable tareaDeActualizacion = new Runnable() {
             @Override
             public void run() {
-                // 3. Este código SÍ se ejecuta en el HILO DE LA GUI (el "Pintor").
-                // Es 100% seguro llamar a tu método de pintado desde aquí.
                 
-                // (Este es el método "jefe" que creamos para las JList)
                 actualizarTodasLasTablas(); 
             }
         };
@@ -436,15 +453,17 @@ public class PanelPrincipal extends javax.swing.JFrame implements SimulationList
                    modeloListaTerminados
            );
 
-           // 4. Actualiza la lista de SUSPENDIDOS (combina ambas colas)
-           modeloListaSupendido.clear(); // Limpia la lista de suspendidos
-
-           // Añade los Blocked-Suspended
+           // Añade los Ready-Suspended
            actualizarListaUnica(
-                   os.getBlockedSuspendedQueueSnapshot(),
-                   modeloListaSupendido,
-                   false // 'false' para que se añadan debajo de los anteriores
-           );
+                os.getReadySuspendedQueueSnapshot(), 
+                modeloListaSupendido              
+            );
+           actualizarListaUnica(
+                os.getBlockedSuspendedQueueSnapshot(), 
+                modeloBloqueadoSupendido              
+            );
+           
+           
            }
     
     /**
@@ -701,6 +720,8 @@ public class PanelPrincipal extends javax.swing.JFrame implements SimulationList
     private javax.swing.JButton IniciarProceso;
     private javax.swing.JLabel Listo;
     private javax.swing.JLabel Listo1;
+    private javax.swing.JLabel Listo2;
+    private javax.swing.JLabel Listo3;
     private javax.swing.JTextField NombreProceso;
     private javax.swing.JComboBox<String> PoliticaName;
     private javax.swing.JSpinner Spinnerciclo;
@@ -714,16 +735,17 @@ public class PanelPrincipal extends javax.swing.JFrame implements SimulationList
     private javax.swing.JList<String> colaBloqueados;
     private javax.swing.JList<String> colaFinalizados;
     private javax.swing.JList<String> colaListos;
-    private javax.swing.JList<String> colaSuspendidos;
+    private javax.swing.JList<String> colaSuspendidosB;
+    private javax.swing.JList<String> colaSuspendidosL;
     private javax.swing.JLabel instrucciones;
     private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
+    private javax.swing.JScrollPane jScrollPane10;
     private javax.swing.JScrollPane jScrollPane6;
     private javax.swing.JScrollPane jScrollPane7;
     private javax.swing.JScrollPane jScrollPane8;

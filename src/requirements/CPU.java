@@ -76,83 +76,86 @@ public class CPU extends Thread {
      *
      */
     @Override
-    public void run() {
-        while (os.os_status == StateOS.ON) {
-            try {
-                mutex.acquire();
-                Process p = os.nextProcess();
-                  System.out.println("CPU " + p.getPCB().getId() + " ha iniciado.");
-                if (p != null) {
-                    System.out.println("CPU: Ejecutando " + p.pcb.name);
-                    // 1. Configuración del proceso en ejecución
-                    this.runningProcess = p;
-                    p.pcb.setStateProcess(StateProcess.RUNNING);
+public void run() {
+    while (os.os_status == StateOS.ON) {
+        try {
+            mutex.acquire(); // CPU duerme
 
-                    if (scheduler.getStrategy() == StrategyScheduler.RoundRobin) {
-                        this.quantum = os.scheduler.quantum;
-                    }
+            Process p = os.nextProcess();
+            
+            while (p != null) {
+                
+                // --- Tu lógica de ejecución (¡esta parte está bien!) ---
+                System.out.println("CPU " + p.getPCB().getId() + " ha iniciado.");
+                System.out.println("CPU: Ejecutando " + p.pcb.name);
+                this.runningProcess = p;
+                p.pcb.setStateProcess(StateProcess.RUNNING);
 
-                    // 2. Bucle de ejecución de instrucciones
-                   while (this.runningProcess.getRemainingInstructions() > 0) { 
-                        
-                        Thread.sleep(os.globalCyclesDuration);
-                        this.runningProcess.executeInstruction();
-                        this.increaseGlobalCycle();
-
-                        // 2.1. Condición de parada (Terminar o Bloquear)
-                        if (this.runningProcess.isTerminated() || this.runningProcess.shouldBeBlocked()) {
-                            break; // 
-                        }
-
-                        // 2.2. Condiciones de parada específicas de la política
-                        
-                        boolean preempted = false; // Un flag para saber si fuimos expropiados
-                        switch (scheduler.getStrategy()) {
-                            case RoundRobin -> {
-                                this.quantum--;
-                                if (quantum <= 0) {
-                                    this.preemptProcess(); // Esto pone runningProcess = null
-                                    preempted = true;      // Levantamos el flag
-                                }
-                            }
-                            case SRT -> {
-                                Process nextP = os.scheduler.readyProcess.peek();
-                                if (nextP != null && this.runningProcess.getRemainingInstructions() > nextP.getRemainingInstructions()) {
-                                    this.preemptProcess(); // Esto pone runningProcess = null
-                                    preempted = true;      // Levantamos el flag
-                                }
-                            }
-                            default -> {
-                                // No hacemos nada
-                            }
-                        }
-                        
-                        // Si fuimos expropiados, rompemos el bucle también
-                        if (preempted) {
-                            break;
-                        }
-                        
-                    }
-                    // Si 'runningProcess' NO es null, significa que NO fuimos expropiados.
-                    // Por lo tanto, salimos porque el proceso terminó o se bloqueó.
-                    if (this.runningProcess != null) { 
-                        if (this.runningProcess.isTerminated()) {
-                            this.finishProcess(); // Ahora sí lo finalizamos
-                        } else if (this.runningProcess.shouldBeBlocked()) {
-                            this.blockProcess(); // Ahora sí lo bloqueamos
-                        }
-                    }
-                }else{
-                        System.out.println("CPU: No hay trabajos pendiente. Suspender...");
-                    }
-            } catch (InterruptedException ex) {
-                Thread.currentThread().interrupt();
-                if (this.runningProcess != null) {
-                    this.preemptProcess();
+                if (scheduler.getStrategy() == StrategyScheduler.RoundRobin) {
+                    this.quantum = os.scheduler.quantum;
                 }
+
+                // 2. Bucle de ejecución de instrucciones
+                while (this.runningProcess.getRemainingInstructions() > 0) {
+
+                    Thread.sleep(os.globalCyclesDuration);
+                    this.runningProcess.executeInstruction();
+                    this.increaseGlobalCycle();
+
+                    // 2.1. Condición de parada (Terminar o Bloquear)
+                    if (this.runningProcess.isTerminated() || this.runningProcess.shouldBeBlocked()) {
+                        break; // 
+                    }
+
+                    // 2.2. Condiciones de parada específicas de la política
+                    boolean preempted = false; // Un flag para saber si fuimos expropiados
+                    switch (scheduler.getStrategy()) {
+                        case RoundRobin -> {
+                            this.quantum--;
+                            if (quantum <= 0) {
+                                this.preemptProcess(); // Esto pone runningProcess = null
+                                preempted = true;    // Levantamos el flag
+                            }
+                        }
+                        case SRT -> {
+                            Process nextP = os.scheduler.readyProcess.peek();
+                            if (nextP != null && this.runningProcess.getRemainingInstructions() > nextP.getRemainingInstructions()) {
+                                this.preemptProcess(); // Esto pone runningProcess = null
+                                preempted = true;    // Levantamos el flag
+                            }
+                        }
+                        default -> {
+                            // No hacemos nada
+                        }
+                    }
+
+                    // Si fuimos expropiados, rompemos el bucle también
+                    if (preempted) {
+                        break;
+                    }
+
+                }
+                // Si 'runningProcess' NO es null, significa que NO fuimos expropiados.
+                // Por lo tanto, salimos porque el proceso terminó o se bloqueó.
+                if (this.runningProcess != null) {
+                    if (this.runningProcess.isTerminated()) {
+                        this.finishProcess(); // Ahora sí lo finalizamos
+                    } else if (this.runningProcess.shouldBeBlocked()) {
+                        this.blockProcess(); // Ahora sí lo bloqueamos
+                    }
+                }
+                p = os.nextProcess();
+            } 
+            System.out.println("CPU: Cola 'Ready' vacía. Suspender...");
+            
+        } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
+            if (this.runningProcess != null) {
+                this.preemptProcess();
             }
         }
     }
+}
     /**
      * Incrementar ciclo global
      */
