@@ -98,7 +98,6 @@ public class PanelPrincipal extends javax.swing.JFrame implements SimulationList
         jLabel3 = new javax.swing.JLabel();
         NombreProceso = new javax.swing.JTextField();
         randomProcess = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
         cargarDatos = new javax.swing.JButton();
         GuardarPlanificacion = new javax.swing.JButton();
         CantidadInstrucciones = new javax.swing.JSpinner();
@@ -194,19 +193,7 @@ public class PanelPrincipal extends javax.swing.JFrame implements SimulationList
                 randomProcessActionPerformed(evt);
             }
         });
-        jPanel2.add(randomProcess, new org.netbeans.lib.awtextra.AbsoluteConstraints(920, 60, 120, 30));
-
-        jButton2.setBackground(new java.awt.Color(0, 102, 255));
-        jButton2.setFont(new java.awt.Font("Dialog", 1, 12)); // NOI18N
-        jButton2.setForeground(new java.awt.Color(255, 255, 255));
-        jButton2.setText("Reiniciar Proceso");
-        jButton2.setBorder(null);
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
-            }
-        });
-        jPanel2.add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(920, 220, 120, 30));
+        jPanel2.add(randomProcess, new org.netbeans.lib.awtextra.AbsoluteConstraints(940, 110, 120, 30));
 
         cargarDatos.setBackground(new java.awt.Color(0, 102, 255));
         cargarDatos.setFont(new java.awt.Font("Dialog", 1, 12)); // NOI18N
@@ -218,7 +205,7 @@ public class PanelPrincipal extends javax.swing.JFrame implements SimulationList
                 cargarDatosActionPerformed(evt);
             }
         });
-        jPanel2.add(cargarDatos, new org.netbeans.lib.awtextra.AbsoluteConstraints(920, 140, 120, 30));
+        jPanel2.add(cargarDatos, new org.netbeans.lib.awtextra.AbsoluteConstraints(940, 190, 120, 30));
 
         GuardarPlanificacion.setBackground(new java.awt.Color(0, 102, 255));
         GuardarPlanificacion.setFont(new java.awt.Font("Dialog", 1, 12)); // NOI18N
@@ -307,7 +294,7 @@ public class PanelPrincipal extends javax.swing.JFrame implements SimulationList
                 cargarFileActionPerformed(evt);
             }
         });
-        jPanel2.add(cargarFile, new org.netbeans.lib.awtextra.AbsoluteConstraints(920, 100, 120, 30));
+        jPanel2.add(cargarFile, new org.netbeans.lib.awtextra.AbsoluteConstraints(940, 150, 120, 30));
 
         CyclesEx.setModel(new javax.swing.SpinnerNumberModel(0, 0, 10000, 1));
         CyclesEx.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
@@ -568,10 +555,6 @@ public class PanelPrincipal extends javax.swing.JFrame implements SimulationList
         return selectedFile  == null;
     }
     
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton2ActionPerformed
-
     private void GuardarPlanificacionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_GuardarPlanificacionActionPerformed
         String politicaSeleccionada = (String) PoliticaName.getSelectedItem();
         StrategyScheduler estrategia;
@@ -738,7 +721,6 @@ public class PanelPrincipal extends javax.swing.JFrame implements SimulationList
     private javax.swing.JList<String> colaSuspendidosB;
     private javax.swing.JList<String> colaSuspendidosL;
     private javax.swing.JLabel instrucciones;
-    private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel5;
