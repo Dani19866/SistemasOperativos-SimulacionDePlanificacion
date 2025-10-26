@@ -4,6 +4,10 @@
  */
 package SchedulerTechniques;
 
+
+import java.util.concurrent.Semaphore;
+import requirements.CPU;
+
 import structures.ArrayList;
 import structures.Queue;
 import requirements.Process;
@@ -15,8 +19,10 @@ import structures.ProcessType;
  */
 public class SRT extends SchedulerStrategy{
 
+    private final Semaphore mutex = new Semaphore(1);
+
     // Procesos en ejecución
-    Process runningProcess;
+    CPU cpu;
 
     // Colas de procesos
     Queue<Process> readyProcess;
@@ -33,7 +39,9 @@ public class SRT extends SchedulerStrategy{
             Queue<Process> blockedSuspendedProcess,
             Queue<Process> newProcess,
             ArrayList<Process> outProcess,
-            Process runningProcess
+
+            CPU cpu
+
     ) {
         this.readyProcess = readyProcess;
         this.readySuspendedProcess = readySuspendedProcess;
@@ -41,11 +49,94 @@ public class SRT extends SchedulerStrategy{
         this.blockedSuspendedProcess = blockedSuspendedProcess;
         this.newProcess = newProcess;
         this.outProcess = outProcess;
-        this.runningProcess = runningProcess;
+
+        this.cpu = cpu;;
+
     }
 
     @Override
     public Process nextProcess() {
-        return new Process("asd", ProcessType.CPU_BOUND, 12, 12, 12);
+
+       try{
+           mutex.acquire();
+           if (readyProcess.isEmpty()){
+               return null;
+           }
+           Process bestProcess = null;
+           Queue<Process> queueAuxSRT =  new Queue<>(); //  Cola auxiliar temporal para SRT
+           
+           // Inicializamos el primer proceso de la cola listos como mejor proceso 
+           if(!readyProcess.isEmpty()){
+              bestProcess = readyProcess.dequeue();
+           } else {
+              return null; // La cola esta vacia. 
+           }
+           
+           //Obtenemos la longitus de la cola de listos e iteramos sobre los procesos restantes 
+           int sizereadyProcess = readyProcess.size();
+           for (int i=0; i< sizereadyProcess;i++){
+              Process actualProcess = readyProcess.dequeue();
+              
+              //Comparamos con el mejor proceso que corre actualmente 
+              if (actualProcess.getRemainingInstructions()<bestProcess.getRemainingInstructions()){
+                  queueAuxSRT.enqueue(bestProcess); // Ingresamos a la cola aux el mejor proceso
+                  bestProcess = actualProcess;      // Actualizamos valores
+              }else {
+                  queueAuxSRT.enqueue(actualProcess);  // El actualProcess no es mejor que bestProcess, se encola.
+              }
+           }
+           
+           // Reencolamos todos los procesos de la cola aux a la cola Listo 
+           int sizeAuxSRT = queueAuxSRT.size();
+           for (int j=0; j< sizeAuxSRT; j++){
+               readyProcess.enqueue(queueAuxSRT.dequeue());
+           } 
+            return bestProcess;
+            
+               
+           
+       }catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        } 
+        finally {
+            mutex.release();
+        }
+        return null; //aqui chequear !!!!
     }
+    
+    public void addProcess(Process p) {
+        try {
+            mutex.acquire();
+            readyProcess.enqueue(p); // Agrega el proceso al final de la cola
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        } finally {
+            mutex.release();
+        }
+    }
+    
+     public boolean isEmpty() {
+        return readyProcess.isEmpty();
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
 }

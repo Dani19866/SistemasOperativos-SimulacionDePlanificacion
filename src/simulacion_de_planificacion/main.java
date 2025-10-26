@@ -6,8 +6,6 @@ package simulacion_de_planificacion;
 
 import IGU.PanelPrincipal;
 import javax.swing.UnsupportedLookAndFeelException;
-import requirements.Disk;
-import requirements.Memory;
 import requirements.OS;
 import requirements.PCB;
 import structures.MemorySizeKb;
@@ -24,10 +22,19 @@ public class main {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        newAppareance();
+        int memSize = MemorySizeKb.KB_EQUALS_TO_8_GB.getSize(); //
+        int diskSize = MemorySizeKb.KB_EQUALS_TO_32_GB.getSize(); //
+        int cycleDuration = 100;
 
-        Memory memory = new Memory(MemorySizeKb.KB_EQUALS_TO_8_GB);
-        Disk disk = new Disk(MemorySizeKb.KB_EQUALS_TO_32_GB);
+        OS sistemaOperativo = new OS(memSize, diskSize, cycleDuration); 
+       
+        
+        PanelPrincipal pp = new PanelPrincipal(sistemaOperativo);
+        pp.setVisible(true);
+        newAppareance();
+     
+        //Iniciar la CPU 
+        sistemaOperativo.startSimulation();
 
     }
 

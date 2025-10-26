@@ -4,8 +4,17 @@
  */
 package requirements;
 
+
+import SchedulerTechniques.StrategyScheduler;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 import requirements.Process;
+import structures.Node;
+import structures.ProcessType;
 import structures.StateOS;
+import structures.StateProcess;
+import requirements.SimulationListener;
 
 /**
  *
@@ -13,23 +22,34 @@ import structures.StateOS;
  */
 public class OS {
 
-    CPU cpu;
+
+    public CPU cpu;
     StateOS os_status;
-    Memory memory;
-    Disk disk;
     Scheduler scheduler;
     int globalCyclesDuration;
     int globalCycles;
+    int currentMemoryUsage;
+    int totalMemorySize;      // Límite de memoria (en instrucciones)
+    int totalDiskSize;
+    private boolean simulacionIniciada = false;
+    private final List<SimulationListener> listeners;
+    private int cpuBusyCycles = 0; // Contador de ciclos en que la CPU estuvo ocupada
+    private final java.util.List<Double> utilizationHistory = new java.util.ArrayList<>();
+    
 
-    public OS(Memory memory, Disk disk, int globalCyclesDuration) {
-        this.memory = memory;
-        this.disk = disk;
-        this.scheduler = new Scheduler(this.cpu.getRunningProcess());
-        this.cpu = new CPU(this, this.scheduler);
+    public OS(int memorySize, int diskSize, int globalCyclesDuration) {
+        this.listeners = new ArrayList<>();
+        this.totalMemorySize = memorySize;
+        this.totalDiskSize = diskSize;
+        this.cpu = new CPU(this, null);
+        this.scheduler = new Scheduler(this.cpu);
+        this.cpu.setScheduler(this.scheduler);
         this.os_status = StateOS.ON;
         this.globalCyclesDuration = globalCyclesDuration;
         this.globalCycles = 0;
+        this.currentMemoryUsage = 0;
     }
+   
 
     /**
      * PLANIFICADOR: Siguiente proceso a ejecutar SEGÚN estrategia
@@ -45,7 +65,26 @@ public class OS {
      * @param p
      */
     public void addProcess(Process p) {
-        scheduler.addProcessScheduler(p);
+        //scheduler.addProcessScheduler(p);
+        // Asignamos el tiempo de llegada
+        int processSize = p.getInstructions();
+        
+        p.getPCB().setTiempoLlegada(this.globalCycles);
+        p.getPCB().setStateProcess(StateProcess.NEW);
+        scheduler.newProcess.enqueue(p);  // Colocamos el proceso en la cola de nuevos 
+        
+        this.checkAndLoadProcesses();   // Mueve de New a Ready si hay espacio 
+    }
+    
+    /**
+     * CPU llama cuando se necesita devolver un proceso que fue SUSPENDIDO.
+     * @param p 
+     */
+    public void returnProcessReady(Process p ){
+        p.getPCB().setStateProcess(StateProcess.READY);
+        scheduler.readyProcess.enqueue(p); // encolamos a la cola de Listos 
+        System.out.println("SO: Agregado a Ready -> " + p.getPCB().getName());
+        this.tryToWakeUpCPU();
     }
     
     /**
@@ -55,10 +94,19 @@ public class OS {
      */
     public synchronized void blockProcess(Process p) {
         // 1. Modificar el estado del proceso a Bloqueado
-        // 2. Encolar el proceso a la cola de Bloqueados
-        // 3. Invocar un hilo para manejar aquellos procesos bloqueados
-    }
 
+        p.getPCB().setStateProcess(StateProcess.BLOCKED);
+        // 2. Encolar el proceso a la cola de Bloqueados
+        scheduler.blockedProcess.enqueue(p);
+        System.out.println("SO: Proceso bloqueado -> " + p.getPCB().getName());
+        fireQueuesChanged();
+        // 3. Invocar un hilo para manejar aquellos procesos bloqueados
+        // Espera de I/O
+        Thread IOThread = new Thread(() -> {
+            blockProcessHandler(p);
+        });
+        IOThread.start(); // Inicia el hilo
+    }
     /**
      * Proceso -> Cola de terminados
      *
@@ -66,7 +114,19 @@ public class OS {
      */
     public void finishProcess(Process p) {
         // 1. Setear el estado del proceso en Terminado
+
+        p.getPCB().setStateProcess(StateProcess.TERMINATED);
         // 2. Encolar en la lista de Bloqueados
+        scheduler.outProcess.add(p);
+        // 3. Liberar Memoria
+        currentMemoryUsage -= p.getInstructions();
+        System.out.println("OS (finishProcess): Proceso '" + p.getPCB().getName());
+        
+        //4. Avisamos al planificador que hay espacio disponible 
+        this.checkAndLoadProcesses();
+        fireQueuesChanged();
+        
+
     }
 
     /**
@@ -75,21 +135,177 @@ public class OS {
      * @param p
      */
     public void blockProcessHandler(Process p) {
+
+        try{
         // 1. Obtener los ciclos para completar el bloqueo
+        int cyclesToWait = p.getPCB().getCyclesCompleteIO();
         // 2. Multiplicar ciclos por duración de ciclo = tiempo max bloqueo
-        // 3. Extraer el proceso de la cola (descolar el proceso)
-        // 4. Reiniciar el contador de bloqueo de ese proceso
-        // 5. Verificar si no está terminado
-        //      a. Si no está terminado, entonces se modifica el estado (Ready)
-        //         y se añade el proceso (addProcess)
+        int TimeMaxBlock = (int) cyclesToWait * this.globalCyclesDuration;
+        //3. Simulamos la espera
+        Thread.sleep(TimeMaxBlock);
+        // 4. Termino el proceso. Reiniciar el contador 
+        p.restartBurstCounter();
+        // 5. Desbloquear el proceso
+        //Usamos synchronized, para que los procesos no accendan al mismo tiempo
+        synchronized (this.scheduler) {
+        // 6. Verificar si no está terminado
+            if(p.getPCB().getStateProcess() == StateProcess.BLOCKED){
+                // Si entra, significa que sigue en memoria.
+                // Lo movemos de Blocked a Ready
+            // a. Extraemos el proceso de la cola (descolar el proceso). 
+            //    usamos metodo de queue -> remove()
+                scheduler.blockedProcess.remove(p);
+            //  b. Si no está terminado, modificar estado y añadir a listos
+            if (!p.isTerminated()) {
+                    p.getPCB().setStateProcess(StateProcess.READY);
+                    this.scheduler.readyProcess.enqueue(p);
+                }
+            } else if(p.getPCB().getStateProcess() == StateProcess.SUSPENDED_BLOCKED){
+                // Lo movemos de BLOCKED_SUSPENDED -> READY_SUSPENDED
+                this.scheduler.blockedSuspendedProcess.remove(p);
+                
+                if (!p.isTerminated()) {
+                        p.getPCB().setStateProcess(StateProcess.SUSPENDED_READY);
+                        this.scheduler.readySuspendedProcess.enqueue(p);
+                }
+                
+            }
+        } // Fin del bloque synchronized
+        
+        }catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                System.err.println("Hilo de E/S interrumpido para " + p.getPCB().getName());
+            }
+        fireQueuesChanged();
+        this.tryToWakeUpCPU();
     }
+    
+    /**
+     * Si hay espacio, intenta cargar los procesos a memoria 
+     * desde las cola de suspendidos a listos 
+     * Tambien carga los proceso a Listos
+     * Se llama cuando un proceso TERMINA o cuando uno NUEVO llega.
+    */
+    
+    private synchronized void checkAndLoadProcesses() {
+            boolean memoryFree;
+            do {
+                memoryFree = false;
+
+                if (!scheduler.readySuspendedProcess.isEmpty()) {
+                    Process p = this.scheduler.readySuspendedProcess.peek();
+                    int neededMemory = p.getInstructions();
+                    // Si la cantidad de memoria que el proceso necesita mas la que
+                    // todavia se esta usando es menor o igual que el tamanio
+                    // total de la memoria
+                    if (currentMemoryUsage + neededMemory <= this.totalMemorySize) {
+                        // Hay espacio, se carga el proceso a memoria
+                        p = scheduler.readySuspendedProcess.dequeue();
+                        this.currentMemoryUsage += neededMemory; // Actualizamos el contador de memoria usada
+                        p.getPCB().setStateProcess(StateProcess.READY);
+                        scheduler.readyProcess.enqueue(p);
+                        memoryFree = true; // Cargamos un proceso
+                    }
+                }
+
+                // No se reanudaron procesos de suspendidos, cargamos nuevos procesos
+                if (!memoryFree && !this.scheduler.newProcess.isEmpty()) {
+                    Process p = this.scheduler.newProcess.peek();
+                    int neededMemory = p.getInstructions();
+
+                    if (this.currentMemoryUsage + neededMemory <= this.totalMemorySize) {
+                        // Lógica: Largo Plazo (New -> Ready) - Hay espacio
+                        p = this.scheduler.newProcess.dequeue();
+                        this.currentMemoryUsage += neededMemory; // Actualizamos el contador de memoria usada
+                        p.getPCB().setStateProcess(StateProcess.READY);
+                        this.scheduler.readyProcess.enqueue(p);
+                        memoryFree = true; // Cargamos un proceso
+
+                    } else {
+                        // Lógica: Largo Plazo - NO HAY ESPACIO. (Swapping o Suspensión)
+
+                        if (trySuspendBlockedProcess()) {
+                            // ¡Éxito! Liberamos memoria. memoryFree=true repite el do-while.
+                            memoryFree = true;
+                        } else {
+                            
+                            p = this.scheduler.newProcess.dequeue();
+                            p.getPCB().setStateProcess(StateProcess.SUSPENDED_READY);
+                            this.scheduler.readySuspendedProcess.enqueue(p);
+                            System.out.println("OS: Memoria insuficiente para " + p.getPCB().getName()+ ". Movido a Listo-Suspendido.");
+                            memoryFree = true;
+                        }
+                    }
+                }
+            } while (memoryFree); // Repetir mientras logremos mover procesos
+
+            fireQueuesChanged();
+            this.tryToWakeUpCPU();
+        }            
+    
+    /**
+     * Intenta suspender el primer proceso en la cola de bloqueados
+     * para liberar memoria.
+     * Llamado por checkAndLoadProcesses() cuando no hay memoria.
+     * * @return true si se logró suspender y liberar memoria.
+     */
+    private synchronized boolean trySuspendBlockedProcess() {
+        if (this.scheduler.blockedProcess.isEmpty()) {
+            return false; // No hay a quién suspender
+        } 
+        // 1. Sacamos al primer proceso bloqueado
+        Process p = scheduler.blockedProcess.dequeue();
+        
+        // 2. Cambiamos su estado y lo movemos a la cola de suspendidos
+        p.getPCB().setStateProcess(StateProcess.SUSPENDED_BLOCKED);
+        scheduler.blockedSuspendedProcess.enqueue(p);
+        
+        // 3. Liberamos memoria!!!!!!
+        this.currentMemoryUsage -= p.getInstructions();
+        System.out.println("MEMORIA: El " + p.getPCB().getName() + " suspendido. Memoria liberada."); // Para verificar
+        
+        // Se Supone que este metodo es llamado checkAndLoadProcesses(). Una vez termine:
+        // 4. El hilo que lo estaba esperando (blockProcessHandler) 
+        //se encargará de moverlo a READY_SUSPENDED cuando termine su E/S.
+        fireQueuesChanged();
+        return true;
+        
+    }
+     public void startSimulation() {
+        this.cpu.start();
+    }
+    
 
     /**
      * Incrementa los ciclos del CPU
      */
     public void increaseCycles() {
         this.globalCycles++;
+
+        
+        if (this.cpu.getRunningProcess() != null) {
+        this.cpuBusyCycles++;
     }
+        this.utilizationHistory.add(getCpuUtilization());
+        fireQueuesChanged();
+    }
+    
+    /**
+    * Calcula el porcentaje de utilidad de la CPU (Tiempo Ocupado / Tiempo Total).
+    * @return Porcentaje de utilidad (0.0 a 100.0).
+    */
+    public double getCpuUtilization() {
+           if (this.globalCycles == 0) {
+               return 0.0;
+           }
+           // Fórmula: (Ciclos Ocupados / Ciclos Totales) * 100
+           return ((double) this.cpuBusyCycles / this.globalCycles) * 100.0;
+       }
+
+    public java.util.List<Double> getUtilizationHistory() {
+           return utilizationHistory;
+       }
+       
 
     /**
      * Obtener el proceso que está corriendo actualmente
@@ -110,16 +326,43 @@ public class OS {
     }
 
     public int getMemory() {
-        return memory.memorySize.getSize();
-    }
 
-    public int getDisk() {
-        return disk.memorySize.getSize();
+        return this.totalMemorySize;
+    }
+    
+    public int getDisk(){
+        return this.totalDiskSize;
     }
 
     public void getSpecifications() {
         System.out.println("Memoria RAM: " + getMemory() + " Kb" + "\nMemoria en disco: " + getDisk() + " Kb");
+        
 
+    }
+    public synchronized void tryToWakeUpCPU() {
+        // Solo despierta a la CPU si NO está ejecutando un proceso
+        if (simulacionIniciada && cpu.getRunningProcess() == null) {
+            System.out.println("Trabajo en Ready");
+            this.cpu.wakeUp();
+        }
+        // Si ya está corriendo, no hacemos nada.
+        // La CPU tomará el siguiente proceso cuando termine el actual.
+    }
+    public synchronized void addSimulationListener(SimulationListener listener) {
+        if (!listeners.contains(listener)) {
+            listeners.add(listener);
+        }
+    }
+
+    /**
+     * Notifica a todos los listeners (la GUI) que 
+     * las colas de procesos han cambiado y deben redibujarse.
+     */
+    public synchronized void fireQueuesChanged() {
+        // Itera sobre todos los listeners y les avisa
+        for (SimulationListener listener : listeners) {
+            listener.onProcessQueuesChanged();
+        }
     }
     // </editor-fold> 
 
@@ -127,5 +370,159 @@ public class OS {
     public void setGlobalCyclesDuration(int globalCyclesDuration) {
         this.globalCyclesDuration = globalCyclesDuration;
     }
+
+    /**
+    * Método público (puente) para permitir que la GUI cambie
+    * la estrategia de planificación del Scheduler.
+    *
+    * @param strategyEnum La nueva estrategia (enum) a configurar.
+    */
+   public void setSchedulingStrategy(StrategyScheduler strategyEnum) {
+       if (this.scheduler != null) {
+           // Llama al método que SÍ existe en tu Scheduler
+           this.scheduler.changeStrategy(strategyEnum);
+           
+           if (!this.simulacionIniciada) {
+            this.simulacionIniciada = true; // ¡Levantamos la bandera!
+            System.out.println("--- Carga Completa. ---");
+            } else {
+                // Si ya estaba iniciada, solo notificamos el cambio (útil si cambias de estrategia a mitad de simulación)
+                System.out.println("--- Estrategia de planificación actualizada a: " + strategyEnum.toString() + " ---");
+            }
+           tryToWakeUpCPU();
+       }
+   }
     // </editor-fold> 
-}
+
+   //-----------------------------------------------------------------------------------------------------------------------------------------
+   // Copias de Listas (FOTO)
+    /**
+ * Devuelve una copia (snapshot) segura de la cola de Listos.
+ * Itera la cola de forma segura usando getFirstNode().
+ * @return Una List<Process> de los procesos listos.
+ */
+    public synchronized java.util.List<Process> getReadyQueueSnapshot() {
+            java.util.List<Process> snapshot = new java.util.ArrayList<>();
+
+            // Obtenemos el primer nodo
+            Node<Process> actual = this.scheduler.readyProcess.getFirstNode();
+
+            // Iteramos nodo por nodo, igual que en tu 'toString()'
+            while (actual != null) {
+                snapshot.add(actual.getData());
+                actual = actual.getNext();
+            }
+            return snapshot;
+        }
+    
+    /**
+     * Devuelve una copia (snapshot) segura de la cola de Bloqueados.
+     */
+    public synchronized java.util.List<Process> getBlockedQueueSnapshot() {
+        java.util.List<Process> snapshot = new java.util.ArrayList<>();
+        Node<Process> actual = this.scheduler.blockedProcess.getFirstNode();
+        while (actual != null) {
+            snapshot.add(actual.getData());
+            actual = actual.getNext();
+        }
+        return snapshot;
+    }
+
+    /**
+     * Devuelve una copia (snapshot) segura de la lista de Terminados.
+     * Tu 'outProcess' es un ArrayList (definido en Scheduler.java),
+     * así que solo lo clonamos para seguridad.
+     * @return 
+     */
+    public synchronized java.util.List<Process> getFinishedListSnapshot() {
+        // 1. Crea una lista de Java vacía
+        java.util.List<Process> snapshot = new java.util.ArrayList<>();
+        
+        if (this.scheduler.outProcess != null) {
+            
+            // 2. Itera manualmente sobre tu 'structures.ArrayList'
+            //    (Esto asume que tiene los métodos .size() y .get(i))
+            for (int i = 0; i < this.scheduler.outProcess.size(); i++) {
+                
+                // 3. Obtiene el proceso y lo añade a la lista de Java
+                Process p = this.scheduler.outProcess.get(i);
+                snapshot.add(p);
+            }
+        }
+        
+        // 4. Devuelve la lista de Java (que SÍ es iterable)
+        return snapshot;
+    }
+    /**
+     * Devuelve una copia (snapshot) segura de la cola de Listos-Suspendidos.
+     * @return 
+     */
+    public synchronized java.util.List<Process> getReadySuspendedQueueSnapshot() {
+        java.util.List<Process> snapshot = new java.util.ArrayList<>();
+        Node<Process> actual = this.scheduler.readySuspendedProcess.getFirstNode();
+        while (actual != null) {
+            snapshot.add(actual.getData());
+            actual = actual.getNext();
+        }
+        return snapshot;
+    }
+    
+    /**
+     * Devuelve una copia (snapshot) segura de la cola de Bloqueados-Suspendidos.
+     * @return 
+     */
+    public synchronized java.util.List<Process> getBlockedSuspendedQueueSnapshot() {
+        java.util.List<Process> snapshot = new java.util.ArrayList<>();
+        Node<Process> actual = this.scheduler.blockedSuspendedProcess.getFirstNode();
+        while (actual != null) {
+            snapshot.add(actual.getData());
+            actual = actual.getNext();
+        }
+        return snapshot;
+    }
+    
+    /** Cuenta la cantidad de procesos CPU-Bound y I/O-Bound en todas las colas.
+    * @return Un array int[2] donde [0] es CPU-Bound y [1] es I/O-Bound.
+    */
+    public int[] countProcessTypes() {
+        int cpuBoundCount = 0;
+        int ioBoundCount = 0;
+
+        // Una lista temporal para agregar todos los procesos del sistema
+        java.util.List<Process> allProcesses = new java.util.ArrayList<>();
+
+        // 1. Procesos en colas de memoria principal
+        allProcesses.addAll(getReadyQueueSnapshot());        // Listos
+        allProcesses.addAll(getBlockedQueueSnapshot());       // Bloqueados
+        //allProcesses.addAll(getOutProcessSnapshot());       // Finalizados (puedes incluirlos o no, depende si quieres el historial completo o solo los activos)
+
+        // 2. Procesos en colas de disco (Suspended)
+        allProcesses.addAll(getReadySuspendedQueueSnapshot());
+        allProcesses.addAll(getBlockedSuspendedQueueSnapshot());
+
+        // 3. Procesos nuevos (aún no admitidos)
+        // El scheduler tiene una cola newProcess que es Queue<Process>.
+        // Necesitas un método getNewProcessQueueSnapshot() o hacer el recorrido aquí.
+        Node<Process> actualNew = this.scheduler.newProcess.getFirstNode();
+        while (actualNew != null) {
+            allProcesses.add(actualNew.getData());
+            actualNew = actualNew.getNext();
+        }
+
+        // 4. Proceso corriendo en CPU
+        if (this.cpu.getRunningProcess() != null) {
+            allProcesses.add(this.cpu.getRunningProcess());
+        }
+
+        // 5. Contar los tipos
+        for (Process p : allProcesses) {
+            if (p.getPCB().getProcessType() == structures.ProcessType.CPU_BOUND) {
+                cpuBoundCount++;
+            } else if (p.getPCB().getProcessType() == structures.ProcessType.IO_BOUND) {
+                ioBoundCount++;
+            }
+        }
+
+        // [0] = CPU-Bound, [1] = I/O-Bound
+        return new int[]{cpuBoundCount, ioBoundCount};
+    }}

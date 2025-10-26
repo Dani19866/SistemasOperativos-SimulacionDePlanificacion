@@ -1,5 +1,8 @@
 package SchedulerTechniques;
 
+
+import java.util.concurrent.Semaphore;
+import requirements.CPU;
 import structures.ArrayList;
 import structures.Queue;
 import requirements.Process;
@@ -11,12 +14,15 @@ import structures.ProcessType;
  */
 /**
  *
- * @author Daniel
+
+ * @author Nicole
  */
 public class FirstComeFirstServe extends SchedulerStrategy {
+    private final Semaphore mutex = new Semaphore(1);
 
     // Procesos en ejecución
-    Process runningProcess;
+    CPU cpu;
+
 
     // Colas de procesos
     Queue<Process> readyProcess;
@@ -26,6 +32,8 @@ public class FirstComeFirstServe extends SchedulerStrategy {
     Queue<Process> newProcess;
     ArrayList<Process> outProcess;
 
+    
+
     public FirstComeFirstServe(
             Queue<Process> readyProcess,
             Queue<Process> readySuspendedProcess,
@@ -33,7 +41,9 @@ public class FirstComeFirstServe extends SchedulerStrategy {
             Queue<Process> blockedSuspendedProcess,
             Queue<Process> newProcess,
             ArrayList<Process> outProcess,
-            Process runningProcess
+
+            CPU cpu
+
     ) {
         this.readyProcess = readyProcess;
         this.readySuspendedProcess = readySuspendedProcess;
@@ -41,11 +51,38 @@ public class FirstComeFirstServe extends SchedulerStrategy {
         this.blockedSuspendedProcess = blockedSuspendedProcess;
         this.newProcess = newProcess;
         this.outProcess = outProcess;
-        this.runningProcess = runningProcess;
+
+        this.cpu = cpu;
     }
 
-    @Override
+     @Override
     public Process nextProcess() {
-        return new Process("asd", ProcessType.CPU_BOUND, 12, 12, 12);
+        try{
+            mutex.acquire();
+            if (readyProcess.isEmpty()) return null;
+            else return readyProcess.dequeue(); // obtiene el primero en llegar
+        
+        }catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return null;
+        } finally {
+            mutex.release();
+        }
+    }
+    
+    
+    public void addProcess(Process p) {
+        try {
+            mutex.acquire();
+            readyProcess.enqueue(p); // Agrega el proceso al final de la cola
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        } finally {
+            mutex.release();
+        }
+    }
+    
+     public boolean isEmpty() {
+        return readyProcess.isEmpty();
     }
 }

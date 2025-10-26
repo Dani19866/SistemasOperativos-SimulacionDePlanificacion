@@ -21,7 +21,9 @@ public class PCB {
     int pc;
     int mar;
     int priory;
-    float memorySpace;
+
+   
+
 
 
     // Características de un I/O-Bound
@@ -32,6 +34,13 @@ public class PCB {
     // Auditoría
     float timeProcess;          // Tiempo de procesador utilizado
 
+    int tiempoLlegada;
+    
+    // --- NUEVOS CAMPOS PLANIFICACION PARA MLFQ (FB) ---
+    private int prioridadMLFQ;      // Nivel de cola (1=Alta, 2=Media, 3=Baja)
+    private boolean agotoQuantumMLFQ; // Flag de comunicación CPU -> Planificador
+
+
     /**
      * Constructor para procesos CPU-Bound
      *
@@ -40,7 +49,9 @@ public class PCB {
      * @param priory
      * @param memorySpace
      */
-    public PCB(String name, ProcessType processType, int priory, float memorySpace) {
+
+    public PCB(String name, ProcessType processType, int priory) {
+
 
         this.id = UUID.randomUUID().toString();
         this.name = name;
@@ -49,7 +60,13 @@ public class PCB {
         this.pc = 0;
         this.mar = 0;
         this.priory = priory;
-        this.memorySpace = memorySpace;
+
+        
+        
+        // --- INICIALIZACIÓN PARA MLFQ ---
+        this.prioridadMLFQ = 0; // 0 = Proceso nuevo
+        this.agotoQuantumMLFQ = false;
+
     }
 
     /**
@@ -62,7 +79,9 @@ public class PCB {
      * @param priory
      * @param memorySpace
      */
-    public PCB(String name, ProcessType processType, int cyclesExcepcion, int cyclesCompleteIO, int priory, float memorySpace) {
+
+    public PCB(String name, ProcessType processType, int cyclesExcepcion, int cyclesCompleteIO, int priory) {
+
         this.id = UUID.randomUUID().toString();
         this.name = name;
         this.processType = processType;
@@ -70,12 +89,20 @@ public class PCB {
         this.pc = 0;
         this.mar = 0;
         this.priory = priory;
-        this.memorySpace = memorySpace;
+
+        
+
 
         // Asignamos los valores específicos para la E/S
         this.cyclesExcepcion = cyclesExcepcion;
         this.cyclesCompleteIO = cyclesCompleteIO;
         this.cyclesExecute = 0; // El contador siempre empieza en cero
+
+        
+        // --- INICIALIZACIÓN PARA MLFQ ---
+        this.prioridadMLFQ = 0; // 0 = Proceso nuevo
+        this.agotoQuantumMLFQ = false;
+
 
     }
 
@@ -141,6 +168,13 @@ public class PCB {
         return processType;
     }
 
+
+    
+    public boolean haAgotadoQuantumMLFQ() {
+        return agotoQuantumMLFQ;
+    }
+    
+
     public int getPc() {
         return pc;
     }
@@ -160,7 +194,22 @@ public class PCB {
     public int getCyclesExecute() {
         return cyclesExecute;
     }
-    // </editor-fold> 
+
+    
+     public int getTiempoLlegada() {
+        return tiempoLlegada;
+    }
+    public int getPriory() {
+        return priory;
+        
+    }
+    
+    public int getPrioridadMLFQ() {
+        return prioridadMLFQ;
+    }
+    
+     //
+     //</editor-fold> 
 
     // <editor-fold defaultstate="collapsed" desc="Setters">
     public void setStateProcess(StateProcess stateProcess) {
@@ -170,5 +219,25 @@ public class PCB {
     public void setProcessType(ProcessType processType) {
         this.processType = processType;
     }
+
+    public void setTiempoLlegada(int tiempoLlegada) {
+        this.tiempoLlegada = tiempoLlegada;
+    }
+    
+    public void setPriory(int priory){
+        this.priory = priory;
+    }
+    
+    
+    
+    public void setFlagAgotadoQuantumMLFQ(boolean agotoQuantumMLFQ) {
+        this.agotoQuantumMLFQ = agotoQuantumMLFQ;
+    }
+    
+    public void setPrioridadMLFQ(int prioridadMLFQ) {
+        this.prioridadMLFQ = prioridadMLFQ;
+    }
+    //
+
     // </editor-fold> 
 }

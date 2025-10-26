@@ -4,18 +4,121 @@
  */
 package IGU;
 
+import requirements.OS;
+import requirements.Process;
+import structures.ProcessType;
+import javax.swing.JOptionPane;
+import SchedulerTechniques.StrategyScheduler;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Random;
+import javax.swing.DefaultListModel;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import requirements.PCB;
+import requirements.Process;
+import requirements.SimulationListener;
+import structures.ProcessType;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.data.general.DefaultPieDataset;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
 
 /**
  *
  * @author rtkn0_z8ls
  */
-public class PanelPrincipal extends javax.swing.JFrame {
+public class PanelPrincipal extends javax.swing.JFrame implements SimulationListener {
 
-    /**
-     * Creates new form PanelPrincipal
-     */
-    public PanelPrincipal() {
+    private File selectedFile;
+    private OS os; // Referenciamos a nuestro OS
+
+    private DefaultListModel<String> modeloListaListos = new DefaultListModel<>();
+    private DefaultListModel<String> modeloListaBloqueados = new DefaultListModel<>();
+    private DefaultListModel<String> modeloListaTerminados = new DefaultListModel<>();
+    private DefaultListModel<String> modeloListaSupendido = new DefaultListModel<>();
+    private DefaultListModel<String> modeloBloqueadoSupendido = new DefaultListModel<>();
+
+    // Para Grafico de CPU
+    private XYSeries utilizationSeries;
+    private ChartPanel chartPanel;
+    private JFreeChart utilizationChart;
+
+    // Pata Grafico de Procesos 
+    private DefaultPieDataset processTypeDataset;
+    private JFreeChart processTypeChart;
+    private ChartPanel processTypeChartPanel;
+
+    // Contadores
+    private int cpuBoundCount = 0;
+    private int ioBoundCount = 0;
+
+    public PanelPrincipal(OS os) {
         initComponents();
+        this.os = os;
+        this.setVisible(true);
+
+        // Para Grafico de CPU
+        utilizationSeries = new XYSeries("Utilidad de CPU");
+        XYSeriesCollection dataset = new XYSeriesCollection();
+        dataset.addSeries(utilizationSeries);
+        utilizationChart = ChartFactory.createXYLineChart(
+                "Utilidad de CPU vs. Tiempo", // Título del Gráfico
+                "Ciclos de Tiempo", // Título del Eje X
+                "Utilidad (%)", // Título del Eje Y
+                dataset
+        );
+        chartPanel = new ChartPanel(utilizationChart);
+        chartPanel.setPreferredSize(new java.awt.Dimension(500, 300));
+
+        colaListos.setModel(modeloListaListos);
+        colaBloqueados.setModel(modeloListaBloqueados);
+        colaFinalizados.setModel(modeloListaTerminados);
+        colaSuspendidosB.setModel(modeloBloqueadoSupendido);
+        colaSuspendidosL.setModel(modeloListaSupendido);
+
+        processTypeDataset = new DefaultPieDataset();
+
+        processTypeDataset.setValue("CPU-Bound", 0.0);
+        processTypeDataset.setValue("I/O-Bound", 0.0);
+
+        processTypeChart = ChartFactory.createPieChart(
+                "Composición de Procesos Cargados", // Título
+                processTypeDataset, // Datos
+                true, // Incluir leyenda
+                true, // Incluir tooltips
+                false // Incluir URLs
+        );
+
+        // Crear el panel de la gráfica
+        processTypeChartPanel = new ChartPanel(processTypeChart);
+        processTypeChartPanel.setPreferredSize(new java.awt.Dimension(350, 300));
+
+        this.os.addSimulationListener(this);
+
+        // 1. Poblar el JComboBox de Politicas de Planificacion
+        String[] Politicas = {
+            "Round Robin",
+            "FCFS",
+            "SJF",
+            "SRT",
+            "HRRN",
+            "FB"
+        };
+        PoliticaName.setModel(new javax.swing.DefaultComboBoxModel<>(Politicas));
+
+        // 2. Poblar el JComboBox de Tipos de Proceso
+        String[] TipoProceso = {
+            "CPU-Bound",
+            "I/O-Bound"
+        };
+        TypeProcess.setModel(new javax.swing.DefaultComboBoxModel<>(TipoProceso));
     }
 
     /**
@@ -30,35 +133,52 @@ public class PanelPrincipal extends javax.swing.JFrame {
         jPanel3 = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
-        quantumchoice = new java.awt.Choice();
         titulo = new javax.swing.JLabel();
-        politicachoice = new java.awt.Choice();
-        label1 = new javax.swing.JLabel();
         instrucciones = new javax.swing.JLabel();
-        spinnerinstrucciones = new javax.swing.JSpinner();
-        boxtipo = new javax.swing.JComboBox<>();
         tipo = new javax.swing.JLabel();
         ciclo = new javax.swing.JLabel();
         Spinnerciclo = new javax.swing.JSpinner();
         quantum = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
-        jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
-        jButton3 = new javax.swing.JButton();
-        jButton4 = new javax.swing.JButton();
-        boxtipo1 = new javax.swing.JComboBox<>();
+        NombreProceso = new javax.swing.JTextField();
+        randomProcess = new javax.swing.JButton();
+        GuardarPlanificacion = new javax.swing.JButton();
+        CantidadInstrucciones = new javax.swing.JSpinner();
+        PoliticaName = new javax.swing.JComboBox<>();
+        TypeProcess = new javax.swing.JComboBox<>();
+        ciclo1 = new javax.swing.JLabel();
+        ciclo2 = new javax.swing.JLabel();
+        ciclo3 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
+        CyclesIO = new javax.swing.JSpinner();
+        jSeparator1 = new javax.swing.JSeparator();
+        IniciarProceso = new javax.swing.JButton();
+        cargarFile = new javax.swing.JButton();
+        CyclesEx = new javax.swing.JSpinner();
         jPanel4 = new javax.swing.JPanel();
-        Listalisto = new java.awt.Panel();
-        Listabloqueados = new java.awt.Panel();
-        ListaFinalizado = new java.awt.Panel();
-        Listalisto1 = new java.awt.Panel();
         Listo = new javax.swing.JLabel();
         Bloqueados = new javax.swing.JLabel();
         Finalizados = new javax.swing.JLabel();
         Listo1 = new javax.swing.JLabel();
+        jScrollPane6 = new javax.swing.JScrollPane();
+        colaFinalizados = new javax.swing.JList<>();
+        jScrollPane7 = new javax.swing.JScrollPane();
+        colaSuspendidosB = new javax.swing.JList<>();
+        jScrollPane8 = new javax.swing.JScrollPane();
+        colaSuspendidosL = new javax.swing.JList<>();
+        jScrollPane9 = new javax.swing.JScrollPane();
+        colaBloqueados = new javax.swing.JList<>();
+        jScrollPane10 = new javax.swing.JScrollPane();
+        colaListos = new javax.swing.JList<>();
+        Listo2 = new javax.swing.JLabel();
+        Listo3 = new javax.swing.JLabel();
+        MostrarGrafica = new javax.swing.JButton();
+        MostrarGrafica2 = new javax.swing.JButton();
+        jLabel2 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
+        jLabel6 = new javax.swing.JLabel();
+        globalCycles = new javax.swing.JLabel();
+        executionProcess = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(245, 247, 250));
@@ -74,55 +194,28 @@ public class PanelPrincipal extends javax.swing.JFrame {
         jLabel1.setText("Nombre del Proceso");
         jPanel2.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 90, -1, -1));
 
-        jLabel2.setBackground(new java.awt.Color(0, 0, 0));
-        jLabel2.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
-        jLabel2.setText("Quantum");
-        jPanel2.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 120, -1, -1));
-        jPanel2.add(quantumchoice, new org.netbeans.lib.awtextra.AbsoluteConstraints(580, 120, 160, -1));
-
         titulo.setFont(new java.awt.Font("Dialog", 0, 48)); // NOI18N
         titulo.setText("Simulador de Procesos ");
         jPanel2.add(titulo, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 20, -1, -1));
-        jPanel2.add(politicachoice, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 120, 380, -1));
-
-        label1.setBackground(new java.awt.Color(0, 0, 0));
-        label1.setFont(new java.awt.Font("Dialog", 2, 14)); // NOI18N
-        label1.setForeground(new java.awt.Color(102, 102, 102));
-        label1.setText("Introduzca los atributos del proceso  ");
-        jPanel2.add(label1, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 160, -1, -1));
 
         instrucciones.setBackground(new java.awt.Color(0, 0, 0));
         instrucciones.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
         instrucciones.setText("N. de Instrucciones:");
-        jPanel2.add(instrucciones, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 190, -1, -1));
-
-        spinnerinstrucciones.setModel(new javax.swing.SpinnerNumberModel(0, 0, 10000, 1));
-        spinnerinstrucciones.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
-        jPanel2.add(spinnerinstrucciones, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 190, 140, 25));
-
-        boxtipo.setBackground(new java.awt.Color(51, 51, 51));
-        boxtipo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-        boxtipo.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
-        boxtipo.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                boxtipoActionPerformed(evt);
-            }
-        });
-        jPanel2.add(boxtipo, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 190, 190, 25));
+        jPanel2.add(instrucciones, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 150, -1, -1));
 
         tipo.setBackground(new java.awt.Color(0, 0, 0));
         tipo.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
         tipo.setText("Tipo:");
-        jPanel2.add(tipo, new org.netbeans.lib.awtextra.AbsoluteConstraints(360, 190, -1, -1));
+        jPanel2.add(tipo, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 120, -1, -1));
 
         ciclo.setBackground(new java.awt.Color(0, 0, 0));
         ciclo.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
-        ciclo.setText("Ciclo (ms): ");
-        jPanel2.add(ciclo, new org.netbeans.lib.awtextra.AbsoluteConstraints(600, 190, -1, -1));
+        ciclo.setText("generar excepcion");
+        jPanel2.add(ciclo, new org.netbeans.lib.awtextra.AbsoluteConstraints(460, 110, 120, -1));
 
         Spinnerciclo.setModel(new javax.swing.SpinnerNumberModel(0, 0, 10000, 1));
         Spinnerciclo.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
-        jPanel2.add(Spinnerciclo, new org.netbeans.lib.awtextra.AbsoluteConstraints(670, 190, 75, 25));
+        jPanel2.add(Spinnerciclo, new org.netbeans.lib.awtextra.AbsoluteConstraints(590, 230, 170, 25));
 
         quantum.setBackground(new java.awt.Color(0, 0, 0));
         quantum.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
@@ -130,293 +223,767 @@ public class PanelPrincipal extends javax.swing.JFrame {
 
         jLabel3.setBackground(new java.awt.Color(0, 0, 0));
         jLabel3.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
-        jLabel3.setText("Politica");
-        jPanel2.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 120, -1, -1));
+        jLabel3.setText("Duracion del ciclo Ejec.");
+        jPanel2.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(430, 230, -1, -1));
 
-        jTextField1.setText("Nombre");
-        jPanel2.add(jTextField1, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 90, 540, -1));
-
-        jButton1.setBackground(new java.awt.Color(102, 153, 255));
-        jButton1.setFont(new java.awt.Font("Dialog", 1, 12)); // NOI18N
-        jButton1.setText("Cargar JSON/CSV");
-        jButton1.setBorder(null);
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        NombreProceso.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                NombreProcesoActionPerformed(evt);
             }
         });
-        jPanel2.add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(830, 80, 120, 30));
+        jPanel2.add(NombreProceso, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 90, 170, -1));
 
-        jButton2.setBackground(new java.awt.Color(0, 102, 255));
-        jButton2.setFont(new java.awt.Font("Dialog", 1, 12)); // NOI18N
-        jButton2.setForeground(new java.awt.Color(255, 255, 255));
-        jButton2.setText("Reiniciar Proceso");
-        jButton2.setBorder(null);
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
+        randomProcess.setBackground(new java.awt.Color(0, 102, 255));
+        randomProcess.setFont(new java.awt.Font("Dialog", 1, 12)); // NOI18N
+        randomProcess.setForeground(new java.awt.Color(255, 255, 255));
+        randomProcess.setText("Cargar Aleatorios");
+        randomProcess.setBorder(null);
+        randomProcess.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
+                randomProcessActionPerformed(evt);
             }
         });
-        jPanel2.add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(830, 230, 120, 30));
+        jPanel2.add(randomProcess, new org.netbeans.lib.awtextra.AbsoluteConstraints(940, 140, 120, 30));
 
-        jButton3.setBackground(new java.awt.Color(102, 153, 255));
-        jButton3.setFont(new java.awt.Font("Dialog", 1, 12)); // NOI18N
-        jButton3.setText("Cargar Datos");
-        jButton3.setBorder(null);
-        jButton3.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton3ActionPerformed(evt);
+        GuardarPlanificacion.setBackground(new java.awt.Color(0, 102, 255));
+        GuardarPlanificacion.setFont(new java.awt.Font("Dialog", 1, 12)); // NOI18N
+        GuardarPlanificacion.setForeground(new java.awt.Color(255, 255, 255));
+        GuardarPlanificacion.setText("Guardar");
+        GuardarPlanificacion.setBorder(null);
+        GuardarPlanificacion.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                GuardarPlanificacionMouseClicked(evt);
             }
         });
-        jPanel2.add(jButton3, new org.netbeans.lib.awtextra.AbsoluteConstraints(830, 120, 120, 30));
-
-        jButton4.setBackground(new java.awt.Color(102, 153, 255));
-        jButton4.setFont(new java.awt.Font("Dialog", 1, 12)); // NOI18N
-        jButton4.setText("Iniciar Proceso");
-        jButton4.setBorder(null);
-        jButton4.addActionListener(new java.awt.event.ActionListener() {
+        GuardarPlanificacion.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton4ActionPerformed(evt);
+                GuardarPlanificacionActionPerformed(evt);
             }
         });
-        jPanel2.add(jButton4, new org.netbeans.lib.awtextra.AbsoluteConstraints(830, 160, 120, 30));
+        jPanel2.add(GuardarPlanificacion, new org.netbeans.lib.awtextra.AbsoluteConstraints(790, 220, 100, 30));
 
-        boxtipo1.setEditable(true);
-        boxtipo1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-        boxtipo1.setBorder(null);
-        boxtipo1.addActionListener(new java.awt.event.ActionListener() {
+        CantidadInstrucciones.setModel(new javax.swing.SpinnerNumberModel(1, 1, 10000, 1));
+        CantidadInstrucciones.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        jPanel2.add(CantidadInstrucciones, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 150, 170, 25));
+
+        PoliticaName.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        PoliticaName.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                boxtipo1ActionPerformed(evt);
+                PoliticaNameActionPerformed(evt);
             }
         });
-        jPanel2.add(boxtipo1, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 190, 190, 25));
+        jPanel2.add(PoliticaName, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 230, 170, -1));
+
+        TypeProcess.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        TypeProcess.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                TypeProcessActionPerformed(evt);
+            }
+        });
+        jPanel2.add(TypeProcess, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 120, 170, -1));
+
+        ciclo1.setBackground(new java.awt.Color(0, 0, 0));
+        ciclo1.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
+        ciclo1.setText("satisfacer excepcion");
+        jPanel2.add(ciclo1, new org.netbeans.lib.awtextra.AbsoluteConstraints(450, 160, 130, -1));
+
+        ciclo2.setBackground(new java.awt.Color(0, 0, 0));
+        ciclo2.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
+        ciclo2.setText("Cantidad de ciclos para ");
+        jPanel2.add(ciclo2, new org.netbeans.lib.awtextra.AbsoluteConstraints(430, 90, 160, -1));
+
+        ciclo3.setBackground(new java.awt.Color(0, 0, 0));
+        ciclo3.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
+        ciclo3.setText("Cantidad de ciclos para ");
+        jPanel2.add(ciclo3, new org.netbeans.lib.awtextra.AbsoluteConstraints(430, 140, 160, -1));
+
+        jLabel5.setBackground(new java.awt.Color(0, 0, 0));
+        jLabel5.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
+        jLabel5.setText("Politica");
+        jPanel2.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 230, -1, -1));
+
+        CyclesIO.setModel(new javax.swing.SpinnerNumberModel(0, 0, 10000, 1));
+        CyclesIO.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        jPanel2.add(CyclesIO, new org.netbeans.lib.awtextra.AbsoluteConstraints(590, 150, 170, 25));
+
+        jSeparator1.setBackground(new java.awt.Color(204, 204, 204));
+        jSeparator1.setForeground(new java.awt.Color(153, 153, 153));
+        jPanel2.add(jSeparator1, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 200, 700, -1));
+
+        IniciarProceso.setBackground(new java.awt.Color(102, 153, 255));
+        IniciarProceso.setFont(new java.awt.Font("Dialog", 3, 12)); // NOI18N
+        IniciarProceso.setForeground(new java.awt.Color(255, 255, 255));
+        IniciarProceso.setText("Iniciar Proceso");
+        IniciarProceso.setBorder(null);
+        IniciarProceso.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                IniciarProcesoActionPerformed(evt);
+            }
+        });
+        jPanel2.add(IniciarProceso, new org.netbeans.lib.awtextra.AbsoluteConstraints(790, 120, 100, 30));
+
+        cargarFile.setBackground(new java.awt.Color(0, 102, 255));
+        cargarFile.setFont(new java.awt.Font("Dialog", 1, 12)); // NOI18N
+        cargarFile.setForeground(new java.awt.Color(255, 255, 255));
+        cargarFile.setText("Subir CSV");
+        cargarFile.setBorder(null);
+        cargarFile.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cargarFileActionPerformed(evt);
+            }
+        });
+        jPanel2.add(cargarFile, new org.netbeans.lib.awtextra.AbsoluteConstraints(940, 180, 120, 30));
+
+        CyclesEx.setModel(new javax.swing.SpinnerNumberModel(0, 0, 10000, 1));
+        CyclesEx.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        jPanel2.add(CyclesEx, new org.netbeans.lib.awtextra.AbsoluteConstraints(590, 100, 170, 25));
 
         jPanel3.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1110, 280));
 
         jPanel4.setBackground(new java.awt.Color(179, 220, 249));
         jPanel4.setFocusTraversalPolicyProvider(true);
-
-        Listalisto.setBackground(new java.awt.Color(236, 250, 245));
-        Listalisto.setPreferredSize(new java.awt.Dimension(210, 244));
-
-        javax.swing.GroupLayout ListalistoLayout = new javax.swing.GroupLayout(Listalisto);
-        Listalisto.setLayout(ListalistoLayout);
-        ListalistoLayout.setHorizontalGroup(
-            ListalistoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 210, Short.MAX_VALUE)
-        );
-        ListalistoLayout.setVerticalGroup(
-            ListalistoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 244, Short.MAX_VALUE)
-        );
-
-        Listabloqueados.setBackground(new java.awt.Color(236, 250, 245));
-        Listabloqueados.setPreferredSize(new java.awt.Dimension(210, 244));
-
-        javax.swing.GroupLayout ListabloqueadosLayout = new javax.swing.GroupLayout(Listabloqueados);
-        Listabloqueados.setLayout(ListabloqueadosLayout);
-        ListabloqueadosLayout.setHorizontalGroup(
-            ListabloqueadosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 210, Short.MAX_VALUE)
-        );
-        ListabloqueadosLayout.setVerticalGroup(
-            ListabloqueadosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 244, Short.MAX_VALUE)
-        );
-
-        ListaFinalizado.setBackground(new java.awt.Color(236, 250, 245));
-        ListaFinalizado.setPreferredSize(new java.awt.Dimension(210, 0));
-
-        javax.swing.GroupLayout ListaFinalizadoLayout = new javax.swing.GroupLayout(ListaFinalizado);
-        ListaFinalizado.setLayout(ListaFinalizadoLayout);
-        ListaFinalizadoLayout.setHorizontalGroup(
-            ListaFinalizadoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 210, Short.MAX_VALUE)
-        );
-        ListaFinalizadoLayout.setVerticalGroup(
-            ListaFinalizadoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
-        );
-
-        Listalisto1.setBackground(new java.awt.Color(236, 250, 245));
-        Listalisto1.setPreferredSize(new java.awt.Dimension(210, 244));
-
-        javax.swing.GroupLayout Listalisto1Layout = new javax.swing.GroupLayout(Listalisto1);
-        Listalisto1.setLayout(Listalisto1Layout);
-        Listalisto1Layout.setHorizontalGroup(
-            Listalisto1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 210, Short.MAX_VALUE)
-        );
-        Listalisto1Layout.setVerticalGroup(
-            Listalisto1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 244, Short.MAX_VALUE)
-        );
+        jPanel4.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         Listo.setForeground(new java.awt.Color(102, 102, 102));
         Listo.setText("Listos");
+        jPanel4.add(Listo, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 10, -1, -1));
 
         Bloqueados.setForeground(new java.awt.Color(102, 102, 102));
         Bloqueados.setText("Bloqueados");
+        jPanel4.add(Bloqueados, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 10, -1, 20));
 
         Finalizados.setForeground(new java.awt.Color(102, 102, 102));
         Finalizados.setText("Finalizados");
+        jPanel4.add(Finalizados, new org.netbeans.lib.awtextra.AbsoluteConstraints(680, 10, -1, -1));
 
-        Listo1.setForeground(new java.awt.Color(102, 102, 102));
-        Listo1.setText("Suspendidos");
+        Listo1.setFont(new java.awt.Font("Dialog", 3, 14)); // NOI18N
+        Listo1.setText("Procesos en Ejecucion:");
+        jPanel4.add(Listo1, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 340, -1, -1));
 
-        jLabel4.setBackground(new java.awt.Color(51, 51, 51));
-        jLabel4.setFont(new java.awt.Font("Dialog", 2, 14)); // NOI18N
-        jLabel4.setForeground(new java.awt.Color(51, 51, 51));
-        jLabel4.setText("Proceso en Ejecución");
+        colaFinalizados.setModel(new javax.swing.AbstractListModel<String>() {
+            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
+            public int getSize() { return strings.length; }
+            public String getElementAt(int i) { return strings[i]; }
+        });
+        jScrollPane6.setViewportView(colaFinalizados);
 
-        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
-        jPanel4.setLayout(jPanel4Layout);
-        jPanel4Layout.setHorizontalGroup(
-            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel4Layout.createSequentialGroup()
-                .addGap(81, 81, 81)
-                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel4)
-                    .addGroup(jPanel4Layout.createSequentialGroup()
-                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
-                                .addComponent(Listalisto1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(25, 25, 25))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
-                                .addComponent(Listo1)
-                                .addGap(102, 102, 102)))
-                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(Listalisto, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
-                                .addComponent(Listo)
-                                .addGap(90, 90, 90)))
-                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel4Layout.createSequentialGroup()
-                                .addGap(25, 25, 25)
-                                .addComponent(Listabloqueados, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(jPanel4Layout.createSequentialGroup()
-                                .addGap(86, 86, 86)
-                                .addComponent(Bloqueados)))
-                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel4Layout.createSequentialGroup()
-                                .addGap(25, 25, 25)
-                                .addComponent(ListaFinalizado, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(Finalizados)
-                                .addGap(87, 87, 87)))))
-                .addContainerGap(124, Short.MAX_VALUE))
-        );
-        jPanel4Layout.setVerticalGroup(
-            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel4Layout.createSequentialGroup()
-                .addGap(15, 15, 15)
-                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(jPanel4Layout.createSequentialGroup()
-                        .addComponent(Listo1, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(Listalisto1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel4Layout.createSequentialGroup()
-                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(Listo)
-                            .addComponent(Bloqueados)
-                            .addComponent(Finalizados))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addComponent(ListaFinalizado, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(Listabloqueados, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(Listalisto, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addGap(20, 20, 20)
-                .addComponent(jLabel4)
-                .addContainerGap(116, Short.MAX_VALUE))
-        );
+        jPanel4.add(jScrollPane6, new org.netbeans.lib.awtextra.AbsoluteConstraints(610, 40, 220, 240));
 
-        jPanel3.add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(-10, 280, 1120, 440));
+        colaSuspendidosB.setModel(new javax.swing.AbstractListModel<String>() {
+            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
+            public int getSize() { return strings.length; }
+            public String getElementAt(int i) { return strings[i]; }
+        });
+        jScrollPane7.setViewportView(colaSuspendidosB);
+
+        jPanel4.add(jScrollPane7, new org.netbeans.lib.awtextra.AbsoluteConstraints(860, 260, 220, 130));
+
+        colaSuspendidosL.setModel(new javax.swing.AbstractListModel<String>() {
+            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
+            public int getSize() { return strings.length; }
+            public String getElementAt(int i) { return strings[i]; }
+        });
+        jScrollPane8.setViewportView(colaSuspendidosL);
+
+        jPanel4.add(jScrollPane8, new org.netbeans.lib.awtextra.AbsoluteConstraints(860, 40, 220, 180));
+
+        colaBloqueados.setModel(new javax.swing.AbstractListModel<String>() {
+            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
+            public int getSize() { return strings.length; }
+            public String getElementAt(int i) { return strings[i]; }
+        });
+        jScrollPane9.setViewportView(colaBloqueados);
+
+        jPanel4.add(jScrollPane9, new org.netbeans.lib.awtextra.AbsoluteConstraints(340, 40, 220, 240));
+
+        colaListos.setModel(new javax.swing.AbstractListModel<String>() {
+            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
+            public int getSize() { return strings.length; }
+            public String getElementAt(int i) { return strings[i]; }
+        });
+        jScrollPane10.setViewportView(colaListos);
+
+        jPanel4.add(jScrollPane10, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 40, 220, 240));
+
+        Listo2.setForeground(new java.awt.Color(102, 102, 102));
+        Listo2.setText("Suspendidos Bloqueados");
+        jPanel4.add(Listo2, new org.netbeans.lib.awtextra.AbsoluteConstraints(870, 230, -1, -1));
+
+        Listo3.setForeground(new java.awt.Color(102, 102, 102));
+        Listo3.setText("Suspendidos Listos");
+        jPanel4.add(Listo3, new org.netbeans.lib.awtextra.AbsoluteConstraints(900, 10, -1, -1));
+
+        MostrarGrafica.setText("Mostrar Grafica");
+        MostrarGrafica.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                MostrarGraficaActionPerformed(evt);
+            }
+        });
+        jPanel4.add(MostrarGrafica, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 300, 220, -1));
+
+        MostrarGrafica2.setText("Mostrar Grafica");
+        MostrarGrafica2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                MostrarGrafica2ActionPerformed(evt);
+            }
+        });
+        jPanel4.add(MostrarGrafica2, new org.netbeans.lib.awtextra.AbsoluteConstraints(540, 300, 210, -1));
+
+        jLabel2.setText("Uso de la CPU");
+        jPanel4.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 300, 90, 20));
+
+        jLabel4.setBackground(new java.awt.Color(0, 0, 0));
+        jLabel4.setText("Procesos Cargados");
+        jPanel4.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 300, -1, 20));
+
+        jLabel6.setFont(new java.awt.Font("Dialog", 3, 14)); // NOI18N
+        jLabel6.setText("Ciclos globales:");
+        jPanel4.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 370, -1, -1));
+
+        globalCycles.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        globalCycles.setText("0");
+        jPanel4.add(globalCycles, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 370, -1, -1));
+
+        executionProcess.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        executionProcess.setText("Sin proceso");
+        jPanel4.add(executionProcess, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 340, -1, -1));
+
+        jPanel3.add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(-10, 280, 1120, 510));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 1054, Short.MAX_VALUE)
+            .addComponent(jPanel3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 1092, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 632, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+    /**
+     * Este método es llamado por el HILO DEL OS (el "Ingeniero")
+     * cada vez que el OS llama a fireQueuesChanged().
+     */
+    @Override
+    public void onProcessQueuesChanged() {
 
-    private void boxtipoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boxtipoActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_boxtipoActionPerformed
+        // ¡NO podemos actualizar la GUI directamente desde aquí!
+        // (Estamos en el hilo incorrecto).
+        // 1. Creamos una "tarea" (un objeto Runnable) para el hilo de la GUI.
+        Runnable tareaDeActualizacion = new Runnable() {
+            @Override
+            public void run() {
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton1ActionPerformed
+                actualizarTodasLasTablas();
+                updateUtilizationChart();
+            }
+        };
 
-    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton3ActionPerformed
+        // 2. Le entregamos la "tarea" a Swing (el "buzón") para que la ponga 
+        // en la cola de tareas del "Pintor" (el hilo de la GUI).
+        SwingUtilities.invokeLater(tareaDeActualizacion);
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton2ActionPerformed
-
-    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton4ActionPerformed
-
-    private void boxtipo1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boxtipo1ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_boxtipo1ActionPerformed
+    }
 
     /**
-     * @param args the command line arguments
+     * Actualizar ciclos globales
+     *
+     * @param text
      */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-           
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new PanelPrincipal().setVisible(true);
-            }
-        });
+    public void actualizarCiclosGlobalesGUI() {
+        String cycles = String.valueOf(os.getGlobalCycles());
+        this.globalCycles.setText(cycles);
     }
+
+    /**
+     * Proceos en ejecución en ese momento
+     *
+     * @param text
+     */
+    public void actualizarProcesoEnEjecucionGUI() {
+        try {
+            String processName = os.cpu.getRunningProcess().pcb.getName();
+            this.executionProcess.setText(processName);
+        } catch (Exception ex) {
+        }
+    }
+
+    /**
+     * MÉTODO "JEFE" (Casi igual, solo cambian los nombres de los modelos)
+     */
+    private void actualizarTodasLasTablas() {
+        this.actualizarCiclosGlobalesGUI();
+        this.actualizarProcesoEnEjecucionGUI();
+
+        // 1. Actualiza la lista de LISTOS
+        actualizarListaUnica(
+                os.getReadyQueueSnapshot(), // La "foto" segura de la cola
+                modeloListaListos // El modelo de la JList
+        );
+
+        // 2. Actualiza la lista de BLOQUEADOS
+        actualizarListaUnica(
+                os.getBlockedQueueSnapshot(),
+                modeloListaBloqueados
+        );
+
+        // 3. Actualiza la lista de TERMINADOS
+        actualizarListaUnica(
+                os.getFinishedListSnapshot(),
+                modeloListaTerminados
+        );
+
+        // Añade los Ready-Suspended
+        actualizarListaUnica(
+                os.getReadySuspendedQueueSnapshot(),
+                modeloListaSupendido
+        );
+        actualizarListaUnica(
+                os.getBlockedSuspendedQueueSnapshot(),
+                modeloBloqueadoSupendido
+        );
+
+    }
+
+    public void updateProcessTypeChart() {
+        // 1. Obtener el conteo del OS
+        int[] counts = os.countProcessTypes();
+        int cpuBoundCount = counts[0];
+        int ioBoundCount = counts[1];
+        int totalCount = cpuBoundCount + ioBoundCount;
+
+        // 3. Calcular porcentajes y actualizar el dataset
+        processTypeDataset.setValue("CPU-Bound", cpuBoundCount);
+        processTypeDataset.setValue("I/O-Bound", ioBoundCount);
+        org.jfree.chart.plot.PiePlot plot = (org.jfree.chart.plot.PiePlot) processTypeChart.getPlot();
+
+        plot.setLegendLabelGenerator(new org.jfree.chart.labels.StandardPieSectionLabelGenerator(
+                "{0} ({1} | {2})",
+                new java.text.DecimalFormat("0"), // Formato para el conteo
+                new java.text.DecimalFormat("0.0%") // Formato para el porcentaje
+        ));
+
+        // 4. Actualizar el título
+        processTypeChart.setTitle("Composición de Procesos Cargados (Total: " + totalCount + ")");
+    }
+
+    /**
+     *
+     *
+     * @param procesos La "foto" (List<Process>) de la cola a dibujar.
+     * @param modelo El DefaultListModel<String> de la JList que se va a
+     * actualizar.
+     */
+    private void actualizarListaUnica(java.util.List<Process> procesos, DefaultListModel<String> modelo) {
+        actualizarListaUnica(procesos, modelo, true);
+    }
+
+    /**
+     * Sobrecarga del método AYUDANTE que permite decidir si se limpia la lista
+     * o no.
+     *
+     * @param procesos La "foto" (List<Process>) de la cola a dibujar.
+     * @param modelo El DefaultListModel<String> de la JList que se va a
+     * actualizar.
+     * @param limpiarLista Si es true, limpia la lista (modelo.clear()) antes de
+     * añadir.
+     */
+    private void actualizarListaUnica(java.util.List<Process> procesos, DefaultListModel<String> modelo, boolean limpiarLista) {
+
+        // 1. Limpia la lista si se le indica
+        if (limpiarLista) {
+            modelo.clear(); // El comando para limpiar un JList
+        }
+
+        // 2. Itera sobre la "foto" (la List<Process> segura)
+        for (Process p : procesos) {
+            PCB pcb = p.getPCB();
+
+            // Creamos un ÚNICO String con la info que queremos mostrar.
+            // Puedes poner lo que quieras aquí.
+            String textoProceso = String.format("Nombre: %s | PC: %d | MAR: %d",
+                    pcb.getName(),
+                    pcb.getPc(),
+                    pcb.getMar());
+
+            // 4. Añade el String al modelo
+            modelo.addElement(textoProceso);
+        }
+    }
+
+    private void updateUtilizationChart() {
+        // Es vital usar SwingUtilities.invokeLater para asegurar que las actualizaciones
+        // de la GUI se hagan en el hilo correcto
+
+        java.util.List<Double> history = os.getUtilizationHistory();
+
+        // Limpiamos y reconstruimos la serie para evitar duplicados y errores de concurrencia
+        utilizationSeries.clear();
+        for (int i = 0; i < history.size(); i++) {
+            // El Eje X es el ciclo (i + 1), el Eje Y es el valor de utilidad
+            utilizationSeries.add(i + 1, history.get(i));
+        }
+    }
+
+    private void randomProcessActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_randomProcessActionPerformed
+        Random rand = new Random();
+
+        // 2. Definimos los rangos para nuestros valores aleatorios
+        int minInstrucciones = 20;
+        int maxInstrucciones = 100;
+
+        int minRafagaCPU = 5;  // Ráfaga de CPU antes de E/S
+        int maxRafagaCPU = 15;
+
+        int minTiempoIO = 10;  // Tiempo que tarda la E/S
+        int maxTiempoIO = 30;
+
+        System.out.println("--- Iniciando carga masiva de 20 procesos aleatorios ---");
+
+        // 3. El bucle para crear 20 procesos
+        for (int i = 0; i < 20; i++) {
+            String nombre = "Proceso-" + (i + 1);
+            int prioridadPorDefecto = 1;
+            ProcessType tipo = rand.nextBoolean() ? ProcessType.CPU_BOUND : ProcessType.IO_BOUND;
+            int instrucciones = rand.nextInt(maxInstrucciones - minInstrucciones + 1) + minInstrucciones;
+            Process p;
+            if (tipo == ProcessType.CPU_BOUND) {
+                p = new Process(
+                        nombre,
+                        tipo,
+                        instrucciones,
+                        prioridadPorDefecto
+                );
+                System.out.println("Proceso (CPU-Bound) generado: " + nombre + " [Inst: " + instrucciones + "]");
+            } else {
+                int rafagaCPU = rand.nextInt(maxRafagaCPU - minRafagaCPU + 1) + minRafagaCPU;
+                int tiempoBloqueo = rand.nextInt(maxTiempoIO - minTiempoIO + 1) + minTiempoIO;
+                p = new Process(
+                        nombre,
+                        tipo,
+                        rafagaCPU, // cyclesExcepcion
+                        tiempoBloqueo, // cyclesCompleteIO
+                        instrucciones,
+                        prioridadPorDefecto
+                );
+                System.out.println("Proceso (I/O-Bound) generado: " + nombre + " [Inst: " + instrucciones + ", RafagaCPU: " + rafagaCPU + ", T. E/S: " + tiempoBloqueo + "]");
+            }
+            this.os.addProcess(p);
+        }
+        JOptionPane.showMessageDialog(this, "Se han cargado 20 procesos aleatorios.");
+    }//GEN-LAST:event_randomProcessActionPerformed
+    private boolean isEmpty() {
+        return selectedFile == null;
+    }
+
+    private void GuardarPlanificacionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_GuardarPlanificacionActionPerformed
+        String politicaSeleccionada = (String) PoliticaName.getSelectedItem();
+        StrategyScheduler estrategia;
+
+        switch (politicaSeleccionada) {
+            case "FCFS":
+                estrategia = StrategyScheduler.FirstComeFirstServe;
+                break;
+            case "Round Robin":
+                estrategia = StrategyScheduler.RoundRobin;
+                break;
+            case "SJF":
+                estrategia = StrategyScheduler.SJF;
+                break;
+            case "SRT":
+                estrategia = StrategyScheduler.SRT;
+                break;
+            case "HRRN":
+                estrategia = StrategyScheduler.HRRN;
+                break;
+            case "FB":
+                estrategia = StrategyScheduler.FB;
+                break;
+            default:
+                System.out.println("Política desconocida, usando FCFS por defecto.");
+                estrategia = StrategyScheduler.RoundRobin; // Valor por defecto
+            }
+        if (this.os != null) {
+            // Accedemos al scheduler a través del OS y cambiamos la estrategia
+            this.os.setSchedulingStrategy(estrategia);
+            System.out.println("Estrategia de planificación cambiada a: " + politicaSeleccionada);
+        }
+    }//GEN-LAST:event_GuardarPlanificacionActionPerformed
+
+    private void NombreProcesoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_NombreProcesoActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_NombreProcesoActionPerformed
+
+    private void PoliticaNameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_PoliticaNameActionPerformed
+
+    }//GEN-LAST:event_PoliticaNameActionPerformed
+
+    private void TypeProcessActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_TypeProcessActionPerformed
+
+    }//GEN-LAST:event_TypeProcessActionPerformed
+
+    private void IniciarProcesoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_IniciarProcesoActionPerformed
+        try {
+            // 1. LEER DATOS EN COMUN
+            String nombre = NombreProceso.getText();
+            int instrucciones = (Integer) CantidadInstrucciones.getValue();
+            int priory = 1; //-> Por defecto
+
+            // 2. LEER TIPO DE PROCESO SELECCIONADO
+            String TypeSelected = (String) TypeProcess.getSelectedItem();
+
+            if (nombre.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Debe ingresar un nombre para el proceso.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            Process newProcess; // El proceso que vamos a crear
+
+            // 3. DECIDIR QUÉ CONSTRUCTOR USAR
+            if (TypeSelected.equals("I/O-Bound")) {
+                int cyclesEx = (Integer) CyclesEx.getValue();
+                int cyclesIO = (Integer) CyclesIO.getValue();
+
+                newProcess = new Process(
+                        nombre,
+                        ProcessType.IO_BOUND,
+                        cyclesEx,
+                        cyclesIO,
+                        instrucciones,
+                        priory
+                );
+            } else { // Es "CPU-Bound"
+
+                newProcess = new Process(
+                        nombre,
+                        ProcessType.CPU_BOUND,
+                        instrucciones,
+                        priory
+                );
+            }
+            if (this.os != null) {
+                this.os.addProcess(newProcess);
+                // Mensaje de Proceso creado correctamente 
+                JOptionPane.showMessageDialog(this, "El " + nombre + " creado exitosamente.");
+
+                /**
+                 * Limpiar los campos
+                 * NombreProceso.setText("");
+                 * CantidadInstrucciones.setValue(0);
+                 * Priory.setValue(0);
+                 * Priory.setValue(0);
+                 * CyclesIO.setValue(0);
+                 */
+            } else {
+                JOptionPane.showMessageDialog(this, "Error: El Sistema Operativo no está inicializado.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+
+        } catch (NumberFormatException e) {
+
+            // Captura error de Formato 
+            JOptionPane.showMessageDialog(this,
+                    "Error: Revisa los campos numéricos.\nDeben ser números válidos.",
+                    "Error de Formato",
+                    JOptionPane.ERROR_MESSAGE);
+
+        } catch (Exception e) {
+            // Capturar cualquier otro error 
+            JOptionPane.showMessageDialog(this,
+                    "Ocurrió un error: " + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_IniciarProcesoActionPerformed
+
+    private void cargarFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cargarFileActionPerformed
+        JFileChooser selarchivo = new JFileChooser();
+        FileNameExtensionFilter filter = new FileNameExtensionFilter(" Archivos CSV", "csv");
+        selarchivo.setFileFilter(filter);
+
+        int val = selarchivo.showOpenDialog(null);
+        if (val == JFileChooser.APPROVE_OPTION) {
+            File file = selarchivo.getSelectedFile();
+            if (file != null) {
+                this.selectedFile = file;
+                JOptionPane.showMessageDialog(null, "Iniciando carga de procesos desde: " + file.getName());
+
+                // 2. Lógica de lectura de CSV
+                try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+                    String line;
+                    boolean isFirstLine = true;
+
+                    // Procesar línea por línea
+                    while ((line = br.readLine()) != null) {
+                        if (line.trim().isEmpty()) {
+                            continue; // Ignorar líneas vacías
+                        }
+                        // Lógica simple para intentar omitir una línea de cabecera
+                        if (isFirstLine) {
+                            if (line.trim().toLowerCase().startsWith("nombre") || line.trim().toLowerCase().startsWith("name")) {
+                                isFirstLine = false;
+                                continue; // Saltar la línea de cabecera
+                            }
+                            isFirstLine = false;
+                        }
+
+                        // 3. Llamar al método de parsing e inyección de procesos
+                        createProcessFromCSVLine(line);
+                    }
+
+                    JOptionPane.showMessageDialog(null, "Procesos cargados exitosamente.");
+                    // Notificar al OS/GUI para que se refresquen las listas
+                    this.os.fireQueuesChanged();
+
+                } catch (IOException e) {
+                    JOptionPane.showMessageDialog(null, "Error al leer el archivo CSV: " + e.getMessage(), "Error de Archivo", JOptionPane.ERROR_MESSAGE);
+                } catch (NumberFormatException e) {
+                    JOptionPane.showMessageDialog(null, "Error de formato. Asegúrese de que los campos numéricos (Instrucciones, Prioridad, Ciclos) sean válidos. Error: " + e.getMessage(), "Error de Datos", JOptionPane.ERROR_MESSAGE);
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(null, "Error al procesar la línea del archivo. Revise el formato. Error: " + e.getMessage(), "Error de Formato", JOptionPane.ERROR_MESSAGE);
+                }
+            } else {
+                JOptionPane.showMessageDialog(null, "Archivo no seleccionado");
+            }
+        }
+    }//GEN-LAST:event_cargarFileActionPerformed
+
+    private void createProcessFromCSVLine(String line) throws NumberFormatException, Exception {
+        // Se espera el formato CSV con coma (,) como delimitador:
+        // Nombre,Tipo,Instrucciones,Prioridad,CiclosExcepcion,CyclesCompleteIO
+
+        String[] data = line.split(",");
+
+        // Se requieren al menos 4 campos (Nombre, Tipo, Instrucciones, Prioridad)
+        if (data.length < 4) {
+            System.err.println("Línea ignorada: datos insuficientes -> " + line);
+            return;
+        }
+
+        String name = data[0].trim();
+        String typeStr = data[1].trim().toUpperCase();
+        // Parsea los campos numéricos
+        int instructions = Integer.parseInt(data[2].trim());
+        int priory = Integer.parseInt(data[3].trim());
+
+        requirements.Process newProcess;
+
+        if (typeStr.contains("CPU")) {
+            // Constructor CPU-Bound: (name, processType, instructions, priory)
+            newProcess = new requirements.Process(
+                    name,
+                    structures.ProcessType.CPU_BOUND,
+                    instructions,
+                    priory
+            );
+            this.os.addProcess(newProcess);
+
+        } else if (typeStr.contains("I/O")) {
+            // Para I/O-Bound se requieren 6 campos
+            if (data.length < 6) {
+                throw new Exception("Línea I/O-Bound incompleta. Se requieren 6 campos: " + line);
+            }
+
+            int cyclesExcepcion = Integer.parseInt(data[4].trim());
+            int cyclesCompleteIO = Integer.parseInt(data[5].trim());
+
+            // Constructor I/O-Bound: (name, processType, cyclesExcepcion, cyclesCompleteIO, instructions, priory)
+            newProcess = new requirements.Process(
+                    name,
+                    structures.ProcessType.IO_BOUND,
+                    cyclesExcepcion,
+                    cyclesCompleteIO,
+                    instructions,
+                    priory
+            );
+            this.os.addProcess(newProcess); // Agrega el proceso al OS
+
+        } else {
+            System.err.println("Tipo de proceso desconocido. Línea ignorada: " + line);
+        }
+    }
+    private void GuardarPlanificacionMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_GuardarPlanificacionMouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_GuardarPlanificacionMouseClicked
+
+    private void MostrarGraficaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MostrarGraficaActionPerformed
+        javax.swing.JFrame frameGrafica = new javax.swing.JFrame("Utilidad de CPU");
+        frameGrafica.getContentPane().add(chartPanel, java.awt.BorderLayout.CENTER);
+        frameGrafica.pack();
+        frameGrafica.setSize(600, 400); // Tamaño inicial
+        frameGrafica.setVisible(true);
+
+    }//GEN-LAST:event_MostrarGraficaActionPerformed
+
+    private void MostrarGrafica2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MostrarGrafica2ActionPerformed
+        updateProcessTypeChart();
+
+        if (processTypeChartPanel.getParent() != null) {
+            processTypeChartPanel.getParent().remove(processTypeChartPanel);
+        }
+
+        javax.swing.JFrame frameComposicion = new javax.swing.JFrame("Composición de Procesos");
+        frameComposicion.getContentPane().setLayout(new java.awt.BorderLayout());
+        frameComposicion.getContentPane().add(processTypeChartPanel, java.awt.BorderLayout.CENTER);
+
+        frameComposicion.pack();
+        frameComposicion.setSize(500, 400);
+        frameComposicion.setVisible(true);
+    }//GEN-LAST:event_MostrarGrafica2ActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel Bloqueados;
+    private javax.swing.JSpinner CantidadInstrucciones;
+    private javax.swing.JSpinner CyclesEx;
+    private javax.swing.JSpinner CyclesIO;
     private javax.swing.JLabel Finalizados;
-    private java.awt.Panel ListaFinalizado;
-    private java.awt.Panel Listabloqueados;
-    private java.awt.Panel Listalisto;
-    private java.awt.Panel Listalisto1;
+    private javax.swing.JButton GuardarPlanificacion;
+    private javax.swing.JButton IniciarProceso;
     private javax.swing.JLabel Listo;
     private javax.swing.JLabel Listo1;
+    private javax.swing.JLabel Listo2;
+    private javax.swing.JLabel Listo3;
+    private javax.swing.JButton MostrarGrafica;
+    private javax.swing.JButton MostrarGrafica2;
+    private javax.swing.JTextField NombreProceso;
+    private javax.swing.JComboBox<String> PoliticaName;
     private javax.swing.JSpinner Spinnerciclo;
-    private javax.swing.JComboBox<String> boxtipo;
-    private javax.swing.JComboBox<String> boxtipo1;
+    private javax.swing.JComboBox<String> TypeProcess;
+    private javax.swing.JButton cargarFile;
     private javax.swing.JLabel ciclo;
+    private javax.swing.JLabel ciclo1;
+    private javax.swing.JLabel ciclo2;
+    private javax.swing.JLabel ciclo3;
+    private javax.swing.JList<String> colaBloqueados;
+    private javax.swing.JList<String> colaFinalizados;
+    private javax.swing.JList<String> colaListos;
+    private javax.swing.JList<String> colaSuspendidosB;
+    private javax.swing.JList<String> colaSuspendidosL;
+    private javax.swing.JLabel executionProcess;
+    private javax.swing.JLabel globalCycles;
     private javax.swing.JLabel instrucciones;
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
-    private javax.swing.JButton jButton4;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
-    private javax.swing.JTextField jTextField1;
-    private javax.swing.JLabel label1;
-    private java.awt.Choice politicachoice;
+    private javax.swing.JScrollPane jScrollPane10;
+    private javax.swing.JScrollPane jScrollPane6;
+    private javax.swing.JScrollPane jScrollPane7;
+    private javax.swing.JScrollPane jScrollPane8;
+    private javax.swing.JScrollPane jScrollPane9;
+    private javax.swing.JSeparator jSeparator1;
     private javax.swing.JLabel quantum;
-    private java.awt.Choice quantumchoice;
-    private javax.swing.JSpinner spinnerinstrucciones;
+    private javax.swing.JButton randomProcess;
     private javax.swing.JLabel tipo;
     private javax.swing.JLabel titulo;
     // End of variables declaration//GEN-END:variables

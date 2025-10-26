@@ -8,8 +8,9 @@ import SchedulerTechniques.FB;
 import SchedulerTechniques.FirstComeFirstServe;
 import SchedulerTechniques.SRT;
 import SchedulerTechniques.RoundRobin;
-import SchedulerTechniques.SPN;
-import SchedulerTechniques.SRR;
+
+import SchedulerTechniques.HRRN;
+import SchedulerTechniques.SJF;
 import SchedulerTechniques.SchedulerStrategy;
 import SchedulerTechniques.StrategyScheduler;
 import java.util.concurrent.Semaphore;
@@ -24,8 +25,7 @@ import requirements.Process;
 public class Scheduler {
 
     // Procesos en ejecución
-    Process runningProcess;
-
+    CPU cpu;  // referencia a cpu
     // Colas de procesos
     Queue<Process> readyProcess;            // Cola a corto plazo
     Queue<Process> readySuspendedProcess;   // Cola a mediano plazo
@@ -44,13 +44,17 @@ public class Scheduler {
     // Semáforo para proteger la cola de listos
     Semaphore mutex;
 
+    
+    
+
     /**
      * Constructor de la planificación
      *
-     * @param runningProcess Process of CPU
+
+     * @param cpu La instancia de la CPU
      */
-    public Scheduler(Process runningProcess) {
-        this.runningProcess = runningProcess;
+    public Scheduler(CPU cpu) {
+        this.cpu = cpu;
 
         // Inicializar cola de procesos
         this.readyProcess = new Queue<>();
@@ -60,10 +64,16 @@ public class Scheduler {
         this.newProcess = new Queue<>();
         this.outProcess = new ArrayList<>();
 
+        
+
+
         // Inicializar planificador por defecto: RoundRobin
         this.currentStrategy = new RoundRobin(
                 this.readyProcess, this.readySuspendedProcess, this.blockedProcess,
-                this.blockedSuspendedProcess, this.newProcess, this.outProcess, this.runningProcess
+
+                this.blockedSuspendedProcess, this.newProcess, this.outProcess, this.cpu
+              
+
         );
         this.typeStrategy = StrategyScheduler.RoundRobin;
 
@@ -72,7 +82,9 @@ public class Scheduler {
 
         // Inicializar semáforo
         this.mutex = new Semaphore(1);
-        this.runningProcess = runningProcess;
+
+        this.cpu = cpu;
+
     }
 
     /**
@@ -93,48 +105,63 @@ public class Scheduler {
     public void changeStrategy(StrategyScheduler strategyEnum) {
         // El switch se mueve aquí, que es su lugar lógico.
         // Crea el objeto SOLO cuando el usuario pide cambiar de estrategia.
+
+        
+        Process currentRunning = (this.cpu != null) ? this.cpu.getRunningProcess() : null;
+
         switch (strategyEnum) {
             case FB:
                 currentStrategy = new FB(
                         this.readyProcess, this.readySuspendedProcess, this.blockedProcess,
-                        this.blockedSuspendedProcess, this.newProcess, this.outProcess, this.runningProcess
+
+                        this.blockedSuspendedProcess, this.newProcess, this.outProcess, this.cpu
                 );
                 this.typeStrategy = StrategyScheduler.FB;
+            
+
                 
             case FirstComeFirstServe:
                 currentStrategy = new FirstComeFirstServe(
                         this.readyProcess, this.readySuspendedProcess, this.blockedProcess,
-                        this.blockedSuspendedProcess, this.newProcess, this.outProcess, this.runningProcess
+
+                        this.blockedSuspendedProcess, this.newProcess, this.outProcess, this.cpu
                 );
                 this.typeStrategy = StrategyScheduler.FirstComeFirstServe;
+            
+
                 
             case SRT:
                 currentStrategy = new SRT(
                         this.readyProcess, this.readySuspendedProcess, this.blockedProcess,
-                        this.blockedSuspendedProcess, this.newProcess, this.outProcess, this.runningProcess
+
+                        this.blockedSuspendedProcess, this.newProcess, this.outProcess, this.cpu
                 );
                 this.typeStrategy = StrategyScheduler.SRT;
+           
+
                 
             case RoundRobin:
                 currentStrategy = new RoundRobin(
                         this.readyProcess, this.readySuspendedProcess, this.blockedProcess,
-                        this.blockedSuspendedProcess, this.newProcess, this.outProcess, this.runningProcess
+
+                        this.blockedSuspendedProcess, this.newProcess, this.outProcess, this.cpu
                 );
                 this.typeStrategy = StrategyScheduler.RoundRobin;
-                
-            case SPN:
-                currentStrategy = new SPN(
+            
+            case HRRN:
+                currentStrategy = new HRRN(
                         this.readyProcess, this.readySuspendedProcess, this.blockedProcess,
-                        this.blockedSuspendedProcess, this.newProcess, this.outProcess, this.runningProcess
+                        this.blockedSuspendedProcess, this.newProcess, this.outProcess, this.cpu
                 );
-                this.typeStrategy = StrategyScheduler.SPN;
+                this.typeStrategy = StrategyScheduler.HRRN;
+        
                 
-            case SRR:
-                currentStrategy = new SRR(
+            case SJF:
+                currentStrategy = new SJF(
                         this.readyProcess, this.readySuspendedProcess, this.blockedProcess,
-                        this.blockedSuspendedProcess, this.newProcess, this.outProcess, this.runningProcess
+                        this.blockedSuspendedProcess, this.newProcess, this.outProcess, this.cpu
                 );
-                this.typeStrategy = StrategyScheduler.SRR;
+                this.typeStrategy = StrategyScheduler.SJF;
         }
     }
 
@@ -144,6 +171,8 @@ public class Scheduler {
      * @param p
      */
     public void addProcessScheduler(Process p) {
+
+            // es lo mismo que os.returnProcessReady
 
     }
 
@@ -155,6 +184,9 @@ public class Scheduler {
         this.setQuantum(quantum);
     }
     
+
+    
+
     /**
      * Devuelve la estrategia que se está usando en ese momento 
      * @return 
