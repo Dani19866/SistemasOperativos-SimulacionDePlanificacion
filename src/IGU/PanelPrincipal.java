@@ -3,6 +3,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package IGU;
+
 import requirements.OS;
 import requirements.Process;
 import structures.ProcessType;
@@ -29,101 +30,96 @@ import org.jfree.data.general.DefaultPieDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
-
 /**
  *
  * @author rtkn0_z8ls
  */
 public class PanelPrincipal extends javax.swing.JFrame implements SimulationListener {
+
     private File selectedFile;
     private OS os; // Referenciamos a nuestro OS
-    
+
     private DefaultListModel<String> modeloListaListos = new DefaultListModel<>();
     private DefaultListModel<String> modeloListaBloqueados = new DefaultListModel<>();
     private DefaultListModel<String> modeloListaTerminados = new DefaultListModel<>();
     private DefaultListModel<String> modeloListaSupendido = new DefaultListModel<>();
     private DefaultListModel<String> modeloBloqueadoSupendido = new DefaultListModel<>();
-    
+
     // Para Grafico de CPU
     private XYSeries utilizationSeries;
     private ChartPanel chartPanel;
     private JFreeChart utilizationChart;
-   
+
     // Pata Grafico de Procesos 
     private DefaultPieDataset processTypeDataset;
     private JFreeChart processTypeChart;
-    private ChartPanel processTypeChartPanel; 
+    private ChartPanel processTypeChartPanel;
 
     // Contadores
     private int cpuBoundCount = 0;
     private int ioBoundCount = 0;
 
-    
-    public PanelPrincipal(OS os) { 
+    public PanelPrincipal(OS os) {
         initComponents();
         this.os = os;
         this.setVisible(true);
-        
+
         // Para Grafico de CPU
         utilizationSeries = new XYSeries("Utilidad de CPU");
         XYSeriesCollection dataset = new XYSeriesCollection();
-        dataset.addSeries(utilizationSeries);utilizationChart = ChartFactory.createXYLineChart(
-            "Utilidad de CPU vs. Tiempo", // Título del Gráfico
-            "Ciclos de Tiempo",           // Título del Eje X
-            "Utilidad (%)",               // Título del Eje Y
-            dataset
+        dataset.addSeries(utilizationSeries);
+        utilizationChart = ChartFactory.createXYLineChart(
+                "Utilidad de CPU vs. Tiempo", // Título del Gráfico
+                "Ciclos de Tiempo", // Título del Eje X
+                "Utilidad (%)", // Título del Eje Y
+                dataset
         );
         chartPanel = new ChartPanel(utilizationChart);
         chartPanel.setPreferredSize(new java.awt.Dimension(500, 300));
-        
-            colaListos.setModel(modeloListaListos);
-            colaBloqueados.setModel(modeloListaBloqueados);
-            colaFinalizados.setModel(modeloListaTerminados);
-            colaSuspendidosB.setModel(modeloBloqueadoSupendido);
-            colaSuspendidosL.setModel(modeloListaSupendido);
 
-         processTypeDataset = new DefaultPieDataset();
-        
-        processTypeDataset.setValue("CPU-Bound", 0.0); 
+        colaListos.setModel(modeloListaListos);
+        colaBloqueados.setModel(modeloListaBloqueados);
+        colaFinalizados.setModel(modeloListaTerminados);
+        colaSuspendidosB.setModel(modeloBloqueadoSupendido);
+        colaSuspendidosL.setModel(modeloListaSupendido);
+
+        processTypeDataset = new DefaultPieDataset();
+
+        processTypeDataset.setValue("CPU-Bound", 0.0);
         processTypeDataset.setValue("I/O-Bound", 0.0);
 
         processTypeChart = ChartFactory.createPieChart(
-            "Composición de Procesos Cargados", // Título
-            processTypeDataset,             // Datos
-            true,                           // Incluir leyenda
-            true,                           // Incluir tooltips
-            false                           // Incluir URLs
+                "Composición de Procesos Cargados", // Título
+                processTypeDataset, // Datos
+                true, // Incluir leyenda
+                true, // Incluir tooltips
+                false // Incluir URLs
         );
-    
-    // Crear el panel de la gráfica
-    processTypeChartPanel = new ChartPanel(processTypeChart);
-    processTypeChartPanel.setPreferredSize(new java.awt.Dimension(350, 300));
-        
+
+        // Crear el panel de la gráfica
+        processTypeChartPanel = new ChartPanel(processTypeChart);
+        processTypeChartPanel.setPreferredSize(new java.awt.Dimension(350, 300));
+
         this.os.addSimulationListener(this);
-        
-     // 1. Poblar el JComboBox de Politicas de Planificacion
-        String[] Politicas = { 
-        "Round Robin", 
-        "FCFS", 
-        "SJF", 
-        "SRT", 
-        "HRRN", 
-        "FB" 
+
+        // 1. Poblar el JComboBox de Politicas de Planificacion
+        String[] Politicas = {
+            "Round Robin",
+            "FCFS",
+            "SJF",
+            "SRT",
+            "HRRN",
+            "FB"
         };
         PoliticaName.setModel(new javax.swing.DefaultComboBoxModel<>(Politicas));
-        
-         // 2. Poblar el JComboBox de Tipos de Proceso
-        String[] TipoProceso = { 
-            "CPU-Bound", 
+
+        // 2. Poblar el JComboBox de Tipos de Proceso
+        String[] TipoProceso = {
+            "CPU-Bound",
             "I/O-Bound"
         };
         TypeProcess.setModel(new javax.swing.DefaultComboBoxModel<>(TipoProceso));
     }
-        
-
-        
-    
-   
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -180,6 +176,9 @@ public class PanelPrincipal extends javax.swing.JFrame implements SimulationList
         MostrarGrafica2 = new javax.swing.JButton();
         jLabel2 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
+        jLabel6 = new javax.swing.JLabel();
+        globalCycles = new javax.swing.JLabel();
+        executionProcess = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(245, 247, 250));
@@ -358,8 +357,7 @@ public class PanelPrincipal extends javax.swing.JFrame implements SimulationList
         jPanel4.add(Finalizados, new org.netbeans.lib.awtextra.AbsoluteConstraints(680, 10, -1, -1));
 
         Listo1.setFont(new java.awt.Font("Dialog", 3, 14)); // NOI18N
-        Listo1.setForeground(new java.awt.Color(102, 102, 102));
-        Listo1.setText("Procesos en Ejecucion ");
+        Listo1.setText("Procesos en Ejecucion:");
         jPanel4.add(Listo1, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 340, -1, -1));
 
         colaFinalizados.setModel(new javax.swing.AbstractListModel<String>() {
@@ -431,14 +429,24 @@ public class PanelPrincipal extends javax.swing.JFrame implements SimulationList
         });
         jPanel4.add(MostrarGrafica2, new org.netbeans.lib.awtextra.AbsoluteConstraints(540, 300, 210, -1));
 
-        jLabel2.setForeground(new java.awt.Color(0, 0, 0));
         jLabel2.setText("Uso de la CPU");
         jPanel4.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 300, 90, 20));
 
         jLabel4.setBackground(new java.awt.Color(0, 0, 0));
-        jLabel4.setForeground(new java.awt.Color(0, 0, 0));
         jLabel4.setText("Procesos Cargados");
         jPanel4.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 300, -1, 20));
+
+        jLabel6.setFont(new java.awt.Font("Dialog", 3, 14)); // NOI18N
+        jLabel6.setText("Ciclos globales:");
+        jPanel4.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 370, -1, -1));
+
+        globalCycles.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        globalCycles.setText("0");
+        jPanel4.add(globalCycles, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 370, -1, -1));
+
+        executionProcess.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        executionProcess.setText("Sin proceso");
+        jPanel4.add(executionProcess, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 340, -1, -1));
 
         jPanel3.add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(-10, 280, 1120, 510));
 
@@ -463,16 +471,15 @@ public class PanelPrincipal extends javax.swing.JFrame implements SimulationList
      */
     @Override
     public void onProcessQueuesChanged() {
-        
+
         // ¡NO podemos actualizar la GUI directamente desde aquí!
         // (Estamos en el hilo incorrecto).
-
         // 1. Creamos una "tarea" (un objeto Runnable) para el hilo de la GUI.
         Runnable tareaDeActualizacion = new Runnable() {
             @Override
             public void run() {
-                
-                actualizarTodasLasTablas(); 
+
+                actualizarTodasLasTablas();
                 updateUtilizationChart();
             }
         };
@@ -480,119 +487,147 @@ public class PanelPrincipal extends javax.swing.JFrame implements SimulationList
         // 2. Le entregamos la "tarea" a Swing (el "buzón") para que la ponga 
         // en la cola de tareas del "Pintor" (el hilo de la GUI).
         SwingUtilities.invokeLater(tareaDeActualizacion);
-        
-        
-    } 
-    
+
+    }
+
     /**
-        * MÉTODO "JEFE" (Casi igual, solo cambian los nombres de los modelos)
-        */
-       private void actualizarTodasLasTablas() {
+     * Actualizar ciclos globales
+     *
+     * @param text
+     */
+    public void actualizarCiclosGlobalesGUI() {
+        String cycles = String.valueOf(os.getGlobalCycles());
+        this.globalCycles.setText(cycles);
+    }
 
-           // 1. Actualiza la lista de LISTOS
-           actualizarListaUnica(
-                   os.getReadyQueueSnapshot(),  // La "foto" segura de la cola
-                   modeloListaListos            // El modelo de la JList
-           );
-       
-           // 2. Actualiza la lista de BLOQUEADOS
-           actualizarListaUnica(
-                   os.getBlockedQueueSnapshot(),
-                   modeloListaBloqueados
-           );
+    /**
+     * Proceos en ejecución en ese momento
+     *
+     * @param text
+     */
+    public void actualizarProcesoEnEjecucionGUI() {
+        try {
+            String processName = os.cpu.getRunningProcess().pcb.getName();
+            this.executionProcess.setText(processName);
+        } catch (Exception ex) {
+        }
+    }
 
-           // 3. Actualiza la lista de TERMINADOS
-           actualizarListaUnica(
-                   os.getFinishedListSnapshot(),
-                   modeloListaTerminados
-           );
+    /**
+     * MÉTODO "JEFE" (Casi igual, solo cambian los nombres de los modelos)
+     */
+    private void actualizarTodasLasTablas() {
+        this.actualizarCiclosGlobalesGUI();
+        this.actualizarProcesoEnEjecucionGUI();
 
-           // Añade los Ready-Suspended
-           actualizarListaUnica(
-                os.getReadySuspendedQueueSnapshot(), 
-                modeloListaSupendido              
-            );
-           actualizarListaUnica(
-                os.getBlockedSuspendedQueueSnapshot(), 
-                modeloBloqueadoSupendido              
-            );
-           
-           
-           }
-    
+        // 1. Actualiza la lista de LISTOS
+        actualizarListaUnica(
+                os.getReadyQueueSnapshot(), // La "foto" segura de la cola
+                modeloListaListos // El modelo de la JList
+        );
+
+        // 2. Actualiza la lista de BLOQUEADOS
+        actualizarListaUnica(
+                os.getBlockedQueueSnapshot(),
+                modeloListaBloqueados
+        );
+
+        // 3. Actualiza la lista de TERMINADOS
+        actualizarListaUnica(
+                os.getFinishedListSnapshot(),
+                modeloListaTerminados
+        );
+
+        // Añade los Ready-Suspended
+        actualizarListaUnica(
+                os.getReadySuspendedQueueSnapshot(),
+                modeloListaSupendido
+        );
+        actualizarListaUnica(
+                os.getBlockedSuspendedQueueSnapshot(),
+                modeloBloqueadoSupendido
+        );
+
+    }
+
     public void updateProcessTypeChart() {
-    // 1. Obtener el conteo del OS
-    int[] counts = os.countProcessTypes(); 
-    int cpuBoundCount = counts[0];
-    int ioBoundCount = counts[1];
-    int totalCount = cpuBoundCount + ioBoundCount;
+        // 1. Obtener el conteo del OS
+        int[] counts = os.countProcessTypes();
+        int cpuBoundCount = counts[0];
+        int ioBoundCount = counts[1];
+        int totalCount = cpuBoundCount + ioBoundCount;
 
         // 3. Calcular porcentajes y actualizar el dataset
-       processTypeDataset.setValue("CPU-Bound", cpuBoundCount);
-       processTypeDataset.setValue("I/O-Bound", ioBoundCount);
-       org.jfree.chart.plot.PiePlot plot = (org.jfree.chart.plot.PiePlot) processTypeChart.getPlot();
-       
-       plot.setLegendLabelGenerator(new org.jfree.chart.labels.StandardPieSectionLabelGenerator(
-        "{0} ({1} | {2})", 
-        new java.text.DecimalFormat("0"), // Formato para el conteo
-        new java.text.DecimalFormat("0.0%") // Formato para el porcentaje
-    ));
+        processTypeDataset.setValue("CPU-Bound", cpuBoundCount);
+        processTypeDataset.setValue("I/O-Bound", ioBoundCount);
+        org.jfree.chart.plot.PiePlot plot = (org.jfree.chart.plot.PiePlot) processTypeChart.getPlot();
 
-    // 4. Actualizar el título
-    processTypeChart.setTitle("Composición de Procesos Cargados (Total: " + totalCount + ")");
-    }   
+        plot.setLegendLabelGenerator(new org.jfree.chart.labels.StandardPieSectionLabelGenerator(
+                "{0} ({1} | {2})",
+                new java.text.DecimalFormat("0"), // Formato para el conteo
+                new java.text.DecimalFormat("0.0%") // Formato para el porcentaje
+        ));
+
+        // 4. Actualizar el título
+        processTypeChart.setTitle("Composición de Procesos Cargados (Total: " + totalCount + ")");
+    }
+
     /**
-    * 
-    *
-    * @param procesos La "foto" (List<Process>) de la cola a dibujar.
-    * @param modelo El DefaultListModel<String> de la JList que se va a actualizar.
-    */
-        private void actualizarListaUnica(java.util.List<Process> procesos, DefaultListModel<String> modelo) {
-            actualizarListaUnica(procesos, modelo, true);
+     *
+     *
+     * @param procesos La "foto" (List<Process>) de la cola a dibujar.
+     * @param modelo El DefaultListModel<String> de la JList que se va a
+     * actualizar.
+     */
+    private void actualizarListaUnica(java.util.List<Process> procesos, DefaultListModel<String> modelo) {
+        actualizarListaUnica(procesos, modelo, true);
+    }
+
+    /**
+     * Sobrecarga del método AYUDANTE que permite decidir si se limpia la lista
+     * o no.
+     *
+     * @param procesos La "foto" (List<Process>) de la cola a dibujar.
+     * @param modelo El DefaultListModel<String> de la JList que se va a
+     * actualizar.
+     * @param limpiarLista Si es true, limpia la lista (modelo.clear()) antes de
+     * añadir.
+     */
+    private void actualizarListaUnica(java.util.List<Process> procesos, DefaultListModel<String> modelo, boolean limpiarLista) {
+
+        // 1. Limpia la lista si se le indica
+        if (limpiarLista) {
+            modelo.clear(); // El comando para limpiar un JList
         }
 
-        /**
-         * Sobrecarga del método AYUDANTE que permite decidir si se limpia la lista o no.
-         *
-         * @param procesos La "foto" (List<Process>) de la cola a dibujar.
-         * @param modelo El DefaultListModel<String> de la JList que se va a actualizar.
-         * @param limpiarLista Si es true, limpia la lista (modelo.clear()) antes de añadir.
-         */
-        private void actualizarListaUnica(java.util.List<Process> procesos, DefaultListModel<String> modelo, boolean limpiarLista) {
+        // 2. Itera sobre la "foto" (la List<Process> segura)
+        for (Process p : procesos) {
+            PCB pcb = p.getPCB();
 
-            // 1. Limpia la lista si se le indica
-            if (limpiarLista) {
-                modelo.clear(); // El comando para limpiar un JList
-            }
+            // Creamos un ÚNICO String con la info que queremos mostrar.
+            // Puedes poner lo que quieras aquí.
+            String textoProceso = String.format("Nombre: %s | PC: %d | MAR: %d",
+                    pcb.getName(),
+                    pcb.getPc(),
+                    pcb.getMar());
 
-            // 2. Itera sobre la "foto" (la List<Process> segura)
-            for (Process p : procesos) {
-                PCB pcb = p.getPCB();
-
-                
-                // Creamos un ÚNICO String con la info que queremos mostrar.
-                // Puedes poner lo que quieras aquí.
-                String textoProceso = String.format("Nombre: %s | PC: %d | MAR: %d", 
-                                  pcb.getName(), 
-                                  pcb.getPc(),
-                                  pcb.getMar());
-
-                // 4. Añade el String al modelo
-                modelo.addElement(textoProceso);
-            }
+            // 4. Añade el String al modelo
+            modelo.addElement(textoProceso);
         }
+    }
+
     private void updateUtilizationChart() {
         // Es vital usar SwingUtilities.invokeLater para asegurar que las actualizaciones
         // de la GUI se hagan en el hilo correcto
-       
-            java.util.List<Double> history = os.getUtilizationHistory();
 
-            // Limpiamos y reconstruimos la serie para evitar duplicados y errores de concurrencia
-            utilizationSeries.clear();
-            for (int i = 0; i < history.size(); i++) {
-                // El Eje X es el ciclo (i + 1), el Eje Y es el valor de utilidad
-                utilizationSeries.add(i + 1, history.get(i)); 
-            }
+        java.util.List<Double> history = os.getUtilizationHistory();
+
+        // Limpiamos y reconstruimos la serie para evitar duplicados y errores de concurrencia
+        utilizationSeries.clear();
+        for (int i = 0; i < history.size(); i++) {
+            // El Eje X es el ciclo (i + 1), el Eje Y es el valor de utilidad
+            utilizationSeries.add(i + 1, history.get(i));
+        }
     }
 
     private void randomProcessActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_randomProcessActionPerformed
@@ -607,7 +642,7 @@ public class PanelPrincipal extends javax.swing.JFrame implements SimulationList
 
         int minTiempoIO = 10;  // Tiempo que tarda la E/S
         int maxTiempoIO = 30;
-        
+
         System.out.println("--- Iniciando carga masiva de 20 procesos aleatorios ---");
 
         // 3. El bucle para crear 20 procesos
@@ -618,38 +653,38 @@ public class PanelPrincipal extends javax.swing.JFrame implements SimulationList
             int instrucciones = rand.nextInt(maxInstrucciones - minInstrucciones + 1) + minInstrucciones;
             Process p;
             if (tipo == ProcessType.CPU_BOUND) {
-            p = new Process(
-                nombre,
-                tipo,
-                instrucciones,
-                prioridadPorDefecto
-            ); 
-            System.out.println("Proceso (CPU-Bound) generado: " + nombre + " [Inst: " + instrucciones + "]");
-           } else{
+                p = new Process(
+                        nombre,
+                        tipo,
+                        instrucciones,
+                        prioridadPorDefecto
+                );
+                System.out.println("Proceso (CPU-Bound) generado: " + nombre + " [Inst: " + instrucciones + "]");
+            } else {
                 int rafagaCPU = rand.nextInt(maxRafagaCPU - minRafagaCPU + 1) + minRafagaCPU;
                 int tiempoBloqueo = rand.nextInt(maxTiempoIO - minTiempoIO + 1) + minTiempoIO;
                 p = new Process(
-                nombre,
-                tipo,
-                rafagaCPU,       // cyclesExcepcion
-                tiempoBloqueo,   // cyclesCompleteIO
-                instrucciones,
-                prioridadPorDefecto
-            );
-            System.out.println("Proceso (I/O-Bound) generado: " + nombre + " [Inst: " + instrucciones + ", RafagaCPU: " + rafagaCPU + ", T. E/S: " + tiempoBloqueo + "]");
+                        nombre,
+                        tipo,
+                        rafagaCPU, // cyclesExcepcion
+                        tiempoBloqueo, // cyclesCompleteIO
+                        instrucciones,
+                        prioridadPorDefecto
+                );
+                System.out.println("Proceso (I/O-Bound) generado: " + nombre + " [Inst: " + instrucciones + ", RafagaCPU: " + rafagaCPU + ", T. E/S: " + tiempoBloqueo + "]");
             }
-           this.os.addProcess(p);
+            this.os.addProcess(p);
         }
         JOptionPane.showMessageDialog(this, "Se han cargado 20 procesos aleatorios.");
     }//GEN-LAST:event_randomProcessActionPerformed
-    private boolean isEmpty(){
-        return selectedFile  == null;
+    private boolean isEmpty() {
+        return selectedFile == null;
     }
-    
+
     private void GuardarPlanificacionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_GuardarPlanificacionActionPerformed
         String politicaSeleccionada = (String) PoliticaName.getSelectedItem();
         StrategyScheduler estrategia;
-        
+
         switch (politicaSeleccionada) {
             case "FCFS":
                 estrategia = StrategyScheduler.FirstComeFirstServe;
@@ -674,10 +709,10 @@ public class PanelPrincipal extends javax.swing.JFrame implements SimulationList
                 estrategia = StrategyScheduler.RoundRobin; // Valor por defecto
             }
         if (this.os != null) {
-        // Accedemos al scheduler a través del OS y cambiamos la estrategia
-        this.os.setSchedulingStrategy(estrategia);
-        System.out.println("Estrategia de planificación cambiada a: " + politicaSeleccionada);
-    }
+            // Accedemos al scheduler a través del OS y cambiamos la estrategia
+            this.os.setSchedulingStrategy(estrategia);
+            System.out.println("Estrategia de planificación cambiada a: " + politicaSeleccionada);
+        }
     }//GEN-LAST:event_GuardarPlanificacionActionPerformed
 
     private void NombreProcesoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_NombreProcesoActionPerformed
@@ -685,82 +720,83 @@ public class PanelPrincipal extends javax.swing.JFrame implements SimulationList
     }//GEN-LAST:event_NombreProcesoActionPerformed
 
     private void PoliticaNameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_PoliticaNameActionPerformed
-      
+
     }//GEN-LAST:event_PoliticaNameActionPerformed
 
     private void TypeProcessActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_TypeProcessActionPerformed
-     
+
     }//GEN-LAST:event_TypeProcessActionPerformed
 
     private void IniciarProcesoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_IniciarProcesoActionPerformed
         try {
-        // 1. LEER DATOS EN COMUN
-        String nombre = NombreProceso.getText();
-        int instrucciones = (Integer) CantidadInstrucciones.getValue();
-        int priory = 1; //-> Por defecto
-        
-        // 2. LEER TIPO DE PROCESO SELECCIONADO
-        String TypeSelected = (String) TypeProcess.getSelectedItem();
-        
-        if (nombre.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Debe ingresar un nombre para el proceso.", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-        
-        Process newProcess; // El proceso que vamos a crear
-        
+            // 1. LEER DATOS EN COMUN
+            String nombre = NombreProceso.getText();
+            int instrucciones = (Integer) CantidadInstrucciones.getValue();
+            int priory = 1; //-> Por defecto
+
+            // 2. LEER TIPO DE PROCESO SELECCIONADO
+            String TypeSelected = (String) TypeProcess.getSelectedItem();
+
+            if (nombre.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Debe ingresar un nombre para el proceso.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            Process newProcess; // El proceso que vamos a crear
+
             // 3. DECIDIR QUÉ CONSTRUCTOR USAR
             if (TypeSelected.equals("I/O-Bound")) {
                 int cyclesEx = (Integer) CyclesEx.getValue();
                 int cyclesIO = (Integer) CyclesIO.getValue();
-                
-            newProcess = new Process(
-                nombre, 
-                ProcessType.IO_BOUND,
-                cyclesEx, 
-                cyclesIO, 
-                instrucciones, 
-                priory
-            ); 
-        }else { // Es "CPU-Bound"
-            
-            newProcess = new Process(
-                nombre, 
-                ProcessType.CPU_BOUND,
-                instrucciones, 
-                priory 
-            );
-        }
-        if (this.os != null) {
-            this.os.addProcess(newProcess);
-            // Mensaje de Proceso creado correctamente 
-            JOptionPane.showMessageDialog(this, "El " + nombre + " creado exitosamente.");
-        
-        /** Limpiar los campos 
-        NombreProceso.setText("");
-        CantidadInstrucciones.setValue(0);
-        Priory.setValue(0);
-        Priory.setValue(0);
-        CyclesIO.setValue(0);
-        */
-        }else {
-            JOptionPane.showMessageDialog(this, "Error: El Sistema Operativo no está inicializado.", "Error", JOptionPane.ERROR_MESSAGE);
-        }
-        
+
+                newProcess = new Process(
+                        nombre,
+                        ProcessType.IO_BOUND,
+                        cyclesEx,
+                        cyclesIO,
+                        instrucciones,
+                        priory
+                );
+            } else { // Es "CPU-Bound"
+
+                newProcess = new Process(
+                        nombre,
+                        ProcessType.CPU_BOUND,
+                        instrucciones,
+                        priory
+                );
+            }
+            if (this.os != null) {
+                this.os.addProcess(newProcess);
+                // Mensaje de Proceso creado correctamente 
+                JOptionPane.showMessageDialog(this, "El " + nombre + " creado exitosamente.");
+
+                /**
+                 * Limpiar los campos
+                 * NombreProceso.setText("");
+                 * CantidadInstrucciones.setValue(0);
+                 * Priory.setValue(0);
+                 * Priory.setValue(0);
+                 * CyclesIO.setValue(0);
+                 */
+            } else {
+                JOptionPane.showMessageDialog(this, "Error: El Sistema Operativo no está inicializado.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+
         } catch (NumberFormatException e) {
-            
-        // Captura error de Formato 
-        JOptionPane.showMessageDialog(this, 
-            "Error: Revisa los campos numéricos.\nDeben ser números válidos.", 
-            "Error de Formato", 
-            JOptionPane.ERROR_MESSAGE);
-        
+
+            // Captura error de Formato 
+            JOptionPane.showMessageDialog(this,
+                    "Error: Revisa los campos numéricos.\nDeben ser números válidos.",
+                    "Error de Formato",
+                    JOptionPane.ERROR_MESSAGE);
+
         } catch (Exception e) {
             // Capturar cualquier otro error 
-             JOptionPane.showMessageDialog(this, 
-                "Ocurrió un error: " + e.getMessage(), 
-                "Error", 
-                JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this,
+                    "Ocurrió un error: " + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_IniciarProcesoActionPerformed
 
@@ -768,39 +804,40 @@ public class PanelPrincipal extends javax.swing.JFrame implements SimulationList
         JFileChooser selarchivo = new JFileChooser();
         FileNameExtensionFilter filter = new FileNameExtensionFilter(" Archivos CSV", "csv");
         selarchivo.setFileFilter(filter);
-        
-        int val = selarchivo.showOpenDialog(null);
-       if (val == JFileChooser.APPROVE_OPTION){
-        File file = selarchivo.getSelectedFile();
-        if(file != null){
-            this.selectedFile = file;
-            JOptionPane.showMessageDialog(null, "Iniciando carga de procesos desde: " + file.getName());
-            
-            // 2. Lógica de lectura de CSV
-            try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-                String line;
-                boolean isFirstLine = true;
-                
-                // Procesar línea por línea
-                while ((line = br.readLine()) != null) {
-                    if (line.trim().isEmpty()) continue; // Ignorar líneas vacías
-                    
-                    // Lógica simple para intentar omitir una línea de cabecera
-                    if (isFirstLine) {
-                        if (line.trim().toLowerCase().startsWith("nombre") || line.trim().toLowerCase().startsWith("name")) {
-                            isFirstLine = false;
-                            continue; // Saltar la línea de cabecera
-                        }
-                        isFirstLine = false;
-                    }
-                    
-                    // 3. Llamar al método de parsing e inyección de procesos
-                    createProcessFromCSVLine(line);
-                }
 
-                JOptionPane.showMessageDialog(null, "Procesos cargados exitosamente.");
-                // Notificar al OS/GUI para que se refresquen las listas
-                this.os.fireQueuesChanged(); 
+        int val = selarchivo.showOpenDialog(null);
+        if (val == JFileChooser.APPROVE_OPTION) {
+            File file = selarchivo.getSelectedFile();
+            if (file != null) {
+                this.selectedFile = file;
+                JOptionPane.showMessageDialog(null, "Iniciando carga de procesos desde: " + file.getName());
+
+                // 2. Lógica de lectura de CSV
+                try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+                    String line;
+                    boolean isFirstLine = true;
+
+                    // Procesar línea por línea
+                    while ((line = br.readLine()) != null) {
+                        if (line.trim().isEmpty()) {
+                            continue; // Ignorar líneas vacías
+                        }
+                        // Lógica simple para intentar omitir una línea de cabecera
+                        if (isFirstLine) {
+                            if (line.trim().toLowerCase().startsWith("nombre") || line.trim().toLowerCase().startsWith("name")) {
+                                isFirstLine = false;
+                                continue; // Saltar la línea de cabecera
+                            }
+                            isFirstLine = false;
+                        }
+
+                        // 3. Llamar al método de parsing e inyección de procesos
+                        createProcessFromCSVLine(line);
+                    }
+
+                    JOptionPane.showMessageDialog(null, "Procesos cargados exitosamente.");
+                    // Notificar al OS/GUI para que se refresquen las listas
+                    this.os.fireQueuesChanged();
 
                 } catch (IOException e) {
                     JOptionPane.showMessageDialog(null, "Error al leer el archivo CSV: " + e.getMessage(), "Error de Archivo", JOptionPane.ERROR_MESSAGE);
@@ -810,65 +847,65 @@ public class PanelPrincipal extends javax.swing.JFrame implements SimulationList
                     JOptionPane.showMessageDialog(null, "Error al procesar la línea del archivo. Revise el formato. Error: " + e.getMessage(), "Error de Formato", JOptionPane.ERROR_MESSAGE);
                 }
             } else {
-                JOptionPane.showMessageDialog(null,"Archivo no seleccionado");
+                JOptionPane.showMessageDialog(null, "Archivo no seleccionado");
             }
         }
     }//GEN-LAST:event_cargarFileActionPerformed
 
     private void createProcessFromCSVLine(String line) throws NumberFormatException, Exception {
-            // Se espera el formato CSV con coma (,) como delimitador:
-            // Nombre,Tipo,Instrucciones,Prioridad,CiclosExcepcion,CyclesCompleteIO
+        // Se espera el formato CSV con coma (,) como delimitador:
+        // Nombre,Tipo,Instrucciones,Prioridad,CiclosExcepcion,CyclesCompleteIO
 
-            String[] data = line.split(",");
+        String[] data = line.split(",");
 
-            // Se requieren al menos 4 campos (Nombre, Tipo, Instrucciones, Prioridad)
-            if (data.length < 4) {
-                System.err.println("Línea ignorada: datos insuficientes -> " + line);
-                return; 
+        // Se requieren al menos 4 campos (Nombre, Tipo, Instrucciones, Prioridad)
+        if (data.length < 4) {
+            System.err.println("Línea ignorada: datos insuficientes -> " + line);
+            return;
+        }
+
+        String name = data[0].trim();
+        String typeStr = data[1].trim().toUpperCase();
+        // Parsea los campos numéricos
+        int instructions = Integer.parseInt(data[2].trim());
+        int priory = Integer.parseInt(data[3].trim());
+
+        requirements.Process newProcess;
+
+        if (typeStr.contains("CPU")) {
+            // Constructor CPU-Bound: (name, processType, instructions, priory)
+            newProcess = new requirements.Process(
+                    name,
+                    structures.ProcessType.CPU_BOUND,
+                    instructions,
+                    priory
+            );
+            this.os.addProcess(newProcess);
+
+        } else if (typeStr.contains("I/O")) {
+            // Para I/O-Bound se requieren 6 campos
+            if (data.length < 6) {
+                throw new Exception("Línea I/O-Bound incompleta. Se requieren 6 campos: " + line);
             }
 
-            String name = data[0].trim();
-            String typeStr = data[1].trim().toUpperCase();
-            // Parsea los campos numéricos
-            int instructions = Integer.parseInt(data[2].trim());
-            int priory = Integer.parseInt(data[3].trim());
+            int cyclesExcepcion = Integer.parseInt(data[4].trim());
+            int cyclesCompleteIO = Integer.parseInt(data[5].trim());
 
-            requirements.Process newProcess;
-
-            if (typeStr.contains("CPU")) {
-                // Constructor CPU-Bound: (name, processType, instructions, priory)
-                newProcess = new requirements.Process(
-                    name, 
-                    structures.ProcessType.CPU_BOUND, 
-                    instructions, 
+            // Constructor I/O-Bound: (name, processType, cyclesExcepcion, cyclesCompleteIO, instructions, priory)
+            newProcess = new requirements.Process(
+                    name,
+                    structures.ProcessType.IO_BOUND,
+                    cyclesExcepcion,
+                    cyclesCompleteIO,
+                    instructions,
                     priory
-                );
-                this.os.addProcess(newProcess);
+            );
+            this.os.addProcess(newProcess); // Agrega el proceso al OS
 
-            } else if (typeStr.contains("I/O")) {
-                // Para I/O-Bound se requieren 6 campos
-                if (data.length < 6) {
-                     throw new Exception("Línea I/O-Bound incompleta. Se requieren 6 campos: " + line);
-                }
-
-                int cyclesExcepcion = Integer.parseInt(data[4].trim());
-                int cyclesCompleteIO = Integer.parseInt(data[5].trim());
-
-                // Constructor I/O-Bound: (name, processType, cyclesExcepcion, cyclesCompleteIO, instructions, priory)
-                newProcess = new requirements.Process(
-                    name, 
-                    structures.ProcessType.IO_BOUND, 
-                    cyclesExcepcion, 
-                    cyclesCompleteIO, 
-                    instructions, 
-                    priory
-                );
-                this.os.addProcess(newProcess); // Agrega el proceso al OS
-
-            } else {
-                System.err.println("Tipo de proceso desconocido. Línea ignorada: " + line);
+        } else {
+            System.err.println("Tipo de proceso desconocido. Línea ignorada: " + line);
+        }
     }
-}
     private void GuardarPlanificacionMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_GuardarPlanificacionMouseClicked
         // TODO add your handling code here:
     }//GEN-LAST:event_GuardarPlanificacionMouseClicked
@@ -883,8 +920,8 @@ public class PanelPrincipal extends javax.swing.JFrame implements SimulationList
     }//GEN-LAST:event_MostrarGraficaActionPerformed
 
     private void MostrarGrafica2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MostrarGrafica2ActionPerformed
-       updateProcessTypeChart(); 
-    
+        updateProcessTypeChart();
+
         if (processTypeChartPanel.getParent() != null) {
             processTypeChartPanel.getParent().remove(processTypeChartPanel);
         }
@@ -894,11 +931,10 @@ public class PanelPrincipal extends javax.swing.JFrame implements SimulationList
         frameComposicion.getContentPane().add(processTypeChartPanel, java.awt.BorderLayout.CENTER);
 
         frameComposicion.pack();
-        frameComposicion.setSize(500, 400); 
+        frameComposicion.setSize(500, 400);
         frameComposicion.setVisible(true);
     }//GEN-LAST:event_MostrarGrafica2ActionPerformed
 
-    
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel Bloqueados;
@@ -928,12 +964,15 @@ public class PanelPrincipal extends javax.swing.JFrame implements SimulationList
     private javax.swing.JList<String> colaListos;
     private javax.swing.JList<String> colaSuspendidosB;
     private javax.swing.JList<String> colaSuspendidosL;
+    private javax.swing.JLabel executionProcess;
+    private javax.swing.JLabel globalCycles;
     private javax.swing.JLabel instrucciones;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;

@@ -21,7 +21,7 @@ import requirements.SimulationListener;
  */
 public class OS {
 
-    CPU cpu;
+    public CPU cpu;
     StateOS os_status;
     Scheduler scheduler;
     int globalCyclesDuration;
@@ -71,8 +71,8 @@ public class OS {
         scheduler.newProcess.enqueue(p);  // Colocamos el proceso en la cola de nuevos 
         
         this.checkAndLoadProcesses();   // Mueve de New a Ready si hay espacio 
-
     }
+    
     /**
      * CPU llama cuando se necesita devolver un proceso que fue SUSPENDIDO.
      * @param p 
@@ -104,9 +104,6 @@ public class OS {
         IOThread.start(); // Inicia el hilo
     }
         
-        
-    
-
     /**
      * Proceso -> Cola de terminados
      *
@@ -126,7 +123,6 @@ public class OS {
         fireQueuesChanged();
         
     }
-    
 
     /**
      * Manejar bloqueo del proceso con HILOS | Añade el proceso con addProcess()
@@ -269,8 +265,6 @@ public class OS {
         return true;
         
     }
-    
-   
      public void startSimulation() {
         this.cpu.start();
     }
@@ -280,6 +274,7 @@ public class OS {
      */
     public void increaseCycles() {
         this.globalCycles++;
+        
         if (this.cpu.getRunningProcess() != null) {
         this.cpuBusyCycles++;
     }
@@ -291,7 +286,7 @@ public class OS {
     * Calcula el porcentaje de utilidad de la CPU (Tiempo Ocupado / Tiempo Total).
     * @return Porcentaje de utilidad (0.0 a 100.0).
     */
-       public double getCpuUtilization() {
+    public double getCpuUtilization() {
            if (this.globalCycles == 0) {
                return 0.0;
            }
@@ -299,7 +294,7 @@ public class OS {
            return ((double) this.cpuBusyCycles / this.globalCycles) * 100.0;
        }
 
-       public java.util.List<Double> getUtilizationHistory() {
+    public java.util.List<Double> getUtilizationHistory() {
            return utilizationHistory;
        }
        
@@ -392,12 +387,12 @@ public class OS {
 
    //-----------------------------------------------------------------------------------------------------------------------------------------
    // Copias de Listas (FOTO)
-   /**
+    /**
  * Devuelve una copia (snapshot) segura de la cola de Listos.
  * Itera la cola de forma segura usando getFirstNode().
  * @return Una List<Process> de los procesos listos.
  */
-        public synchronized java.util.List<Process> getReadyQueueSnapshot() {
+    public synchronized java.util.List<Process> getReadyQueueSnapshot() {
             java.util.List<Process> snapshot = new java.util.ArrayList<>();
 
             // Obtenemos el primer nodo
@@ -410,7 +405,8 @@ public class OS {
             }
             return snapshot;
         }
-        /**
+    
+    /**
      * Devuelve una copia (snapshot) segura de la cola de Bloqueados.
      */
     public synchronized java.util.List<Process> getBlockedQueueSnapshot() {
@@ -476,7 +472,6 @@ public class OS {
         return snapshot;
     }
     
-    
     /** Cuenta la cantidad de procesos CPU-Bound y I/O-Bound en todas las colas.
     * @return Un array int[2] donde [0] es CPU-Bound y [1] es I/O-Bound.
     */
@@ -523,7 +518,4 @@ public class OS {
         return new int[]{cpuBoundCount, ioBoundCount};
     }
     
-    
-   
-   
 }
