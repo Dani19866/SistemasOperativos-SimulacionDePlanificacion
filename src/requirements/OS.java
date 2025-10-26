@@ -330,7 +330,7 @@ public class OS {
      * Notifica a todos los listeners (la GUI) que 
      * las colas de procesos han cambiado y deben redibujarse.
      */
-    private synchronized void fireQueuesChanged() {
+    public synchronized void fireQueuesChanged() {
         // Itera sobre todos los listeners y les avisa
         for (SimulationListener listener : listeners) {
             listener.onProcessQueuesChanged();

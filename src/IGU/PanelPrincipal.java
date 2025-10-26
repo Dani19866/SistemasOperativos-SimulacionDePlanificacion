@@ -8,7 +8,10 @@ import requirements.Process;
 import structures.ProcessType;
 import javax.swing.JOptionPane;
 import SchedulerTechniques.StrategyScheduler;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Random;
 import javax.swing.DefaultListModel;
 import javax.swing.JFileChooser;
@@ -287,7 +290,7 @@ public class PanelPrincipal extends javax.swing.JFrame implements SimulationList
         cargarFile.setBackground(new java.awt.Color(0, 102, 255));
         cargarFile.setFont(new java.awt.Font("Dialog", 1, 12)); // NOI18N
         cargarFile.setForeground(new java.awt.Color(255, 255, 255));
-        cargarFile.setText("Subir JSON/CSV");
+        cargarFile.setText("Subir CSV");
         cargarFile.setBorder(null);
         cargarFile.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -675,18 +678,109 @@ public class PanelPrincipal extends javax.swing.JFrame implements SimulationList
 
     private void cargarFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cargarFileActionPerformed
         JFileChooser selarchivo = new JFileChooser();
-        FileNameExtensionFilter filter = new FileNameExtensionFilter(" Archivos JSON", "json");
+        FileNameExtensionFilter filter = new FileNameExtensionFilter(" Archivos CSV", "csv");
         selarchivo.setFileFilter(filter);
+        
         int val = selarchivo.showOpenDialog(null);
-        if (val == JFileChooser.APPROVE_OPTION){
-            if(selarchivo.getSelectedFile() != null){
-            selectedFile = selarchivo.getSelectedFile();
-            JOptionPane.showMessageDialog(null, "El archivo seleccionado es: " + selectedFile.getName());}
-        else {
-            JOptionPane.showMessageDialog(null,"Archivo no seleccionado");
-        }}
+       if (val == JFileChooser.APPROVE_OPTION){
+        File file = selarchivo.getSelectedFile();
+        if(file != null){
+            this.selectedFile = file;
+            JOptionPane.showMessageDialog(null, "Iniciando carga de procesos desde: " + file.getName());
+            
+            // 2. Lógica de lectura de CSV
+            try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+                String line;
+                boolean isFirstLine = true;
+                
+                // Procesar línea por línea
+                while ((line = br.readLine()) != null) {
+                    if (line.trim().isEmpty()) continue; // Ignorar líneas vacías
+                    
+                    // Lógica simple para intentar omitir una línea de cabecera
+                    if (isFirstLine) {
+                        if (line.trim().toLowerCase().startsWith("nombre") || line.trim().toLowerCase().startsWith("name")) {
+                            isFirstLine = false;
+                            continue; // Saltar la línea de cabecera
+                        }
+                        isFirstLine = false;
+                    }
+                    
+                    // 3. Llamar al método de parsing e inyección de procesos
+                    createProcessFromCSVLine(line);
+                }
+
+                JOptionPane.showMessageDialog(null, "Procesos cargados exitosamente.");
+                // Notificar al OS/GUI para que se refresquen las listas
+                this.os.fireQueuesChanged(); 
+
+                } catch (IOException e) {
+                    JOptionPane.showMessageDialog(null, "Error al leer el archivo CSV: " + e.getMessage(), "Error de Archivo", JOptionPane.ERROR_MESSAGE);
+                } catch (NumberFormatException e) {
+                    JOptionPane.showMessageDialog(null, "Error de formato. Asegúrese de que los campos numéricos (Instrucciones, Prioridad, Ciclos) sean válidos. Error: " + e.getMessage(), "Error de Datos", JOptionPane.ERROR_MESSAGE);
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(null, "Error al procesar la línea del archivo. Revise el formato. Error: " + e.getMessage(), "Error de Formato", JOptionPane.ERROR_MESSAGE);
+                }
+            } else {
+                JOptionPane.showMessageDialog(null,"Archivo no seleccionado");
+            }
+        }
     }//GEN-LAST:event_cargarFileActionPerformed
 
+    private void createProcessFromCSVLine(String line) throws NumberFormatException, Exception {
+            // Se espera el formato CSV con coma (,) como delimitador:
+            // Nombre,Tipo,Instrucciones,Prioridad,CiclosExcepcion,CyclesCompleteIO
+
+            String[] data = line.split(",");
+
+            // Se requieren al menos 4 campos (Nombre, Tipo, Instrucciones, Prioridad)
+            if (data.length < 4) {
+                System.err.println("Línea ignorada: datos insuficientes -> " + line);
+                return; 
+            }
+
+            String name = data[0].trim();
+            String typeStr = data[1].trim().toUpperCase();
+            // Parsea los campos numéricos
+            int instructions = Integer.parseInt(data[2].trim());
+            int priory = Integer.parseInt(data[3].trim());
+
+            requirements.Process newProcess;
+
+            if (typeStr.contains("CPU")) {
+                // Constructor CPU-Bound: (name, processType, instructions, priory)
+                newProcess = new requirements.Process(
+                    name, 
+                    structures.ProcessType.CPU_BOUND, 
+                    instructions, 
+                    priory
+                );
+                this.os.addProcess(newProcess);
+
+            } else if (typeStr.contains("I/O")) {
+                // Para I/O-Bound se requieren 6 campos
+                if (data.length < 6) {
+                     throw new Exception("Línea I/O-Bound incompleta. Se requieren 6 campos: " + line);
+                }
+
+                int cyclesExcepcion = Integer.parseInt(data[4].trim());
+                int cyclesCompleteIO = Integer.parseInt(data[5].trim());
+
+                // Constructor I/O-Bound: (name, processType, cyclesExcepcion, cyclesCompleteIO, instructions, priory)
+                newProcess = new requirements.Process(
+                    name, 
+                    structures.ProcessType.IO_BOUND, 
+                    cyclesExcepcion, 
+                    cyclesCompleteIO, 
+                    instructions, 
+                    priory
+                );
+                this.os.addProcess(newProcess); // Agrega el proceso al OS
+
+            } else {
+                System.err.println("Tipo de proceso desconocido. Línea ignorada: " + line);
+    }
+}
     private void GuardarPlanificacionMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_GuardarPlanificacionMouseClicked
         // TODO add your handling code here:
     }//GEN-LAST:event_GuardarPlanificacionMouseClicked
