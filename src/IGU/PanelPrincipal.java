@@ -9,6 +9,7 @@ import structures.ProcessType;
 import javax.swing.JOptionPane;
 import SchedulerTechniques.StrategyScheduler;
 import java.io.File;
+import java.util.Random;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -112,7 +113,6 @@ public class PanelPrincipal extends javax.swing.JFrame {
         CyclesIO = new javax.swing.JSpinner();
         jSeparator1 = new javax.swing.JSeparator();
         IniciarProceso = new javax.swing.JButton();
-        Priory = new javax.swing.JSpinner();
         cargarFile = new javax.swing.JButton();
         CyclesEx = new javax.swing.JSpinner();
         jPanel4 = new javax.swing.JPanel();
@@ -296,10 +296,6 @@ public class PanelPrincipal extends javax.swing.JFrame {
         });
         jPanel2.add(IniciarProceso, new org.netbeans.lib.awtextra.AbsoluteConstraints(790, 120, 100, 30));
 
-        Priory.setModel(new javax.swing.SpinnerNumberModel(1, 1, 10000, 1));
-        Priory.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
-        jPanel2.add(Priory, new org.netbeans.lib.awtextra.AbsoluteConstraints(820, 70, 60, 25));
-
         cargarFile.setBackground(new java.awt.Color(0, 102, 255));
         cargarFile.setFont(new java.awt.Font("Dialog", 1, 12)); // NOI18N
         cargarFile.setForeground(new java.awt.Color(255, 255, 255));
@@ -423,7 +419,51 @@ public class PanelPrincipal extends javax.swing.JFrame {
     
     
     private void randomProcessActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_randomProcessActionPerformed
+        Random rand = new Random();
+
+        // 2. Definimos los rangos para nuestros valores aleatorios
+        int minInstrucciones = 20;
+        int maxInstrucciones = 100;
+
+        int minRafagaCPU = 5;  // Ráfaga de CPU antes de E/S
+        int maxRafagaCPU = 15;
+
+        int minTiempoIO = 10;  // Tiempo que tarda la E/S
+        int maxTiempoIO = 30;
         
+        System.out.println("--- Iniciando carga masiva de 20 procesos aleatorios ---");
+
+        // 3. El bucle para crear 20 procesos
+        for (int i = 0; i < 20; i++) {
+            String nombre = "Proceso-" + (i + 1);
+            int prioridadPorDefecto = 1;
+            ProcessType tipo = rand.nextBoolean() ? ProcessType.CPU_BOUND : ProcessType.IO_BOUND;
+            int instrucciones = rand.nextInt(maxInstrucciones - minInstrucciones + 1) + minInstrucciones;
+            Process p;
+            if (tipo == ProcessType.CPU_BOUND) {
+            p = new Process(
+                nombre,
+                tipo,
+                instrucciones,
+                prioridadPorDefecto
+            ); 
+            System.out.println("Proceso (CPU-Bound) generado: " + nombre + " [Inst: " + instrucciones + "]");
+           } else{
+                int rafagaCPU = rand.nextInt(maxRafagaCPU - minRafagaCPU + 1) + minRafagaCPU;
+                int tiempoBloqueo = rand.nextInt(maxTiempoIO - minTiempoIO + 1) + minTiempoIO;
+                p = new Process(
+                nombre,
+                tipo,
+                rafagaCPU,       // cyclesExcepcion
+                tiempoBloqueo,   // cyclesCompleteIO
+                instrucciones,
+                prioridadPorDefecto
+            );
+            System.out.println("Proceso (I/O-Bound) generado: " + nombre + " [Inst: " + instrucciones + ", RAfagaCPU: " + rafagaCPU + ", T. E/S: " + tiempoBloqueo + "]");
+            }
+           this.os.addProcess(p);
+        }
+        JOptionPane.showMessageDialog(this, "Se han cargado 20 procesos aleatorios.");
     }//GEN-LAST:event_randomProcessActionPerformed
 
     private void cargarDatosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cargarDatosActionPerformed
@@ -505,7 +545,7 @@ public class PanelPrincipal extends javax.swing.JFrame {
         // 1. LEER DATOS EN COMUN
         String nombre = NombreProceso.getText();
         int instrucciones = (Integer) CantidadInstrucciones.getValue();
-        int priory = (Integer) Priory.getValue();
+        int priory = 1; //-> Por defecto
         
         // 2. LEER TIPO DE PROCESO SELECCIONADO
         String TypeSelected = (String) TypeProcess.getSelectedItem();
@@ -519,7 +559,7 @@ public class PanelPrincipal extends javax.swing.JFrame {
         
             // 3. DECIDIR QUÉ CONSTRUCTOR USAR
             if (TypeSelected.equals("I/O-Bound")) {
-                int cyclesEx = (Integer) Priory.getValue();
+                int cyclesEx = (Integer) CyclesEx.getValue();
                 int cyclesIO = (Integer) CyclesIO.getValue();
                 
             newProcess = new Process(
@@ -604,7 +644,6 @@ public class PanelPrincipal extends javax.swing.JFrame {
     private javax.swing.JLabel Listo1;
     private javax.swing.JTextField NombreProceso;
     private javax.swing.JComboBox<String> PoliticaName;
-    private javax.swing.JSpinner Priory;
     private javax.swing.JSpinner Spinnerciclo;
     private javax.swing.JComboBox<String> TypeProcess;
     private javax.swing.JButton cargarDatos;

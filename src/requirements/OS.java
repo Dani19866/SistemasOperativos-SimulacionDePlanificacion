@@ -60,8 +60,7 @@ public class OS {
         scheduler.newProcess.enqueue(p);  // Colocamos el proceso en la cola de nuevos 
         
         this.checkAndLoadProcesses();   // Mueve de New a Ready si hay espacio 
-        this.cpu.wakeUp();
-        System.out.println("OS EJECUTANDO CPU" );
+
     }
     /**
      * CPU llama cuando se necesita devolver un proceso que fue SUSPENDIDO.
@@ -70,7 +69,7 @@ public class OS {
     public void returnProcessReady(Process p ){
         p.getPCB().setStateProcess(StateProcess.READY);
         scheduler.readyProcess.enqueue(p); // encolamos a la cola de Listos 
-        this.cpu.wakeUp();
+        this.tryToWakeUpCPU();
         
     }
     
@@ -107,10 +106,10 @@ public class OS {
         scheduler.outProcess.add(p);
         // 3. Liberar Memoria
         currentMemoryUsage -= p.getInstructions();
+        System.out.println("OS (finishProcess): Proceso '" + p.getPCB().getName());
         
         //4. Avisamos al planificador que hay espacio disponible 
         this.checkAndLoadProcesses();
-        this.cpu.wakeUp();
         
     }
     
@@ -161,6 +160,7 @@ public class OS {
                 Thread.currentThread().interrupt();
                 System.err.println("Hilo de E/S interrumpido para " + p.getPCB().getName());
             }
+        this.tryToWakeUpCPU();
     }
     
     /**
@@ -210,6 +210,7 @@ public class OS {
                     }
                 }
             } while (memoryFree); // Repetir mientras logremos mover procesos
+            this.tryToWakeUpCPU();
     }
     
     /**
@@ -279,6 +280,15 @@ public class OS {
     public void getSpecifications() {
         System.out.println("Memoria RAM: " + getMemory() + " Kb" + "\nMemoria en disco: " + getDisk() + " Kb");
 
+    }
+    public synchronized void tryToWakeUpCPU() {
+        // Solo despierta a la CPU si NO está ejecutando un proceso
+        if (cpu.getRunningProcess() == null) {
+            System.out.println("OS: ¡Despertando a la CPU! (Trabajo nuevo en Ready)");
+            this.cpu.wakeUp();
+        }
+        // Si ya está corriendo, no hacemos nada.
+        // La CPU tomará el siguiente proceso cuando termine el actual.
     }
    
     
