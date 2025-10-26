@@ -459,7 +459,7 @@ public class PanelPrincipal extends javax.swing.JFrame {
                 instrucciones,
                 prioridadPorDefecto
             );
-            System.out.println("Proceso (I/O-Bound) generado: " + nombre + " [Inst: " + instrucciones + ", RAfagaCPU: " + rafagaCPU + ", T. E/S: " + tiempoBloqueo + "]");
+            System.out.println("Proceso (I/O-Bound) generado: " + nombre + " [Inst: " + instrucciones + ", RafagaCPU: " + rafagaCPU + ", T. E/S: " + tiempoBloqueo + "]");
             }
            this.os.addProcess(p);
         }
@@ -526,18 +526,7 @@ public class PanelPrincipal extends javax.swing.JFrame {
     }//GEN-LAST:event_PoliticaNameActionPerformed
 
     private void TypeProcessActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_TypeProcessActionPerformed
-         // Obtener el tipo de proceos seleccionado
-        String typeSelect = (String) TypeProcess.getSelectedItem();
-        
-        // Comprobar si es I/O-Bound
-        boolean esIOBound = typeSelect.equals("I/O-Bound");
-        /**
-         *  Asumiendo que los componentes se llaman así:
-            lblCyclesExcepcion.setVisible(esIOBound);
-            txtCyclesExcepcion.setVisible(esIOBound);
-            lblCyclesCompleteIO.setVisible(esIOBound);
-            txtCyclesCompleteIO.setVisible(esIOBound);
-         */
+     
     }//GEN-LAST:event_TypeProcessActionPerformed
 
     private void IniciarProcesoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_IniciarProcesoActionPerformed

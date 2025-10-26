@@ -25,6 +25,7 @@ public class OS {
     int currentMemoryUsage;
     int totalMemorySize;      // Límite de memoria (en instrucciones)
     int totalDiskSize;
+    private boolean simulacionIniciada = false;
 
     public OS(int memorySize, int diskSize, int globalCyclesDuration) {
         this.totalMemorySize = memorySize;
@@ -54,7 +55,6 @@ public class OS {
     public void addProcess(Process p) {
         //scheduler.addProcessScheduler(p);
         // Asignamos el tiempo de llegada
-        System.out.println("SO: Intentando agregar proceso " + p.getPCB().getName()); 
         p.getPCB().setTiempoLlegada(this.globalCycles);
         p.getPCB().setStateProcess(StateProcess.NEW);
         scheduler.newProcess.enqueue(p);  // Colocamos el proceso en la cola de nuevos 
@@ -69,6 +69,7 @@ public class OS {
     public void returnProcessReady(Process p ){
         p.getPCB().setStateProcess(StateProcess.READY);
         scheduler.readyProcess.enqueue(p); // encolamos a la cola de Listos 
+        System.out.println("SO: Agregado a Ready -> " + p.getPCB().getName());
         this.tryToWakeUpCPU();
         
     }
@@ -83,6 +84,7 @@ public class OS {
         p.getPCB().setStateProcess(StateProcess.BLOCKED);
         // 2. Encolar el proceso a la cola de Bloqueados
         scheduler.blockedProcess.enqueue(p);
+        System.out.println("SO: Proceso bloqueado -> " + p.getPCB().getName());
         // 3. Invocar un hilo para manejar aquellos procesos bloqueados
         // Espera de I/O
         Thread IOThread = new Thread(() -> {
@@ -283,7 +285,7 @@ public class OS {
     }
     public synchronized void tryToWakeUpCPU() {
         // Solo despierta a la CPU si NO está ejecutando un proceso
-        if (cpu.getRunningProcess() == null) {
+        if (simulacionIniciada && cpu.getRunningProcess() == null) {
             System.out.println("OS: ¡Despertando a la CPU! (Trabajo nuevo en Ready)");
             this.cpu.wakeUp();
         }
@@ -308,6 +310,15 @@ public class OS {
        if (this.scheduler != null) {
            // Llama al método que SÍ existe en tu Scheduler
            this.scheduler.changeStrategy(strategyEnum);
+           
+           if (!this.simulacionIniciada) {
+            this.simulacionIniciada = true; // ¡Levantamos la bandera!
+            System.out.println("--- Carga Completa. ---");
+            } else {
+                // Si ya estaba iniciada, solo notificamos el cambio (útil si cambias de estrategia a mitad de simulación)
+                System.out.println("--- Estrategia de planificación actualizada a: " + strategyEnum.toString() + " ---");
+            }
+           tryToWakeUpCPU();
        }
    }
     // </editor-fold> 
