@@ -9,7 +9,7 @@ package structures;
  * @author Daniel
  */
 public enum MemorySizeKb {
-    KB_EQUALS_TO_2_GB(2097152),
+    KB_EQUALS_TO_2_GB(1000),
     KB_EQUALS_TO_4_GB(4194304),
     KB_EQUALS_TO_8_GB(8388608),
     KB_EQUALS_TO_16_GB(16777216),

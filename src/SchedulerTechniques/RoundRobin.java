@@ -6,6 +6,7 @@ package SchedulerTechniques;
 
 
 import java.util.concurrent.Semaphore;
+import requirements.CPU;
 import structures.ArrayList;
 import structures.Queue;
 import requirements.Process;
@@ -19,7 +20,7 @@ public class RoundRobin extends SchedulerStrategy{
 
      private final Semaphore mutex = new Semaphore(1);
     // Procesos en ejecución
-    Process runningProcess;
+    CPU cpu;
     
 
     // Colas de procesos
@@ -39,7 +40,7 @@ public class RoundRobin extends SchedulerStrategy{
             Queue<Process> blockedSuspendedProcess,
             Queue<Process> newProcess,
             ArrayList<Process> outProcess,
-            Process runningProcess
+            CPU cpu
             
             
     ) {
@@ -49,7 +50,7 @@ public class RoundRobin extends SchedulerStrategy{
         this.blockedSuspendedProcess = blockedSuspendedProcess;
         this.newProcess = newProcess;
         this.outProcess = outProcess;
-        this.runningProcess = runningProcess;
+        this.cpu =cpu;
     }
 
     @Override

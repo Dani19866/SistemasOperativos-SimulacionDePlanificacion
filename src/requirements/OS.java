@@ -4,6 +4,7 @@
  */
 package requirements;
 
+import SchedulerTechniques.StrategyScheduler;
 import java.util.Set;
 import requirements.Process;
 import structures.ProcessType;
@@ -18,18 +19,19 @@ public class OS {
 
     CPU cpu;
     StateOS os_status;
-    Memory memory;
-    Disk disk;
     Scheduler scheduler;
     int globalCyclesDuration;
     int globalCycles;
     int currentMemoryUsage;
+    int totalMemorySize;      // Límite de memoria (en instrucciones)
+    int totalDiskSize;
 
-    public OS(Memory memory, Disk disk, int globalCyclesDuration) {
-        this.memory = memory;
-        this.disk = disk;
-        this.scheduler = new Scheduler(this.cpu.getRunningProcess());
-        this.cpu = new CPU(this, this.scheduler);
+    public OS(int memorySize, int diskSize, int globalCyclesDuration) {
+        this.totalMemorySize = memorySize;
+        this.totalDiskSize = diskSize;
+        this.cpu = new CPU(this, null);
+        this.scheduler = new Scheduler(this.cpu);
+        this.cpu.setScheduler(this.scheduler);
         this.os_status = StateOS.ON;
         this.globalCyclesDuration = globalCyclesDuration;
         this.globalCycles = 0;
@@ -52,11 +54,14 @@ public class OS {
     public void addProcess(Process p) {
         //scheduler.addProcessScheduler(p);
         // Asignamos el tiempo de llegada
+        System.out.println("SO: Intentando agregar proceso " + p.getPCB().getName()); 
         p.getPCB().setTiempoLlegada(this.globalCycles);
         p.getPCB().setStateProcess(StateProcess.NEW);
         scheduler.newProcess.enqueue(p);  // Colocamos el proceso en la cola de nuevos 
         
         this.checkAndLoadProcesses();   // Mueve de New a Ready si hay espacio 
+        this.cpu.wakeUp();
+        System.out.println("OS EJECUTANDO CPU" );
     }
     /**
      * CPU llama cuando se necesita devolver un proceso que fue SUSPENDIDO.
@@ -65,8 +70,9 @@ public class OS {
     public void returnProcessReady(Process p ){
         p.getPCB().setStateProcess(StateProcess.READY);
         scheduler.readyProcess.enqueue(p); // encolamos a la cola de Listos 
+        this.cpu.wakeUp();
+        
     }
-    
     
     /**
      * Proceso -> Cola de bloqueados | Manejar bloqueo con un hilo
@@ -104,6 +110,7 @@ public class OS {
         
         //4. Avisamos al planificador que hay espacio disponible 
         this.checkAndLoadProcesses();
+        this.cpu.wakeUp();
         
     }
     
@@ -169,12 +176,12 @@ public class OS {
             
             if(!scheduler.readySuspendedProcess.isEmpty()){
                 Process p = this.scheduler.readySuspendedProcess.peek();
-                int neededMemory = p.getRemainingInstructions();
+                int neededMemory = p.getInstructions();
                 
                 // Si la cantidad de memoria que el proceos necesita mas la que
                 // todavia se esta usando es menor o igual que el tamanio
                 // total de la memoria
-                if(currentMemoryUsage + neededMemory <= this.memory.memorySize.getSize()){ 
+                if(currentMemoryUsage + neededMemory <= this.totalMemorySize){ 
                     // Hay espacio, se carga el proceso a memoria 
                    p = scheduler.readySuspendedProcess.dequeue();
                    currentMemoryUsage += neededMemory; //Actualizamos el contador de memoria usada
@@ -188,7 +195,7 @@ public class OS {
                     Process p = this.scheduler.newProcess.peek();
                     int neededMemory = p.getInstructions();
                     
-                    if (this.currentMemoryUsage + neededMemory <= this.memory.memorySize.getSize()) {
+                    if (this.currentMemoryUsage + neededMemory <= this.totalMemorySize) {
                         // Hay espacio, se carga 
                         p = this.scheduler.newProcess.dequeue();
                         this.currentMemoryUsage += neededMemory; //Actualizamos el contador de memoria usada
@@ -232,6 +239,9 @@ public class OS {
         return true;
         
     }
+     public void startSimulation() {
+        this.cpu.start();
+    }
     
     /**
      * Incrementa los ciclos del CPU
@@ -259,23 +269,37 @@ public class OS {
     }
 
     public int getMemory() {
-        return memory.memorySize.getSize();
+        return this.totalMemorySize;
     }
-
-    public int getDisk() {
-        return disk.memorySize.getSize();
+    
+    public int getDisk(){
+        return this.totalDiskSize;
     }
 
     public void getSpecifications() {
         System.out.println("Memoria RAM: " + getMemory() + " Kb" + "\nMemoria en disco: " + getDisk() + " Kb");
 
     }
+   
+    
     // </editor-fold> 
 
     // <editor-fold defaultstate="collapsed" desc="Setters">
     public void setGlobalCyclesDuration(int globalCyclesDuration) {
         this.globalCyclesDuration = globalCyclesDuration;
     }
+    /**
+    * Método público (puente) para permitir que la GUI cambie
+    * la estrategia de planificación del Scheduler.
+    *
+    * @param strategyEnum La nueva estrategia (enum) a configurar.
+    */
+   public void setSchedulingStrategy(StrategyScheduler strategyEnum) {
+       if (this.scheduler != null) {
+           // Llama al método que SÍ existe en tu Scheduler
+           this.scheduler.changeStrategy(strategyEnum);
+       }
+   }
     // </editor-fold> 
 
 }

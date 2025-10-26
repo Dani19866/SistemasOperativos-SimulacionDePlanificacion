@@ -5,6 +5,7 @@
 package SchedulerTechniques;
 
 import java.util.concurrent.Semaphore;
+import requirements.CPU;
 import structures.ArrayList;
 import structures.Queue;
 import requirements.Process;
@@ -23,7 +24,7 @@ public class FB extends SchedulerStrategy{
     private Queue<Process> colaQ3;
     
     // Procesos en ejecución
-    Process runningProcess;
+    CPU cpu;
 
     // Colas de procesos
     Queue<Process> readyProcess;
@@ -43,7 +44,7 @@ public class FB extends SchedulerStrategy{
             Queue<Process> blockedSuspendedProcess,
             Queue<Process> newProcess,
             ArrayList<Process> outProcess,
-            Process runningProcess
+            CPU cpu
     ) { //super(); // Llama al constructor de Planificador (que inicializa el mutex)
         this.readyProcess = readyProcess;
         this.readySuspendedProcess = readySuspendedProcess;
@@ -51,7 +52,7 @@ public class FB extends SchedulerStrategy{
         this.blockedSuspendedProcess = blockedSuspendedProcess;
         this.newProcess = newProcess;
         this.outProcess = outProcess;
-        this.runningProcess = runningProcess;
+        this.cpu = cpu;
         this.colaQ1 = new Queue<>();
         this.colaQ2 = new Queue<>();
         this.colaQ3 = new Queue<>();

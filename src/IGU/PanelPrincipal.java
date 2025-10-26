@@ -3,12 +3,16 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package IGU;
-
+import requirements.OS;
+import requirements.Process;
+import structures.ProcessType;
+import javax.swing.JOptionPane;
 import SchedulerTechniques.StrategyScheduler;
 import java.io.File;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.table.DefaultTableModel;
 import requirements.Process;
 
 import requirements.Scheduler;
@@ -21,12 +25,35 @@ import structures.ProcessType;
  */
 public class PanelPrincipal extends javax.swing.JFrame {
     private File selectedFile;
+    private OS os; // Referenciamos a nuestro OS
+    
+    private DefaultTableModel modeloTablaListos = new DefaultTableModel(
+            new Object[][]{}, new String[]{"ID", "NAME", "STATE", "PC", "MAR"}
+        );
+
+        private DefaultTableModel modeloTablaBloqueados = new DefaultTableModel(
+                new Object[][]{}, new String[]{"ID", "NAME", "STATE", "PC", "MAR"}
+        );
+
+        private DefaultTableModel modeloTablaTerminados = new DefaultTableModel(
+                new Object[][]{}, new String[]{"ID", "NAME", "STATE", "PC", "MAR"}
+        );
+
+        private DefaultTableModel modeloTablaSupendido = new DefaultTableModel(
+                new Object[][]{}, new String[]{"ID", "NAME", "STATE", "PC", "MAR"}
+        );
     /**
      * Creates new form PanelPrincipal
      */
-    public PanelPrincipal() { 
+    public PanelPrincipal(OS os) { 
+        this.os = os;
         this.setVisible(true);
         initComponents();
+        colaSupendidos.setModel(modeloTablaSupendido);
+        colaListos.setModel(modeloTablaListos);
+        colaBloqueado.setModel(modeloTablaBloqueados);
+        colaOut.setModel(modeloTablaTerminados);
+        
      // 1. Poblar el JComboBox de Politicas de Planificacion
         String[] Politicas = { 
         "Round Robin", 
@@ -44,8 +71,11 @@ public class PanelPrincipal extends javax.swing.JFrame {
             "I/O-Bound"
         };
         TypeProcess.setModel(new javax.swing.DefaultComboBoxModel<>(TipoProceso));
-
     }
+        
+
+        
+    
    
 
     /**
@@ -71,7 +101,7 @@ public class PanelPrincipal extends javax.swing.JFrame {
         randomProcess = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
         cargarDatos = new javax.swing.JButton();
-        jButton4 = new javax.swing.JButton();
+        GuardarPlanificacion = new javax.swing.JButton();
         CantidadInstrucciones = new javax.swing.JSpinner();
         PoliticaName = new javax.swing.JComboBox<>();
         TypeProcess = new javax.swing.JComboBox<>();
@@ -86,15 +116,19 @@ public class PanelPrincipal extends javax.swing.JFrame {
         cargarFile = new javax.swing.JButton();
         CyclesEx = new javax.swing.JSpinner();
         jPanel4 = new javax.swing.JPanel();
-        Listalisto = new java.awt.Panel();
-        Listabloqueados = new java.awt.Panel();
-        ListaFinalizado = new java.awt.Panel();
-        Listalisto1 = new java.awt.Panel();
         Listo = new javax.swing.JLabel();
         Bloqueados = new javax.swing.JLabel();
         Finalizados = new javax.swing.JLabel();
         Listo1 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        colaSupendidos = new javax.swing.JTable();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        colaListos = new javax.swing.JTable();
+        jScrollPane4 = new javax.swing.JScrollPane();
+        colaBloqueado = new javax.swing.JTable();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        colaOut = new javax.swing.JTable();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(245, 247, 250));
@@ -142,7 +176,6 @@ public class PanelPrincipal extends javax.swing.JFrame {
         jLabel3.setText("Duracion del ciclo Ejec.");
         jPanel2.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(430, 230, -1, -1));
 
-        NombreProceso.setText("Nombre");
         NombreProceso.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 NombreProcesoActionPerformed(evt);
@@ -186,19 +219,24 @@ public class PanelPrincipal extends javax.swing.JFrame {
         });
         jPanel2.add(cargarDatos, new org.netbeans.lib.awtextra.AbsoluteConstraints(920, 140, 120, 30));
 
-        jButton4.setBackground(new java.awt.Color(0, 102, 255));
-        jButton4.setFont(new java.awt.Font("Dialog", 1, 12)); // NOI18N
-        jButton4.setForeground(new java.awt.Color(255, 255, 255));
-        jButton4.setText("Guardar");
-        jButton4.setBorder(null);
-        jButton4.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton4ActionPerformed(evt);
+        GuardarPlanificacion.setBackground(new java.awt.Color(0, 102, 255));
+        GuardarPlanificacion.setFont(new java.awt.Font("Dialog", 1, 12)); // NOI18N
+        GuardarPlanificacion.setForeground(new java.awt.Color(255, 255, 255));
+        GuardarPlanificacion.setText("Guardar");
+        GuardarPlanificacion.setBorder(null);
+        GuardarPlanificacion.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                GuardarPlanificacionMouseClicked(evt);
             }
         });
-        jPanel2.add(jButton4, new org.netbeans.lib.awtextra.AbsoluteConstraints(790, 220, 100, 30));
+        GuardarPlanificacion.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                GuardarPlanificacionActionPerformed(evt);
+            }
+        });
+        jPanel2.add(GuardarPlanificacion, new org.netbeans.lib.awtextra.AbsoluteConstraints(790, 220, 100, 30));
 
-        CantidadInstrucciones.setModel(new javax.swing.SpinnerNumberModel(0, 0, 10000, 1));
+        CantidadInstrucciones.setModel(new javax.swing.SpinnerNumberModel(1, 1, 10000, 1));
         CantidadInstrucciones.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
         jPanel2.add(CantidadInstrucciones, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 150, 170, 25));
 
@@ -258,7 +296,7 @@ public class PanelPrincipal extends javax.swing.JFrame {
         });
         jPanel2.add(IniciarProceso, new org.netbeans.lib.awtextra.AbsoluteConstraints(790, 120, 100, 30));
 
-        Priory.setModel(new javax.swing.SpinnerNumberModel(0, 0, 10000, 1));
+        Priory.setModel(new javax.swing.SpinnerNumberModel(1, 1, 10000, 1));
         Priory.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
         jPanel2.add(Priory, new org.netbeans.lib.awtextra.AbsoluteConstraints(820, 70, 60, 25));
 
@@ -282,142 +320,89 @@ public class PanelPrincipal extends javax.swing.JFrame {
 
         jPanel4.setBackground(new java.awt.Color(179, 220, 249));
         jPanel4.setFocusTraversalPolicyProvider(true);
-
-        Listalisto.setBackground(new java.awt.Color(236, 250, 245));
-        Listalisto.setPreferredSize(new java.awt.Dimension(210, 244));
-
-        javax.swing.GroupLayout ListalistoLayout = new javax.swing.GroupLayout(Listalisto);
-        Listalisto.setLayout(ListalistoLayout);
-        ListalistoLayout.setHorizontalGroup(
-            ListalistoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 210, Short.MAX_VALUE)
-        );
-        ListalistoLayout.setVerticalGroup(
-            ListalistoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 244, Short.MAX_VALUE)
-        );
-
-        Listabloqueados.setBackground(new java.awt.Color(236, 250, 245));
-        Listabloqueados.setPreferredSize(new java.awt.Dimension(210, 244));
-
-        javax.swing.GroupLayout ListabloqueadosLayout = new javax.swing.GroupLayout(Listabloqueados);
-        Listabloqueados.setLayout(ListabloqueadosLayout);
-        ListabloqueadosLayout.setHorizontalGroup(
-            ListabloqueadosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 210, Short.MAX_VALUE)
-        );
-        ListabloqueadosLayout.setVerticalGroup(
-            ListabloqueadosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 244, Short.MAX_VALUE)
-        );
-
-        ListaFinalizado.setBackground(new java.awt.Color(236, 250, 245));
-        ListaFinalizado.setPreferredSize(new java.awt.Dimension(210, 0));
-
-        javax.swing.GroupLayout ListaFinalizadoLayout = new javax.swing.GroupLayout(ListaFinalizado);
-        ListaFinalizado.setLayout(ListaFinalizadoLayout);
-        ListaFinalizadoLayout.setHorizontalGroup(
-            ListaFinalizadoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 210, Short.MAX_VALUE)
-        );
-        ListaFinalizadoLayout.setVerticalGroup(
-            ListaFinalizadoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
-        );
-
-        Listalisto1.setBackground(new java.awt.Color(236, 250, 245));
-        Listalisto1.setPreferredSize(new java.awt.Dimension(210, 244));
-
-        javax.swing.GroupLayout Listalisto1Layout = new javax.swing.GroupLayout(Listalisto1);
-        Listalisto1.setLayout(Listalisto1Layout);
-        Listalisto1Layout.setHorizontalGroup(
-            Listalisto1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 210, Short.MAX_VALUE)
-        );
-        Listalisto1Layout.setVerticalGroup(
-            Listalisto1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 244, Short.MAX_VALUE)
-        );
+        jPanel4.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         Listo.setForeground(new java.awt.Color(102, 102, 102));
         Listo.setText("Listos");
+        jPanel4.add(Listo, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 20, -1, -1));
 
         Bloqueados.setForeground(new java.awt.Color(102, 102, 102));
         Bloqueados.setText("Bloqueados");
+        jPanel4.add(Bloqueados, new org.netbeans.lib.awtextra.AbsoluteConstraints(630, 16, -1, 20));
 
         Finalizados.setForeground(new java.awt.Color(102, 102, 102));
         Finalizados.setText("Finalizados");
+        jPanel4.add(Finalizados, new org.netbeans.lib.awtextra.AbsoluteConstraints(862, 15, -1, -1));
 
         Listo1.setForeground(new java.awt.Color(102, 102, 102));
         Listo1.setText("Suspendidos");
+        jPanel4.add(Listo1, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 20, -1, -1));
 
         jLabel4.setBackground(new java.awt.Color(51, 51, 51));
         jLabel4.setFont(new java.awt.Font("Dialog", 2, 14)); // NOI18N
         jLabel4.setForeground(new java.awt.Color(51, 51, 51));
         jLabel4.setText("Proceso en Ejecución");
+        jPanel4.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(81, 305, -1, -1));
 
-        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
-        jPanel4.setLayout(jPanel4Layout);
-        jPanel4Layout.setHorizontalGroup(
-            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel4Layout.createSequentialGroup()
-                .addGap(81, 81, 81)
-                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel4)
-                    .addGroup(jPanel4Layout.createSequentialGroup()
-                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
-                                .addComponent(Listalisto1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(25, 25, 25))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
-                                .addComponent(Listo1)
-                                .addGap(102, 102, 102)))
-                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(Listalisto, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
-                                .addComponent(Listo)
-                                .addGap(90, 90, 90)))
-                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel4Layout.createSequentialGroup()
-                                .addGap(25, 25, 25)
-                                .addComponent(Listabloqueados, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(jPanel4Layout.createSequentialGroup()
-                                .addGap(86, 86, 86)
-                                .addComponent(Bloqueados)))
-                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel4Layout.createSequentialGroup()
-                                .addGap(25, 25, 25)
-                                .addComponent(ListaFinalizado, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(Finalizados)
-                                .addGap(87, 87, 87)))))
-                .addContainerGap(124, Short.MAX_VALUE))
-        );
-        jPanel4Layout.setVerticalGroup(
-            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel4Layout.createSequentialGroup()
-                .addGap(15, 15, 15)
-                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(jPanel4Layout.createSequentialGroup()
-                        .addComponent(Listo1, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(Listalisto1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel4Layout.createSequentialGroup()
-                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(Listo)
-                            .addComponent(Bloqueados)
-                            .addComponent(Finalizados))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addComponent(ListaFinalizado, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(Listabloqueados, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(Listalisto, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addGap(20, 20, 20)
-                .addComponent(jLabel4)
-                .addContainerGap(116, Short.MAX_VALUE))
-        );
+        colaSupendidos.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4", "Title 5"
+            }
+        ));
+        jScrollPane2.setViewportView(colaSupendidos);
+
+        jPanel4.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 40, 240, 250));
+
+        colaListos.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4", "Title 5"
+            }
+        ));
+        jScrollPane3.setViewportView(colaListos);
+
+        jPanel4.add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 40, 240, 250));
+
+        colaBloqueado.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4", "Title 5"
+            }
+        ));
+        jScrollPane4.setViewportView(colaBloqueado);
+
+        jPanel4.add(jScrollPane4, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 40, 240, 250));
+
+        colaOut.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4", "Title 5"
+            }
+        ));
+        jScrollPane1.setViewportView(colaOut);
+
+        jPanel4.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(810, 40, 240, 250));
 
         jPanel3.add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(-10, 280, 1120, 440));
 
@@ -434,19 +419,11 @@ public class PanelPrincipal extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
+    
+    
+    
     private void randomProcessActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_randomProcessActionPerformed
-           JFileChooser selarchivo = new JFileChooser();
-        FileNameExtensionFilter filter = new FileNameExtensionFilter(" Archivos JSON", "json");
-        selarchivo.setFileFilter(filter);
-        int val = selarchivo.showOpenDialog(null);
-        if (val == JFileChooser.APPROVE_OPTION){
-            if(selarchivo.getSelectedFile() != null){
-            selectedFile = selarchivo.getSelectedFile();
-            JOptionPane.showMessageDialog(null, "El archivo seleccionado es: " + selectedFile.getName());}
-        else {
-            JOptionPane.showMessageDialog(null,"Archivo no seleccionado");
-        }}
+        
     }//GEN-LAST:event_randomProcessActionPerformed
 
     private void cargarDatosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cargarDatosActionPerformed
@@ -466,43 +443,46 @@ public class PanelPrincipal extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton2ActionPerformed
 
-    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton4ActionPerformed
+    private void GuardarPlanificacionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_GuardarPlanificacionActionPerformed
+        String politicaSeleccionada = (String) PoliticaName.getSelectedItem();
+        StrategyScheduler estrategia;
+        
+        switch (politicaSeleccionada) {
+            case "FCFS":
+                estrategia = StrategyScheduler.FirstComeFirstServe;
+                break;
+            case "Round Robin":
+                estrategia = StrategyScheduler.RoundRobin;
+                break;
+            case "SJF":
+                estrategia = StrategyScheduler.SJF;
+                break;
+            case "SRT":
+                estrategia = StrategyScheduler.SRT;
+                break;
+            case "HRRN":
+                estrategia = StrategyScheduler.HRRN;
+                break;
+            case "FB":
+                estrategia = StrategyScheduler.FB;
+                break;
+            default:
+                System.out.println("Política desconocida, usando FCFS por defecto.");
+                estrategia = StrategyScheduler.RoundRobin; // Valor por defecto
+            }
+        if (this.os != null) {
+        // Accedemos al scheduler a través del OS y cambiamos la estrategia
+        this.os.setSchedulingStrategy(estrategia);
+        System.out.println("Estrategia de planificación cambiada a: " + politicaSeleccionada);
+    }
+    }//GEN-LAST:event_GuardarPlanificacionActionPerformed
 
     private void NombreProcesoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_NombreProcesoActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_NombreProcesoActionPerformed
 
     private void PoliticaNameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_PoliticaNameActionPerformed
-         // Obtener el algoritmo seleccionado
-        String algoritmo = (String) PoliticaName.getSelectedItem();
-
-        // Crear el nuevo planificador según el algoritmo seleccionado
-        StrategyScheduler newScheduler;
-        switch (algoritmo) {
-            case "FCFS":
-                newScheduler = StrategyScheduler.FirstComeFirstServe;
-                break;
-            case "SJF":
-                newScheduler = StrategyScheduler.SJF;
-                break;
-            case "Round Robin":
-                newScheduler = StrategyScheduler.RoundRobin;
-                break;
-            case "HRRN":
-                newScheduler = StrategyScheduler.HRRN;
-                break;
-            case "SRT":
-                newScheduler = StrategyScheduler.SRT;
-                break;
-            case "FB":
-                newScheduler = StrategyScheduler.FB;
-            default:
-                JOptionPane.showMessageDialog(PanelPrincipal.this, "Algoritmo no soportado."); // Usar Simulador.this para referenciar la ventana principal
-                return;
-        }
-
+      
     }//GEN-LAST:event_PoliticaNameActionPerformed
 
     private void TypeProcessActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_TypeProcessActionPerformed
@@ -530,6 +510,11 @@ public class PanelPrincipal extends javax.swing.JFrame {
         // 2. LEER TIPO DE PROCESO SELECCIONADO
         String TypeSelected = (String) TypeProcess.getSelectedItem();
         
+        if (nombre.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Debe ingresar un nombre para el proceso.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
         Process newProcess; // El proceso que vamos a crear
         
             // 3. DECIDIR QUÉ CONSTRUCTOR USAR
@@ -554,15 +539,21 @@ public class PanelPrincipal extends javax.swing.JFrame {
                 priory 
             );
         }
-        // Mensaje de Proceso creado correctamente 
-        JOptionPane.showMessageDialog(this, "El " + nombre + " creado exitosamente.");
+        if (this.os != null) {
+            this.os.addProcess(newProcess);
+            // Mensaje de Proceso creado correctamente 
+            JOptionPane.showMessageDialog(this, "El " + nombre + " creado exitosamente.");
         
-        // Limpiar los campos 
+        /** Limpiar los campos 
         NombreProceso.setText("");
         CantidadInstrucciones.setValue(0);
         Priory.setValue(0);
         Priory.setValue(0);
         CyclesIO.setValue(0);
+        */
+        }else {
+            JOptionPane.showMessageDialog(this, "Error: El Sistema Operativo no está inicializado.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
         
         } catch (NumberFormatException e) {
             
@@ -582,22 +573,24 @@ public class PanelPrincipal extends javax.swing.JFrame {
     }//GEN-LAST:event_IniciarProcesoActionPerformed
 
     private void cargarFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cargarFileActionPerformed
-        // TODO add your handling code here:
+        JFileChooser selarchivo = new JFileChooser();
+        FileNameExtensionFilter filter = new FileNameExtensionFilter(" Archivos JSON", "json");
+        selarchivo.setFileFilter(filter);
+        int val = selarchivo.showOpenDialog(null);
+        if (val == JFileChooser.APPROVE_OPTION){
+            if(selarchivo.getSelectedFile() != null){
+            selectedFile = selarchivo.getSelectedFile();
+            JOptionPane.showMessageDialog(null, "El archivo seleccionado es: " + selectedFile.getName());}
+        else {
+            JOptionPane.showMessageDialog(null,"Archivo no seleccionado");
+        }}
     }//GEN-LAST:event_cargarFileActionPerformed
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-           
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new PanelPrincipal().setVisible(true);
-            }
-        });
-    }
+    private void GuardarPlanificacionMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_GuardarPlanificacionMouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_GuardarPlanificacionMouseClicked
+
+    
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel Bloqueados;
@@ -605,11 +598,8 @@ public class PanelPrincipal extends javax.swing.JFrame {
     private javax.swing.JSpinner CyclesEx;
     private javax.swing.JSpinner CyclesIO;
     private javax.swing.JLabel Finalizados;
+    private javax.swing.JButton GuardarPlanificacion;
     private javax.swing.JButton IniciarProceso;
-    private java.awt.Panel ListaFinalizado;
-    private java.awt.Panel Listabloqueados;
-    private java.awt.Panel Listalisto;
-    private java.awt.Panel Listalisto1;
     private javax.swing.JLabel Listo;
     private javax.swing.JLabel Listo1;
     private javax.swing.JTextField NombreProceso;
@@ -623,9 +613,12 @@ public class PanelPrincipal extends javax.swing.JFrame {
     private javax.swing.JLabel ciclo1;
     private javax.swing.JLabel ciclo2;
     private javax.swing.JLabel ciclo3;
+    private javax.swing.JTable colaBloqueado;
+    private javax.swing.JTable colaListos;
+    private javax.swing.JTable colaOut;
+    private javax.swing.JTable colaSupendidos;
     private javax.swing.JLabel instrucciones;
     private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton4;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -633,6 +626,10 @@ public class PanelPrincipal extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JLabel quantum;
     private javax.swing.JButton randomProcess;

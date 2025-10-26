@@ -24,8 +24,7 @@ import requirements.Process;
 public class Scheduler {
 
     // Procesos en ejecución
-    Process runningProcess;
-
+    CPU cpu;  // referencia a cpu
     // Colas de procesos
     Queue<Process> readyProcess;            // Cola a corto plazo
     Queue<Process> readySuspendedProcess;   // Cola a mediano plazo
@@ -49,11 +48,10 @@ public class Scheduler {
     /**
      * Constructor de la planificación
      *
-     * @param runningProcess Process of CPU
+     * @param cpu La instancia de la CPU
      */
-    public Scheduler(Process runningProcess) {
-        this.runningProcess = runningProcess;
-
+    public Scheduler(CPU cpu) {
+        this.cpu = cpu;
         // Inicializar cola de procesos
         this.readyProcess = new Queue<>();
         this.readySuspendedProcess = new Queue<>();
@@ -61,11 +59,13 @@ public class Scheduler {
         this.blockedSuspendedProcess = new Queue<>();
         this.newProcess = new Queue<>();
         this.outProcess = new ArrayList<>();
+        
 
         // Inicializar planificador por defecto: RoundRobin
         this.currentStrategy = new RoundRobin(
                 this.readyProcess, this.readySuspendedProcess, this.blockedProcess,
-                this.blockedSuspendedProcess, this.newProcess, this.outProcess, this.runningProcess
+                this.blockedSuspendedProcess, this.newProcess, this.outProcess, this.cpu
+              
         );
         this.typeStrategy = StrategyScheduler.RoundRobin;
 
@@ -74,7 +74,7 @@ public class Scheduler {
 
         // Inicializar semáforo
         this.mutex = new Semaphore(1);
-        this.runningProcess = runningProcess;
+        this.cpu = cpu;
     }
 
     /**
@@ -95,11 +95,13 @@ public class Scheduler {
     public void changeStrategy(StrategyScheduler strategyEnum) {
         // El switch se mueve aquí, que es su lugar lógico.
         // Crea el objeto SOLO cuando el usuario pide cambiar de estrategia.
+        
+        Process currentRunning = (this.cpu != null) ? this.cpu.getRunningProcess() : null;
         switch (strategyEnum) {
             case FB:
                 currentStrategy = new FB(
                         this.readyProcess, this.readySuspendedProcess, this.blockedProcess,
-                        this.blockedSuspendedProcess, this.newProcess, this.outProcess, this.runningProcess
+                        this.blockedSuspendedProcess, this.newProcess, this.outProcess, this.cpu
                 );
                 this.typeStrategy = StrategyScheduler.FB;
             
@@ -107,7 +109,7 @@ public class Scheduler {
             case FirstComeFirstServe:
                 currentStrategy = new FirstComeFirstServe(
                         this.readyProcess, this.readySuspendedProcess, this.blockedProcess,
-                        this.blockedSuspendedProcess, this.newProcess, this.outProcess, this.runningProcess
+                        this.blockedSuspendedProcess, this.newProcess, this.outProcess, this.cpu
                 );
                 this.typeStrategy = StrategyScheduler.FirstComeFirstServe;
             
@@ -115,7 +117,7 @@ public class Scheduler {
             case SRT:
                 currentStrategy = new SRT(
                         this.readyProcess, this.readySuspendedProcess, this.blockedProcess,
-                        this.blockedSuspendedProcess, this.newProcess, this.outProcess, this.runningProcess
+                        this.blockedSuspendedProcess, this.newProcess, this.outProcess, this.cpu
                 );
                 this.typeStrategy = StrategyScheduler.SRT;
            
@@ -123,14 +125,14 @@ public class Scheduler {
             case RoundRobin:
                 currentStrategy = new RoundRobin(
                         this.readyProcess, this.readySuspendedProcess, this.blockedProcess,
-                        this.blockedSuspendedProcess, this.newProcess, this.outProcess, this.runningProcess
+                        this.blockedSuspendedProcess, this.newProcess, this.outProcess, this.cpu
                 );
                 this.typeStrategy = StrategyScheduler.RoundRobin;
             
             case HRRN:
                 currentStrategy = new HRRN(
                         this.readyProcess, this.readySuspendedProcess, this.blockedProcess,
-                        this.blockedSuspendedProcess, this.newProcess, this.outProcess, this.runningProcess
+                        this.blockedSuspendedProcess, this.newProcess, this.outProcess, this.cpu
                 );
                 this.typeStrategy = StrategyScheduler.HRRN;
         
@@ -138,7 +140,7 @@ public class Scheduler {
             case SJF:
                 currentStrategy = new SJF(
                         this.readyProcess, this.readySuspendedProcess, this.blockedProcess,
-                        this.blockedSuspendedProcess, this.newProcess, this.outProcess, this.runningProcess
+                        this.blockedSuspendedProcess, this.newProcess, this.outProcess, this.cpu
                 );
                 this.typeStrategy = StrategyScheduler.SJF;  
            
