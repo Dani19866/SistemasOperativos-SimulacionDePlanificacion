@@ -146,7 +146,6 @@ public class PanelPrincipal extends javax.swing.JFrame implements SimulationList
         jLabel3 = new javax.swing.JLabel();
         NombreProceso = new javax.swing.JTextField();
         randomProcess = new javax.swing.JButton();
-        cargarDatos = new javax.swing.JButton();
         GuardarPlanificacion = new javax.swing.JButton();
         CantidadInstrucciones = new javax.swing.JSpinner();
         PoliticaName = new javax.swing.JComboBox<>();
@@ -245,19 +244,7 @@ public class PanelPrincipal extends javax.swing.JFrame implements SimulationList
                 randomProcessActionPerformed(evt);
             }
         });
-        jPanel2.add(randomProcess, new org.netbeans.lib.awtextra.AbsoluteConstraints(940, 110, 120, 30));
-
-        cargarDatos.setBackground(new java.awt.Color(0, 102, 255));
-        cargarDatos.setFont(new java.awt.Font("Dialog", 1, 12)); // NOI18N
-        cargarDatos.setForeground(new java.awt.Color(255, 255, 255));
-        cargarDatos.setText("Cargar Datos");
-        cargarDatos.setBorder(null);
-        cargarDatos.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cargarDatosActionPerformed(evt);
-            }
-        });
-        jPanel2.add(cargarDatos, new org.netbeans.lib.awtextra.AbsoluteConstraints(940, 190, 120, 30));
+        jPanel2.add(randomProcess, new org.netbeans.lib.awtextra.AbsoluteConstraints(940, 140, 120, 30));
 
         GuardarPlanificacion.setBackground(new java.awt.Color(0, 102, 255));
         GuardarPlanificacion.setFont(new java.awt.Font("Dialog", 1, 12)); // NOI18N
@@ -346,7 +333,7 @@ public class PanelPrincipal extends javax.swing.JFrame implements SimulationList
                 cargarFileActionPerformed(evt);
             }
         });
-        jPanel2.add(cargarFile, new org.netbeans.lib.awtextra.AbsoluteConstraints(940, 150, 120, 30));
+        jPanel2.add(cargarFile, new org.netbeans.lib.awtextra.AbsoluteConstraints(940, 180, 120, 30));
 
         CyclesEx.setModel(new javax.swing.SpinnerNumberModel(0, 0, 10000, 1));
         CyclesEx.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
@@ -655,16 +642,6 @@ public class PanelPrincipal extends javax.swing.JFrame implements SimulationList
         }
         JOptionPane.showMessageDialog(this, "Se han cargado 20 procesos aleatorios.");
     }//GEN-LAST:event_randomProcessActionPerformed
-
-    private void cargarDatosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cargarDatosActionPerformed
-         if (isEmpty()){
-            //SE MUESTRA UN MENSAJE DE ERROR EN CASO DE QUE NO SE HAYA SELECCIONADO NINGUN ARCHIVO
-            JOptionPane.showMessageDialog(null, "Debe seleccionar un archivo primero");
-         }else{
-             String filePath = selectedFile.getAbsolutePath();
-         }
-         
-    }//GEN-LAST:event_cargarDatosActionPerformed
     private boolean isEmpty(){
         return selectedFile  == null;
     }
@@ -941,7 +918,6 @@ public class PanelPrincipal extends javax.swing.JFrame implements SimulationList
     private javax.swing.JComboBox<String> PoliticaName;
     private javax.swing.JSpinner Spinnerciclo;
     private javax.swing.JComboBox<String> TypeProcess;
-    private javax.swing.JButton cargarDatos;
     private javax.swing.JButton cargarFile;
     private javax.swing.JLabel ciclo;
     private javax.swing.JLabel ciclo1;
