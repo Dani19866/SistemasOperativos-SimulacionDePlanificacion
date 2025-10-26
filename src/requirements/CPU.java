@@ -80,7 +80,7 @@ public void run() {
     while (os.os_status == StateOS.ON) {
         try {
             mutex.acquire(); // CPU duerme
-
+            os.increaseCycles();
             Process p = os.nextProcess();
             
             while (p != null) {
@@ -159,8 +159,9 @@ public void run() {
     /**
      * Incrementar ciclo global
      */
+    
     public void increaseGlobalCycle() {
-        os.increaseCycles();
+    os.increaseCycles(); 
     }
 
     /**

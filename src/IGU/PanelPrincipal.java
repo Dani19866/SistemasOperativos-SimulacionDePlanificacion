@@ -18,13 +18,15 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.table.DefaultTableModel;
 import requirements.PCB;
 import requirements.Process;
-
-import requirements.Scheduler;
 import requirements.SimulationListener;
 import structures.ProcessType;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
 
 
 /**
@@ -40,6 +42,11 @@ public class PanelPrincipal extends javax.swing.JFrame implements SimulationList
     private DefaultListModel<String> modeloListaTerminados = new DefaultListModel<>();
     private DefaultListModel<String> modeloListaSupendido = new DefaultListModel<>();
     private DefaultListModel<String> modeloBloqueadoSupendido = new DefaultListModel<>();
+    
+
+    private XYSeries utilizationSeries;
+    private ChartPanel chartPanel;
+    private JFreeChart utilizationChart;
     /**
      * Creates new form PanelPrincipal
      */
@@ -47,6 +54,16 @@ public class PanelPrincipal extends javax.swing.JFrame implements SimulationList
         initComponents();
         this.os = os;
         this.setVisible(true);
+        utilizationSeries = new XYSeries("Utilidad de CPU");
+        XYSeriesCollection dataset = new XYSeriesCollection();
+        dataset.addSeries(utilizationSeries);utilizationChart = ChartFactory.createXYLineChart(
+            "Utilidad de CPU vs. Tiempo", // Título del Gráfico
+            "Ciclos de Tiempo",           // Título del Eje X
+            "Utilidad (%)",               // Título del Eje Y
+            dataset
+        );
+        chartPanel = new ChartPanel(utilizationChart);
+        chartPanel.setPreferredSize(new java.awt.Dimension(500, 300));
         
         colaListos.setModel(modeloListaListos);
         colaBloqueados.setModel(modeloListaBloqueados);
@@ -132,6 +149,7 @@ public class PanelPrincipal extends javax.swing.JFrame implements SimulationList
         colaListos = new javax.swing.JList<>();
         Listo2 = new javax.swing.JLabel();
         Listo3 = new javax.swing.JLabel();
+        MostrarGrafica = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(245, 247, 250));
@@ -324,7 +342,7 @@ public class PanelPrincipal extends javax.swing.JFrame implements SimulationList
         Listo1.setFont(new java.awt.Font("Dialog", 3, 14)); // NOI18N
         Listo1.setForeground(new java.awt.Color(102, 102, 102));
         Listo1.setText("Procesos en Ejecucion ");
-        jPanel4.add(Listo1, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 310, -1, -1));
+        jPanel4.add(Listo1, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 330, -1, -1));
 
         colaFinalizados.setModel(new javax.swing.AbstractListModel<String>() {
             String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
@@ -379,6 +397,14 @@ public class PanelPrincipal extends javax.swing.JFrame implements SimulationList
         Listo3.setText("Suspendidos Listos");
         jPanel4.add(Listo3, new org.netbeans.lib.awtextra.AbsoluteConstraints(900, 10, -1, -1));
 
+        MostrarGrafica.setText("Mostrar Graficas");
+        MostrarGrafica.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                MostrarGraficaActionPerformed(evt);
+            }
+        });
+        jPanel4.add(MostrarGrafica, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 290, 220, -1));
+
         jPanel3.add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(-10, 280, 1120, 510));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -412,12 +438,15 @@ public class PanelPrincipal extends javax.swing.JFrame implements SimulationList
             public void run() {
                 
                 actualizarTodasLasTablas(); 
+                updateUtilizationChart();
             }
         };
 
         // 2. Le entregamos la "tarea" a Swing (el "buzón") para que la ponga 
         // en la cola de tareas del "Pintor" (el hilo de la GUI).
         SwingUtilities.invokeLater(tareaDeActualizacion);
+        
+        
     } 
     
     /**
@@ -496,6 +525,19 @@ public class PanelPrincipal extends javax.swing.JFrame implements SimulationList
                 modelo.addElement(textoProceso);
             }
         }
+    private void updateUtilizationChart() {
+        // Es vital usar SwingUtilities.invokeLater para asegurar que las actualizaciones
+        // de la GUI se hagan en el hilo correcto
+       
+            java.util.List<Double> history = os.getUtilizationHistory();
+
+            // Limpiamos y reconstruimos la serie para evitar duplicados y errores de concurrencia
+            utilizationSeries.clear();
+            for (int i = 0; i < history.size(); i++) {
+                // El Eje X es el ciclo (i + 1), el Eje Y es el valor de utilidad
+                utilizationSeries.add(i + 1, history.get(i)); 
+            }
+    }
 
     private void randomProcessActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_randomProcessActionPerformed
         Random rand = new Random();
@@ -785,6 +827,15 @@ public class PanelPrincipal extends javax.swing.JFrame implements SimulationList
         // TODO add your handling code here:
     }//GEN-LAST:event_GuardarPlanificacionMouseClicked
 
+    private void MostrarGraficaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MostrarGraficaActionPerformed
+        javax.swing.JFrame frameGrafica = new javax.swing.JFrame("Utilidad de CPU");
+        frameGrafica.getContentPane().add(chartPanel, java.awt.BorderLayout.CENTER);
+        frameGrafica.pack();
+        frameGrafica.setSize(600, 400); // Tamaño inicial
+        frameGrafica.setVisible(true);
+
+    }//GEN-LAST:event_MostrarGraficaActionPerformed
+
     
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -799,6 +850,7 @@ public class PanelPrincipal extends javax.swing.JFrame implements SimulationList
     private javax.swing.JLabel Listo1;
     private javax.swing.JLabel Listo2;
     private javax.swing.JLabel Listo3;
+    private javax.swing.JButton MostrarGrafica;
     private javax.swing.JTextField NombreProceso;
     private javax.swing.JComboBox<String> PoliticaName;
     private javax.swing.JSpinner Spinnerciclo;

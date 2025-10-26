@@ -31,6 +31,8 @@ public class OS {
     int totalDiskSize;
     private boolean simulacionIniciada = false;
     private final List<SimulationListener> listeners;
+    private int cpuBusyCycles = 0; // Contador de ciclos en que la CPU estuvo ocupada
+    private final java.util.List<Double> utilizationHistory = new java.util.ArrayList<>();
     
 
     public OS(int memorySize, int diskSize, int globalCyclesDuration) {
@@ -278,8 +280,29 @@ public class OS {
      */
     public void increaseCycles() {
         this.globalCycles++;
+        if (this.cpu.getRunningProcess() != null) {
+        this.cpuBusyCycles++;
     }
+        this.utilizationHistory.add(getCpuUtilization());
+        fireQueuesChanged();
+    }
+    
+    /**
+    * Calcula el porcentaje de utilidad de la CPU (Tiempo Ocupado / Tiempo Total).
+    * @return Porcentaje de utilidad (0.0 a 100.0).
+    */
+       public double getCpuUtilization() {
+           if (this.globalCycles == 0) {
+               return 0.0;
+           }
+           // Fórmula: (Ciclos Ocupados / Ciclos Totales) * 100
+           return ((double) this.cpuBusyCycles / this.globalCycles) * 100.0;
+       }
 
+       public java.util.List<Double> getUtilizationHistory() {
+           return utilizationHistory;
+       }
+       
     /**
      * Obtener el proceso que está corriendo actualmente
      *
