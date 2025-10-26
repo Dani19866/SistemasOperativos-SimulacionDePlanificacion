@@ -475,6 +475,53 @@ public class OS {
         }
         return snapshot;
     }
+    
+    
+    /** Cuenta la cantidad de procesos CPU-Bound y I/O-Bound en todas las colas.
+    * @return Un array int[2] donde [0] es CPU-Bound y [1] es I/O-Bound.
+    */
+    public int[] countProcessTypes() {
+        int cpuBoundCount = 0;
+        int ioBoundCount = 0;
+
+        // Una lista temporal para agregar todos los procesos del sistema
+        java.util.List<Process> allProcesses = new java.util.ArrayList<>();
+
+        // 1. Procesos en colas de memoria principal
+        allProcesses.addAll(getReadyQueueSnapshot());        // Listos
+        allProcesses.addAll(getBlockedQueueSnapshot());       // Bloqueados
+        //allProcesses.addAll(getOutProcessSnapshot());       // Finalizados (puedes incluirlos o no, depende si quieres el historial completo o solo los activos)
+
+        // 2. Procesos en colas de disco (Suspended)
+        allProcesses.addAll(getReadySuspendedQueueSnapshot());
+        allProcesses.addAll(getBlockedSuspendedQueueSnapshot());
+
+        // 3. Procesos nuevos (aún no admitidos)
+        // El scheduler tiene una cola newProcess que es Queue<Process>.
+        // Necesitas un método getNewProcessQueueSnapshot() o hacer el recorrido aquí.
+        Node<Process> actualNew = this.scheduler.newProcess.getFirstNode();
+        while (actualNew != null) {
+            allProcesses.add(actualNew.getData());
+            actualNew = actualNew.getNext();
+        }
+
+        // 4. Proceso corriendo en CPU
+        if (this.cpu.getRunningProcess() != null) {
+            allProcesses.add(this.cpu.getRunningProcess());
+        }
+
+        // 5. Contar los tipos
+        for (Process p : allProcesses) {
+            if (p.getPCB().getProcessType() == structures.ProcessType.CPU_BOUND) {
+                cpuBoundCount++;
+            } else if (p.getPCB().getProcessType() == structures.ProcessType.IO_BOUND) {
+                ioBoundCount++;
+            }
+        }
+
+        // [0] = CPU-Bound, [1] = I/O-Bound
+        return new int[]{cpuBoundCount, ioBoundCount};
+    }
    
    
 }

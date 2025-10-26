@@ -25,6 +25,7 @@ import structures.ProcessType;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.data.general.DefaultPieDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
@@ -43,17 +44,27 @@ public class PanelPrincipal extends javax.swing.JFrame implements SimulationList
     private DefaultListModel<String> modeloListaSupendido = new DefaultListModel<>();
     private DefaultListModel<String> modeloBloqueadoSupendido = new DefaultListModel<>();
     
-
+    // Para Grafico de CPU
     private XYSeries utilizationSeries;
     private ChartPanel chartPanel;
     private JFreeChart utilizationChart;
-    /**
-     * Creates new form PanelPrincipal
-     */
+   
+    // Pata Grafico de Procesos 
+    private DefaultPieDataset processTypeDataset;
+    private JFreeChart processTypeChart;
+    private ChartPanel processTypeChartPanel; 
+
+    // Contadores
+    private int cpuBoundCount = 0;
+    private int ioBoundCount = 0;
+
+    
     public PanelPrincipal(OS os) { 
         initComponents();
         this.os = os;
         this.setVisible(true);
+        
+        // Para Grafico de CPU
         utilizationSeries = new XYSeries("Utilidad de CPU");
         XYSeriesCollection dataset = new XYSeriesCollection();
         dataset.addSeries(utilizationSeries);utilizationChart = ChartFactory.createXYLineChart(
@@ -65,11 +76,28 @@ public class PanelPrincipal extends javax.swing.JFrame implements SimulationList
         chartPanel = new ChartPanel(utilizationChart);
         chartPanel.setPreferredSize(new java.awt.Dimension(500, 300));
         
-        colaListos.setModel(modeloListaListos);
-        colaBloqueados.setModel(modeloListaBloqueados);
-        colaFinalizados.setModel(modeloListaTerminados);
-        colaSuspendidosB.setModel(modeloBloqueadoSupendido);
-        colaSuspendidosL.setModel(modeloListaSupendido);
+            colaListos.setModel(modeloListaListos);
+            colaBloqueados.setModel(modeloListaBloqueados);
+            colaFinalizados.setModel(modeloListaTerminados);
+            colaSuspendidosB.setModel(modeloBloqueadoSupendido);
+            colaSuspendidosL.setModel(modeloListaSupendido);
+
+         processTypeDataset = new DefaultPieDataset();
+        
+        processTypeDataset.setValue("CPU-Bound", 0.0); 
+        processTypeDataset.setValue("I/O-Bound", 0.0);
+
+        processTypeChart = ChartFactory.createPieChart(
+            "Composición de Procesos Cargados", // Título
+            processTypeDataset,             // Datos
+            true,                           // Incluir leyenda
+            true,                           // Incluir tooltips
+            false                           // Incluir URLs
+        );
+    
+    // Crear el panel de la gráfica
+    processTypeChartPanel = new ChartPanel(processTypeChart);
+    processTypeChartPanel.setPreferredSize(new java.awt.Dimension(350, 300));
         
         this.os.addSimulationListener(this);
         
@@ -150,6 +178,9 @@ public class PanelPrincipal extends javax.swing.JFrame implements SimulationList
         Listo2 = new javax.swing.JLabel();
         Listo3 = new javax.swing.JLabel();
         MostrarGrafica = new javax.swing.JButton();
+        MostrarGrafica2 = new javax.swing.JButton();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(245, 247, 250));
@@ -342,7 +373,7 @@ public class PanelPrincipal extends javax.swing.JFrame implements SimulationList
         Listo1.setFont(new java.awt.Font("Dialog", 3, 14)); // NOI18N
         Listo1.setForeground(new java.awt.Color(102, 102, 102));
         Listo1.setText("Procesos en Ejecucion ");
-        jPanel4.add(Listo1, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 330, -1, -1));
+        jPanel4.add(Listo1, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 340, -1, -1));
 
         colaFinalizados.setModel(new javax.swing.AbstractListModel<String>() {
             String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
@@ -397,13 +428,30 @@ public class PanelPrincipal extends javax.swing.JFrame implements SimulationList
         Listo3.setText("Suspendidos Listos");
         jPanel4.add(Listo3, new org.netbeans.lib.awtextra.AbsoluteConstraints(900, 10, -1, -1));
 
-        MostrarGrafica.setText("Mostrar Graficas");
+        MostrarGrafica.setText("Mostrar Grafica");
         MostrarGrafica.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 MostrarGraficaActionPerformed(evt);
             }
         });
-        jPanel4.add(MostrarGrafica, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 290, 220, -1));
+        jPanel4.add(MostrarGrafica, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 300, 220, -1));
+
+        MostrarGrafica2.setText("Mostrar Grafica");
+        MostrarGrafica2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                MostrarGrafica2ActionPerformed(evt);
+            }
+        });
+        jPanel4.add(MostrarGrafica2, new org.netbeans.lib.awtextra.AbsoluteConstraints(540, 300, 210, -1));
+
+        jLabel2.setForeground(new java.awt.Color(0, 0, 0));
+        jLabel2.setText("Uso de la CPU");
+        jPanel4.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 300, 90, 20));
+
+        jLabel4.setBackground(new java.awt.Color(0, 0, 0));
+        jLabel4.setForeground(new java.awt.Color(0, 0, 0));
+        jLabel4.setText("Procesos Cargados");
+        jPanel4.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 300, -1, 20));
 
         jPanel3.add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(-10, 280, 1120, 510));
 
@@ -485,6 +533,27 @@ public class PanelPrincipal extends javax.swing.JFrame implements SimulationList
            
            }
     
+    public void updateProcessTypeChart() {
+    // 1. Obtener el conteo del OS
+    int[] counts = os.countProcessTypes(); 
+    int cpuBoundCount = counts[0];
+    int ioBoundCount = counts[1];
+    int totalCount = cpuBoundCount + ioBoundCount;
+
+        // 3. Calcular porcentajes y actualizar el dataset
+       processTypeDataset.setValue("CPU-Bound", cpuBoundCount);
+       processTypeDataset.setValue("I/O-Bound", ioBoundCount);
+       org.jfree.chart.plot.PiePlot plot = (org.jfree.chart.plot.PiePlot) processTypeChart.getPlot();
+       
+       plot.setLegendLabelGenerator(new org.jfree.chart.labels.StandardPieSectionLabelGenerator(
+        "{0} ({1} | {2})", 
+        new java.text.DecimalFormat("0"), // Formato para el conteo
+        new java.text.DecimalFormat("0.0%") // Formato para el porcentaje
+    ));
+
+    // 4. Actualizar el título
+    processTypeChart.setTitle("Composición de Procesos Cargados (Total: " + totalCount + ")");
+    }   
     /**
     * 
     *
@@ -836,6 +905,22 @@ public class PanelPrincipal extends javax.swing.JFrame implements SimulationList
 
     }//GEN-LAST:event_MostrarGraficaActionPerformed
 
+    private void MostrarGrafica2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MostrarGrafica2ActionPerformed
+       updateProcessTypeChart(); 
+    
+        if (processTypeChartPanel.getParent() != null) {
+            processTypeChartPanel.getParent().remove(processTypeChartPanel);
+        }
+
+        javax.swing.JFrame frameComposicion = new javax.swing.JFrame("Composición de Procesos");
+        frameComposicion.getContentPane().setLayout(new java.awt.BorderLayout());
+        frameComposicion.getContentPane().add(processTypeChartPanel, java.awt.BorderLayout.CENTER);
+
+        frameComposicion.pack();
+        frameComposicion.setSize(500, 400); 
+        frameComposicion.setVisible(true);
+    }//GEN-LAST:event_MostrarGrafica2ActionPerformed
+
     
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -851,6 +936,7 @@ public class PanelPrincipal extends javax.swing.JFrame implements SimulationList
     private javax.swing.JLabel Listo2;
     private javax.swing.JLabel Listo3;
     private javax.swing.JButton MostrarGrafica;
+    private javax.swing.JButton MostrarGrafica2;
     private javax.swing.JTextField NombreProceso;
     private javax.swing.JComboBox<String> PoliticaName;
     private javax.swing.JSpinner Spinnerciclo;
@@ -868,7 +954,9 @@ public class PanelPrincipal extends javax.swing.JFrame implements SimulationList
     private javax.swing.JList<String> colaSuspendidosL;
     private javax.swing.JLabel instrucciones;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
